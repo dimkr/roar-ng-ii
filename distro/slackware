@@ -1,5 +1,5 @@
 # set the distribution version
-current_distro_version="current"
+set_current_distro_version "current"
 
 # determine whether to use "slackware" or "slackware64"
 suffix=""
@@ -10,14 +10,14 @@ case $(get_current_distro_arch) in
 esac
 
 # repositories - package list URL|repository name
-REPOSITORIES="ftp://ftp.osuosl.org/pub/slackware/slackware$suffix-$current_distro_version/patches/PACKAGES.TXT|slackware-patches
-              ftp://ftp.osuosl.org/pub/slackware/slackware$suffix-$current_distro_version/PACKAGES.TXT|slackware-main"
+REPOSITORIES="ftp://ftp.osuosl.org/pub/slackware/slackware$suffix-$(get_current_distro_version)/patches/PACKAGES.TXT|slackware-patches
+              ftp://ftp.osuosl.org/pub/slackware/slackware$suffix-$(get_current_distro_version)/PACKAGES.TXT|slackware-main"
 
 # package download mirrors
-MIRRORS="ftp://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$current_distro_version|slackware-main,slackware-patches
-         ftp://ftp.fu-berlin.de/unix/linux/mirrors/slackware/slackware$suffix-$current_distro_version|slackware-main,slackware-patches
-         http://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$current_distro_version|slackware-main,slackware-patches
-         http://slackware.mirrors.tds.net/pub/slackware/slackware$suffix-$current_distro_version|slackware-main,slackware-patches"
+MIRRORS="ftp://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches
+         ftp://ftp.fu-berlin.de/unix/linux/mirrors/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches
+         http://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches
+         http://slackware.mirrors.tds.net/pub/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches"
 
 # get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames
@@ -53,69 +53,84 @@ download_package_list() {
 # output : a package list in roar-ng's format
 convert_package_list() {
 	awk -v repo="$2" -F ":" '
+
 	# trims the beginning of a string
-	function trimB(s) {
+	function trim(s) {
 		sub(/^ */, "", s);
 		return s
 	}
-	function printPkg() {
+
+	# prints a package list entry
+	function print_entry() {
 		# split the name by "-"
-		namelen = split(filename, namearr, "-");
+		name_items = split(file_name, name, "-");
+
 		# check if there are enough fields
-		if( 3 < namelen ) {
-			# strip .t(gz|xz)
-			sub(/\..*/, "", namearr[namelen]);
-			pkgrev = namearr[namelen];
+		if (3 < name_items) {
+			# strip the extension
+			sub(/\..*/, "", name[name_items]);
+			revision = name[name_items];
+			
 			# filter the version
-			pkgver = namearr[namelen - 2];
+			version = name[name_items - 2];
+
 			# filter the architecture
-			pkgarch = namearr[namelen - 1];
+			arch = name[name_items - 1];
+
 			# add the rest of the fields to the package name and
 			# remove the "-" at the beginning
-			for (i = 1; namelen - 2 > i; i++) {
-				pkgname = pkgname"-"namearr[i]
+			for (i = 1; name_items - 2 > i; i++) {
+				package_name = package_name"-"name[i]
 			}
-			sub(/^-/, "", pkgname)
+			sub(/^-/, "", package_name)
 			printf("%s|%s|%s|%s|%s/%s|%s|%s\n",
-			       pkgname,
-			       pkgver,
-			       pkgrev,
-			       pkgarch,
-			       pkgpath,
-			       filename,
-			       pkgdesc,
+			       package_name,
+			       version,
+			       revision,
+			       arch,
+			       path,
+			       file_name,
+			       description,
 			       repo)
 		}
-		pkgname = "";
-		pkgver = "";
-		pkgrev = "";
-		pkgpath = "";
-		filename = "";
-		pkgdesc = "";
+		package_name = "";
+		version = "";
+		revision = "";
+		path = "";
+		file_name = "";
+		description = "";
 	}
 	{
 		if ($1 == "PACKAGE NAME") {
-			filename = trimB($2);
+			file_name = trim($2);
 		}
+
 		if ($1 == "PACKAGE LOCATION") {
-			pkgpath = trimB($2);
+			path = trim($2);
 			# trim and strip "./"
-			sub(/^\.\//, "", pkgpath)
+			sub(/^\.\//, "", path)
+	
 		}
+
 		if ($1 == "PACKAGE DESCRIPTION") {
-			getline pkgdesc;
-			sub(/[^:]*:/, "", pkgdesc);
-			pkgdesc = trimB(pkgdesc)
+			getline description;
+			description = trim(description);
+			sub(/[^:]*:/, "", description);
+	
+			# strip the package name and the surrounding parentheses
+			sub(/.*\(/, "", description);
+			sub(/\)$/, "", description);
+
 		}
 		# when the empty line separator is reached, print the current
 		# entry
-		if ($0 == "" && filename != "") {
-			printPkg()
+		if ("" == $0 && "" != file_name) {
+			print_entry()
 		}
 	} END {
 		# when the end of the file is reached, print the current entry
-		if (filename != "") {
-			printPkg()
+		if ("" != file_name) {
+			print_entry()
 		}
 	}' "$1"
 }

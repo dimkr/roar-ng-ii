@@ -76,6 +76,14 @@ get_current_distro_version() {
 	echo "$current_distro_version"
 }
 
+# set_current_distro_version()
+# purpose: sets the current distribution's version
+# input  : the current distribution's version
+# output : -
+set_current_distro_version() {
+	current_distro_version="$1"
+}
+
 # get_current_distro_arch()
 # purpose: retrieves the current distribution's architecture
 # input  : -
@@ -343,30 +351,62 @@ download_file() {
 	return 0
 }
 
+# decompress_file()
+# purpose: decompresses compressed files
+# input  : a compressed file
+# output : -
+decompress_file() {
+	# get the archive's MIME type
+	file_type="$(file -bi "$1")"
+	file_type="${file_type%%;*}"
+
+	# choose the decompression tool
+	case "$file_type" in
+		application/x-gzip)
+			tool="gzip"
+			;;
+		application/x-bzip2)
+			tool="bzip2"
+			;;
+		application/x-xz)
+			tool="xz"
+			;;
+		*)
+			tool=""
+	esac
+
+	# if the file is unrecognized, do nothing
+	[ -z "$tool" ] && return 0
+
+	# otherwise, create a temporary file
+	decompressed_file="$(mktemp -u)"
+
+	# decompress the file
+	$tool -c -d "$1" > $decompressed_file
+	if [ 0 -ne $? ]
+	then
+		rm -f $decompressed_file
+		return 1
+	fi
+
+	# override the file with the decompressed one
+	mv -f $decompressed_file "$1"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
 # extract_tar()
 # purpose: extracts a tar archive
 # input  : the archive path and a destination directory
 # output : -
 extract_tar() {
-	# get the archive's MIME type
-	file_type="$(file -bi "$1")"
-	file_type="${file_type%%;*}"
-
-	# choose the flag to pass to tar
-	case "$file_type" in
-		application/x-gzip)
-			flag="z"
-			;;
-		application/x-bzip2)
-			flag="j"
-			;;
-		application/x-xz)
-			flag="J"
-			;;
-	esac
+	# check whether the tar archive is compressed - if yes, decompress it
+	decompress_file "$1"
+	[ 0 -ne $? ] && return 1
 
 	# extract the archive
-	tar -x${flag}f "$1" -C "$2"
+	tar -xf "$1" -C "$2"
 	[ 0 -ne $? ] && return 1
 
 	return 0
