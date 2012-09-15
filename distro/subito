@@ -1,0 +1,51 @@
+# set the distribution version
+current_distro_version="2"
+
+# repositories - package list URL|repository name
+REPOSITORIES="http://www.dimakrasner.com/subito/$(get_current_distro_arch)/subito-$current_distro_version|subito-official"
+
+# package download mirrors
+MIRRORS="http://www.dimakrasner.com/subito/$(get_current_distro_arch)|subito-official"
+
+# get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+get_architecture_aliases() {
+	case "$1" in
+		x86_64|amd64)
+			echo "x86_64"
+			;;
+		x86|i?86)
+			echo "i686"
+			;;
+	esac
+}
+
+# download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+download_package_list() {
+	download_file "$1" "$2"
+	return $?
+}
+
+# convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+convert_package_list() {
+	cat "$1"
+}
+
+# extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+extract_package() {
+	# extract the package
+	extract_tar "$1" "$2"
+	[ 0 -ne $? ] && return 1
+	return 0
+}

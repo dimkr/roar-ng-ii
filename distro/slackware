@@ -1,0 +1,146 @@
+# set the distribution version
+current_distro_version="current"
+
+# determine whether to use "slackware" or "slackware64"
+suffix=""
+case $(get_current_distro_arch) in
+	*64)
+		suffix="64"
+		;;
+esac
+
+# repositories - package list URL|repository name
+REPOSITORIES="ftp://ftp.osuosl.org/pub/slackware/slackware$suffix-$current_distro_version/patches/PACKAGES.TXT|slackware-patches
+              ftp://ftp.osuosl.org/pub/slackware/slackware$suffix-$current_distro_version/PACKAGES.TXT|slackware-main"
+
+# package download mirrors
+MIRRORS="ftp://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$current_distro_version|slackware-main,slackware-patches
+         ftp://ftp.fu-berlin.de/unix/linux/mirrors/slackware/slackware$suffix-$current_distro_version|slackware-main,slackware-patches
+         http://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$current_distro_version|slackware-main,slackware-patches
+         http://slackware.mirrors.tds.net/pub/slackware/slackware$suffix-$current_distro_version|slackware-main,slackware-patches"
+
+# get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+get_architecture_aliases() {
+	result=""
+
+	case "$1" in
+		x86_64|amd64)
+			result="x86_64 x86"
+			;;
+		x86|i?86)
+			result="i486 x86"
+			;;
+	esac
+
+	echo "$result noarch"
+}
+
+# download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+download_package_list() {
+	download_file "$1" "$2"
+	return $?
+}
+
+# convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+convert_package_list() {
+	awk -v repo="$2" -F ":" '
+	# trims the beginning of a string
+	function trimB(s) {
+		sub(/^ */, "", s);
+		return s
+	}
+	function printPkg() {
+		# split the name by "-"
+		namelen = split(filename, namearr, "-");
+		# check if there are enough fields
+		if( 3 < namelen ) {
+			# strip .t(gz|xz)
+			sub(/\..*/, "", namearr[namelen]);
+			pkgrev = namearr[namelen];
+			# filter the version
+			pkgver = namearr[namelen - 2];
+			# filter the architecture
+			pkgarch = namearr[namelen - 1];
+			# add the rest of the fields to the package name and
+			# remove the "-" at the beginning
+			for (i = 1; namelen - 2 > i; i++) {
+				pkgname = pkgname"-"namearr[i]
+			}
+			sub(/^-/, "", pkgname)
+			printf("%s|%s|%s|%s|%s/%s|%s|%s\n",
+			       pkgname,
+			       pkgver,
+			       pkgrev,
+			       pkgarch,
+			       pkgpath,
+			       filename,
+			       pkgdesc,
+			       repo)
+		}
+		pkgname = "";
+		pkgver = "";
+		pkgrev = "";
+		pkgpath = "";
+		filename = "";
+		pkgdesc = "";
+	}
+	{
+		if ($1 == "PACKAGE NAME") {
+			filename = trimB($2);
+		}
+		if ($1 == "PACKAGE LOCATION") {
+			pkgpath = trimB($2);
+			# trim and strip "./"
+			sub(/^\.\//, "", pkgpath)
+		}
+		if ($1 == "PACKAGE DESCRIPTION") {
+			getline pkgdesc;
+			sub(/[^:]*:/, "", pkgdesc);
+			pkgdesc = trimB(pkgdesc)
+		}
+		# when the empty line separator is reached, print the current
+		# entry
+		if ($0 == "" && filename != "") {
+			printPkg()
+		}
+	} END {
+		# when the end of the file is reached, print the current entry
+		if (filename != "") {
+			printPkg()
+		}
+	}' "$1"
+}
+
+# extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+extract_package() {
+	# extract the package
+	extract_tar "$1" "$2"
+	[ 0 -ne $? ] && return 1
+
+	# if a post-installation script exists, run it
+	if [ -f "$2/install/doinst.sh" ]
+	then
+		base_dir="$(pwd)"
+		cd "$2"
+		chmod 755 ./install/doinst.sh
+		./install/doinst.sh
+		cd "$base_dir"
+	fi
+
+	# remove the package metadata
+	rm -rf "$2/install"
+
+	return 0
+}
