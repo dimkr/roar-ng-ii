@@ -1,5 +1,5 @@
 # set the distribution version
-set_(get_current_distro_version) "2"
+set_current_distro_version "2"
 
 # repositories - package list URL|repository name
 REPOSITORIES="http://www.dimakrasner.com/subito/$(get_current_distro_arch)/subito-$(get_current_distro_version)|subito-official"
