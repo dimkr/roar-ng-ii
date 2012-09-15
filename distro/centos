@@ -1,0 +1,167 @@
+# set the distribution version
+set_current_distro_version "6"
+
+# the relative path to repomd.xml, the repository index
+REPOMD_PATH="repodata/repomd.xml"
+
+# part of the package list file name
+PACKAGE_LIST_NAME="primary.xml"
+
+# repositories - package list URL|repository name; repositories are specified
+# via their base path; this directory contains repodata/repomd.xml, with
+# contains the variable name of the actual package list; see
+# download_package_list
+REPOSITORIES="http://centos.spd.co.il/$(get_current_distro_version)/updates/$(get_current_distro_arch)|centos-updates
+              http://centos.spd.co.il/$(get_current_distro_version)/os/$(get_current_distro_arch)|centos-os"
+
+# package download mirrors - more at http://www.centos.org/modules/tinycontent/index.php?id=30
+MIRRORS="http://centos.arcticnetwork.ca/$(get_current_distro_version)/os/$(get_current_distro_arch)|centos-os
+         http://centos.arcticnetwork.ca/$(get_current_distro_version)/updates/$(get_current_distro_arch)|centos-updates
+         http://centos.fis.uniroma2.it/$(get_current_distro_version)/os/$(get_current_distro_arch)|centos-os
+         http://centos.fis.uniroma2.it/$(get_current_distro_version)/updates/$(get_current_distro_arch)|centos-updates"
+
+# get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+get_architecture_aliases() {
+	case "$1" in
+		x86_64|amd64)
+			echo "x86_64 noarch i686"
+			;;
+		x86|i?86)
+			echo "i686 noarch"
+			;;
+	esac
+}
+
+# download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+download_package_list() {
+	# create a temporary file
+	repomd="$(mktemp -u)"
+
+	# download repomd.xml
+	download_file "$1/$REPOMD_PATH" "$repomd"
+	[ 0 -ne $? ] && return 1
+
+	# filter the package list file name
+	package_list_file_name="$(grep $PACKAGE_LIST_NAME $repomd | \
+	                          cut -f 2 -d \")"
+	
+	# clean up
+	rm -f $repomd
+
+	# if the package list was not found, report error
+	[ -z "$package_list_file_name" ] && return 1
+
+	# download the package list
+	download_file "$1/$package_list_file_name" "$2"
+	[ 0 -ne $? ] && return 1
+
+	# decompress the package list
+	decompress_file "$2"
+	return $?
+}
+
+# convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+convert_package_list() {
+	awk -v repo="$2" '
+	BEGIN {
+		RS = "<"
+	}
+
+	# prints a package entry
+	function print_entry() {
+		if ("" != name) {
+			printf("%s|%s|%s|%s|%s|%s|%s\n",
+			       name,
+			       version,
+			       revision,
+			       arch,
+			       file_name,
+			       description,
+			       repo)
+		}
+	}
+	
+	{
+		if ($1 ~ "^name") {
+			sub(/^name>/, "", $0);
+			name = $0
+		} else {
+			if ($1 ~ "^arch") {
+				sub(/^arch>/, "", $0);
+				arch = $0
+			} else {
+				if ("version" == $1) {
+					for (i = 2; NF >= i; i++) {
+						value = $i
+
+						# remove the attribute name and 
+						# the "="
+						sub(/.*=\"/, "", value);
+	
+						# remove the trailing "\"/"
+						sub(/\".*/, "", value);
+
+						if ($i ~ "^ver") {
+							version = value
+						} else {
+							if ($i ~ "^rel") {
+								revision = value
+							}
+						}
+					
+					}
+				} else {
+					if ("location" == $1) {
+						# remove the "href=\""
+						sub(/.*href=\"/, "", $2);
+			
+						# remove the trailing quotes and
+						# everything afterwards
+						sub(/\".*/, "", $2);
+	
+						file_name = $2
+					} else {
+						if ($1 ~ "^summary") {
+							# strip the closing tag
+							sub(/^summary>/,
+							    "",
+							    $0);
+							description = $0
+						} else {
+							if ("/package>" == $1) {
+								print_entry()
+							}
+						}
+					}
+				}
+			}
+		}
+	}' "$1"
+}
+	
+# extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+extract_package() {
+	# get the current directory
+	base_dir="$(pwd)"
+
+	# extract the package
+	cd "$2"
+	rpm2cpio "$1" | cpio -id
+	exit_code=$?
+	cd "$base_dir"
+
+	[ 0 -ne $exit_code ] && return 1
+	return 0
+}
