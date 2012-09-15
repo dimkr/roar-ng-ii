@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # the usage message
-USAGE="Usage: roar-ng {setup,download}
+USAGE="Usage: roar-ng {setup|download|extract}
 Build a GNU/Linux distribution.
 "
 
@@ -13,10 +13,16 @@ then
 	VAR_PREFIX="/var/roar-ng"
 	[ ! -d $VAR_PREFIX ] && mkdir $VAR_PREFIX
 else
+	# otherwise, if it doesn't exist, assume roar-ng runs from the sources
+	# directory
 	. ./roar-ng.conf
 	INSTALL_PREFIX="$(pwd)"
 	VAR_PREFIX="$INSTALL_PREFIX"
 fi
+
+####################
+# global variables #
+####################
 
 # the current distribution
 current_distro="default"
@@ -202,6 +208,15 @@ get_package_path() {
 	echo "$1" | cut -f 5 -d \|
 }
 
+# get_package_file_name()
+# purpose: returns a package's base file name
+# input  : a package entry
+# output : the package base file name
+get_package_file_name() {
+	package_path="$(get_package_path "$1")"
+	echo "${package_path##*/}"
+}
+
 # get_package_repository()
 # purpose: returns a package's repository
 # input  : a package entry
@@ -378,6 +393,30 @@ get_used_distros() {
 	get_package_list | cut -f 1 -d \| | sort | uniq
 }
 
+# get_meta_package_name()
+# purpose: returns the name field of a meta-package entry
+# input  : a meta-package entry
+# output : the meta package name
+get_meta_package_name() {
+	echo "$1" | cut -f 2 -d \|
+}
+
+# get_meta_package_distro()
+# purpose: returns the distribution field of a meta-package entry
+# input  : a meta-package entry
+# output : the meta-package's distribution
+get_meta_package_distro() {
+	echo "${1%%|*}"
+}
+
+# get_meta_package_packages()
+# purpose: lists the packages contained in a meta-package
+# input  : a meta-package entry
+# output : a list of the packages contained within the meta-package
+get_meta_package_packages() {
+	echo "$1" | cut -f 3 -d \| | sed s/,/\ /g
+}
+
 ##################
 # implementation #
 ##################
@@ -410,11 +449,8 @@ download_package() {
 	package_entry="$(get_package_entry $1)"
 	[ -z "$package_entry" ] && return 1
 
-	# get the package path within a repository
-	package_path="$(get_package_path "$package_entry")"
-
 	# filter the package's base file name
-	package_file_name="${package_path##*/}"
+	package_file_name="$(get_package_file_name "$package_entry")"
 
 	# if the package exists already, do nothing
 	[ -f $VAR_PREFIX/package/$package_file_name ] && return 0
@@ -461,8 +497,8 @@ download_packages() {
 	# packages
 	get_package_list | while read entry
 	do
-		packages="$(echo $entry | cut -f 3 -d \| | sed s/,/\ /g)"
-		distribution="${entry%%|*}"
+		packages="$(get_meta_package_packages "$entry")"
+		distribution="$(get_meta_package_distro "$entry")"
 
 		# set the current distribution
 		set_current_distro $distribution $DISTRO_ARCH
@@ -479,6 +515,57 @@ download_packages() {
 	return 0
 }
 
+# extract_packages()
+# purpose: a wrapper around extract_package() which extracts all packages
+#          downloaded by download_packages()
+# input  : -
+# output : -
+extract_packages() {
+	get_package_list | while read entry
+	do
+		# get the meta-package name
+		name="$(get_meta_package_name "$entry")"
+
+		echo "$name"
+
+		# get the meta-package's source distribution and the packages
+		# contained in it
+		packages="$(get_meta_package_packages "$entry")"
+		distribution="$(get_meta_package_distro "$entry")"
+
+		# set the current distribution
+		set_current_distro $distribution $DISTRO_ARCH
+
+		# make sure the output directory is empty
+		if [ -d $VAR_PREFIX/extracted_package/$name ]
+		then
+			rm -rf $VAR_PREFIX/extracted_package/$name/*
+		else
+			mkdir -p $VAR_PREFIX/extracted_package/$name
+		fi
+
+		# extract all packages
+		for package in $packages
+		do
+			echo "  $package"
+
+			# locate the package
+			entry="$(get_package_entry $package)"
+			[ -z "$entry" ] && return 1
+
+			# filter the package base file name
+			file_name="$(get_package_file_name "$entry")"
+
+			# extract the package
+			extract_package $VAR_PREFIX/package/$file_name \
+			                $VAR_PREFIX/extracted_package/$name
+			[ 0 -ne $? ] && return 1
+		done
+	done
+
+	return 0
+}
+
 case "$1" in
 	setup)
 		process_used_distro_repositories
@@ -487,6 +574,11 @@ case "$1" in
 
 	download)
 		download_packages
+		exit $?
+		;;
+
+	extract)
+		extract_packages
 		exit $?
 		;;
 
