@@ -1,0 +1,148 @@
+# set the distribution version
+set_current_distro_version "stable"
+
+# the name of the tar archive containing files, within DEB packages
+FILES_TARBALL_NAME="data.tar"
+
+# repositories - package list URL|repository name
+REPOSITORIES="http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|debian-main
+              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/contrib/binary-$(get_current_distro_arch)/Packages.bz2|debian-contrib
+              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/non-free/binary-$(get_current_distro_arch)/Packages.bz2|debian-non_free"
+
+# package download mirrors - more at http://www.debian.org/mirror/list
+MIRRORS="http://mirror.csclub.uwaterloo.ca/debian|debian-main,debian-contrib,debian-nonfree
+         http://http.us.debian.org/debian|debian-main,debian-contrib,debian-nonfree
+         http://debian.lcs.mit.edu/debian|debian-main,debian-contrib,debian-nonfree
+         http://ftp.iinet.net.au/debian/debian|debian-main,debian-contrib,debian-nonfree"
+
+
+# get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+get_architecture_aliases() {
+	result=""
+
+	case "$1" in
+		x86_64|amd64)
+			result="amd64"
+			;;
+		x86|i?86)
+			result="i686"
+			;;
+		arm7|armv7)
+			result="armhf"
+			;;
+		arm*)
+			result="armel"
+			;;
+	esac
+
+	echo "$result $noarch"
+}
+
+# download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+download_package_list() {
+	# download the package list
+	download_file "$1" "$2"
+	[ 0 -ne $? ] && return 1
+
+	# decompress the package list
+	decompress_file "$2"
+	return $?
+}
+
+# convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+convert_package_list() {
+	awk -v repo="$2" -F ": " '
+	function print_entry() {
+		printf("%s|%s|%s|%s|%s|%s|%s\n",
+		       name,
+		       version,
+		       revision,
+		       arch,
+		       file_name,
+		       description,
+		       repo)
+	}
+
+	{
+		if ("Package" == $1) {
+			name = $2
+		} else {
+			if ("Architecture" == $1) {
+				arch = $2
+			} else {
+				if ("Version" == $1) {
+					split($2, version_split, "-");
+					version = version_split[1];
+					revision = version_split[2]
+				} else {
+					if ("Filename" == $1) {
+						file_name = $2
+					} else {
+						if ("Description" == $1) {
+							description = $2
+						} else {
+							if ("" == $0 &&
+							    "" != name) {
+								print_entry();
+								name = "";
+								version = "";
+								revision = "";
+								arch = "";
+								file_name = "";
+								description = ""
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	END {
+		if ("" != name) {
+			print_entry()
+		}
+	}' "$1"
+}
+
+# extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+extract_package() {
+	# get the files archive name
+	files_tarball="$(ar t "$1" | grep $FILES_TARBALL_NAME)"
+	[ 0 -ne $? ] && return 1
+
+	# create a temporary file
+	temp_file="$(mktemp -u)"
+
+	# extract the files archive
+	ar p "$1" $files_tarball > $temp_file
+	[ 0 -ne $? ] && return 1
+
+	# decompress the files archive
+	decompress_file "$temp_file"
+	if [ 0 -ne $? ]
+	then
+		rm -f $temp_file
+		return 1
+	fi
+
+	# extract the files archive
+	extract_tar $temp_file "$2"
+	is_success=$?
+	rm -f $temp_file
+	[ 0 -ne $is_success ] && return 1
+	
+	return 0
+}
