@@ -147,11 +147,10 @@ extract_package() {
 	# if a post-installation script exists, run it
 	if [ -f "$2/install/doinst.sh" ]
 	then
-		base_dir="$(pwd)"
 		cd "$2"
 		chmod 755 ./install/doinst.sh
 		./install/doinst.sh
-		cd "$base_dir"
+		cd "$BASE_DIR"
 	fi
 
 	# remove the package metadata

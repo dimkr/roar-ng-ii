@@ -153,14 +153,11 @@ convert_package_list() {
 # input  : a package path and the destination directory
 # output : -
 extract_package() {
-	# get the current directory
-	base_dir="$(pwd)"
-
 	# extract the package
 	cd "$2"
 	rpm2cpio "$1" | cpio -id
 	exit_code=$?
-	cd "$base_dir"
+	cd "$BASE_DIR"
 
 	[ 0 -ne $exit_code ] && return 1
 	return 0
