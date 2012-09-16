@@ -1,0 +1,16 @@
+# inherit from the CentOS support plug-in
+. ./centos
+
+# set the current distribution version
+set_current_distro_version "17"
+
+# repositories - package list URL|repository name; repositories are specified
+# via their base path; this directory contains repodata/repomd.xml, with
+# contains the variable name of the actual package list; see
+# download_package_list
+REPOSITORIES="http://dl.fedoraproject.org/pub/fedora/linux/updates/$(get_current_distro_version)/$(get_current_distro_arch)|fedora-updates
+              http://dl.fedoraproject.org/pub/fedora/linux/releases/$(get_current_distro_version)/Fedora/$(get_current_distro_arch)/os|fedora-os"
+
+# package download mirrors - more at http://mirrors.fedoraproject.org/publiclist/
+MIRRORS="http://dl.fedoraproject.org/pub/fedora/linux/releases/$(get_current_distro_version)/Fedora/$(get_current_distro_arch)/os|fedora-os
+         http://dl.fedoraproject.org/pub/fedora/linux/updates/$(get_current_distro_version)/$(get_current_distro_arch)|fedora-updates"
