@@ -1,6 +1,3 @@
-# set the distribution version
-set_current_distro_version "stable"
-
 # the name of the tar archive containing files, within DEB packages
 FILES_TARBALL_NAME="data.tar"
 
@@ -15,12 +12,11 @@ MIRRORS="http://mirror.csclub.uwaterloo.ca/debian|debian-main,debian-contrib,deb
          http://debian.lcs.mit.edu/debian|debian-main,debian-contrib,debian-nonfree
          http://ftp.iinet.net.au/debian/debian|debian-main,debian-contrib,debian-nonfree"
 
-
-# get_architecture_aliases()
+# debian_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames
 # input  : an architecture name
 # output : the distribution's names for the architecture, ordered by accuracy
-get_architecture_aliases() {
+debian_get_architecture_aliases() {
 	result=""
 
 	case "$1" in
@@ -28,7 +24,7 @@ get_architecture_aliases() {
 			result="amd64"
 			;;
 		x86|i?86)
-			result="i686"
+			result="i386"
 			;;
 		arm7|armv7)
 			result="armhf"
@@ -41,11 +37,11 @@ get_architecture_aliases() {
 	echo "$result $noarch"
 }
 
-# download_package_list()
+# debian_download_package_list()
 # purpose: downloads the distribution's package list
 # input  : the package list URL and the destination path
 # output : -
-download_package_list() {
+debian_download_package_list() {
 	# download the package list
 	download_file "$1" "$2"
 	[ 0 -ne $? ] && return 1
@@ -55,20 +51,25 @@ download_package_list() {
 	return $?
 }
 
-# convert_package_list()
+# debian_convert_package_list()
 # purpose: converts a repository's package list to roar-ng's common format
 # input  : the package list path and the repository name
 # output : a package list in roar-ng's format
-convert_package_list() {
-	awk -v repo="$2" -F ": " '
+debian_convert_package_list() {
+	awk -v distro="$(get_current_distro)" \
+	    -v distro_version="$(get_current_distro_version)" \
+	    -v repo="$2" \
+	    -F ": " '
 	function print_entry() {
-		printf("%s|%s|%s|%s|%s|%s|%s\n",
+		printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
 		       name,
 		       version,
 		       revision,
 		       arch,
 		       file_name,
 		       description,
+		       distro,
+		       distro_version,
 		       repo)
 	}
 
@@ -114,11 +115,11 @@ convert_package_list() {
 	}' "$1"
 }
 
-# extract_package()
+# debian_extract_package()
 # purpose: extracts a package of the distribution into a directory
 # input  : a package path and the destination directory
 # output : -
-extract_package() {
+debian_extract_package() {
 	# get the files archive name
 	files_tarball="$(ar t "$1" | grep $FILES_TARBALL_NAME)"
 	[ 0 -ne $? ] && return 1
@@ -143,6 +144,6 @@ extract_package() {
 	is_success=$?
 	rm -f $temp_file
 	[ 0 -ne $is_success ] && return 1
-	
+
 	return 0
 }

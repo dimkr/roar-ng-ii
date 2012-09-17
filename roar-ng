@@ -1,13 +1,5 @@
 #!/bin/sh
 
-# the usage message
-USAGE="Usage: roar-ng {setup|download|extract}
-Build a GNU/Linux distribution.
-"
-
-# the current directory
-BASE_DIR="$(pwd)"
-
 # include the roar-ng configuration file
 if [ -f /etc/roar-ng.conf ]
 then
@@ -23,334 +15,36 @@ else
 	VAR_PREFIX="$INSTALL_PREFIX"
 fi
 
-####################
-# global variables #
-####################
+# the usage message
+USAGE="Usage: roar-ng {check|setup|download|extract}
+Build a GNU/Linux distribution.
+"
+# the current directory
+BASE_DIR="$(pwd)"
+
+# the default distribution
+DEFAULT_DISTRO="subito"
+DEFAULT_DISTRO_VERSION="2"
+DEFAULT_DISTRO_ARCH="x86_64"
+
+###########
+# globals #
+###########
 
 # the current distribution
-current_distro="default"
+current_distro="$DEFAULT_DISTRO"
+current_distro_version="$DEFAULT_DISTRO_VERSION"
+current_distro_arch="$DEFAULT_DISTRO_ARCH"
 
-# the current distribution's version
-current_distro_version=1
-
-# the current distribution's architecture
-current_distro_arch="default"
-
-####################################
-# distribution switching functions #
-####################################
-
-# get_current_distro()
-# purpose: retrieves the currently used distribution
-# input  : -
-# output : the currently used distribution's name
-get_current_distro() {
-	echo "$current_distro"
-}
-
-# set_current_distro()
-# purpose: sets the currently used distribution
-# input  : the new distribution name and architecture
-# output : -
-set_current_distro() {
-	# if the new distribution is the current one, do nothing
-	[ "$(get_current_distro)" = "$1" ] && return
-
-	# set the current distribution
-	current_distro="$1"
-
-	# include the distribution support plugin; do this with the distribution
-	# support plug-ins directory as the current directory, to allow
-	# easy inheritence
-	cd "$INSTALL_PREFIX/distro"
-	. ./$1
-
-	# set the distribution architecture
-	current_distro_arch="$(get_architecture_aliases $2)"
-	current_distro_arch="${current_distro_arch%% *}"
-
-	# re-include the distribution's plugin, since it may rely on the current
-	# distribution's parameters (e.g its architecture)
-	. ./$1
-
-	cd "$BASE_DIR"
-}
-
-# get_current_distro_version()
-# purpose: retrieves the current distribution's version
-# input  : -
-# output : the current distribution's version
-get_current_distro_version() {
-	echo "$current_distro_version"
-}
-
-# set_current_distro_version()
-# purpose: sets the current distribution's version
-# input  : the current distribution's version
-# output : -
-set_current_distro_version() {
-	current_distro_version="$1"
-}
-
-# get_current_distro_arch()
-# purpose: retrieves the current distribution's architecture
-# input  : -
-# output : the current distribution's architecture
-get_current_distro_arch() {
-	echo "$current_distro_arch"
-}
-
-################################################
-# distribution information gathering functions #
-################################################
-
-# _get_current_distro_repositories()
-# purpose: retrieves the current distribution's package repositories list
-# input  : -
-# output : the current distribution's package repositories list
-_get_current_distro_repositories() {
-	echo "$REPOSITORIES"
-}
-
-# get_current_distro_repository_names()
-# purpose: retrieves the names of the current distribution's repositories
-# input  : -
-# output : the current distribution's repository names
-get_current_distro_repository_names() {
-	for repository in $(_get_current_distro_repositories)
-	do
-		echo "${repository##*|}"
-	done
-}
-
-# _get_current_distro_mirrors()
-# purpose: retrieves the current distribution's repository mirrors list
-# input  : -
-# output : the current distribution's package repository list
-_get_current_distro_mirrors() {
-	echo "$MIRRORS"
-}
-
-# get_current_distro_mirrors_for_repository()
-# purpose: returns a list of all mirrors for a given repository
-# input  : a repository name
-# output : a list of mirror URLs
-get_current_distro_mirrors_for_repository() {
-	# for each mirror, filter the mirror URL and the list of repositories it
-	# mirrors
-	for mirror in $(_get_current_distro_mirrors)
-	do
-		url="${mirror%%|*}"
-		repositories="${mirror##*|}"
-
-		# if the repository is mirrored, print the mirror URL
-		for repository in $(echo $repositories | sed s/,/\ /g)
-		do
-			[ "$repository" != "$1" ] && continue
-			echo "$url"
-			break
-		done
-	done
-}
-
-# get_current_distro_package_list_url()
-# purpose: returns the URL of a repository
-# input  : a repository name
-# output : the package list URL
-get_current_distro_package_list_url() {
-	for repository in $(_get_current_distro_repositories)
-	do
-		[ "${repository##*|}" != "$1" ] && continue
-		echo "${repository%%|*}"
-		break
-	done
-}
-
-# process_current_distro_repository()
-# purpose: downloads a repository's package list and converts it to the roar-ng
-#          format
-# input  : a repository name
-# output : -
-process_current_distro_repository() {
-	# get the package list URL
-	url="$(get_current_distro_package_list_url $1)"
-	[ -z "$url" ] && return 1
-
-	# create a temporary file
-	temp_file="$(mktemp -u)"
-
-	# download the package list
-	download_package_list "$url" $temp_file
-	if [ 0 -ne $? ]
-	then
-		rm -f $temp_file
-		return 1
-	fi
-
-	# create the repository package lists directory
-	[ ! -d "$VAR_PREFIX/repo" ] && mkdir "$VAR_PREFIX/repo"
-
-	# if cache exists, remove it
-	cache="$(_get_repository_cache_file_name $1)"
-	[ -f "$VAR_PREFIX/repo/$cache" ] && rm -f "$VAR_PREFIX/repo/$cache"
-
-	# convert the package list
-	convert_package_list $temp_file $1 | sort > "$VAR_PREFIX/repo/$1"
-
-	# remove the temporary file
-	rm -f $temp_file
-
-	return 0
-}
-
-#########################
-# package entry parsing #
-#########################
-
-# get_package_arch()
-# purpose: returns a package's architecture
-# input  : a package entry
-# output : the package architecture field
-get_package_arch() {
-	echo "$1" | cut -f 4 -d \|
-
-}
-
-# get_package_path()
-# purpose: returns a package's path within a repository
-# input  : a package entry
-# output : the package path field
-get_package_path() {
-	echo "$1" | cut -f 5 -d \|
-}
-
-# get_package_file_name()
-# purpose: returns a package's base file name
-# input  : a package entry
-# output : the package base file name
-get_package_file_name() {
-	package_path="$(get_package_path "$1")"
-	echo "${package_path##*/}"
-}
-
-# get_package_repository()
-# purpose: returns a package's repository
-# input  : a package entry
-# output : the package repository field
-get_package_repository() {
-	echo "${1##*|}"
-}
-
-##################
-# package search #
-##################
-
-# _get_repository_cache_file_name()
-# purpose: returns the cache file name for a repository
-# input  : the repository name
-# output : the cache file name
-_get_repository_cache_file_name() {
-	echo ".$1.cache"
-}
-
-# _get_package_entries_from_package_list()
-# purpose: searches a package list for package entries, by name and architecture
-# input  : the package list path, the package name and architecture
-# output : matching package entries
-_get_package_entries_from_package_list() {
-	# if the package list does not exist, do nothing
-	[ ! -f "$1" ] && return
-
-	# search the package list - filter entries of the specified architecture
-	grep ^$2\| "$1" | while read entry
-	do
-		[ "$(get_package_arch "$entry")" != "$3" ] && continue
-		echo "$entry"
-	done
-}
-
-# _get_package_entry_from_package_list()
-# purpose: a wrapper around _get_package_entries_from_package_list(), which
-#          selects the most appropriate entry among results
-# input  : see _get_package_entries_from_package_list()
-# output : one package entry, see _get_package_entries_from_package_list()
-_get_package_entry_from_package_list() {
-	_get_package_entries_from_package_list "$1" $2 $3 | tail -n 1
-
-}
-
-# _get_package_entry_from_repository()
-# purpose: searches a repository for package entries, with caching of previous
-#          results; both the cache and the package list itself are searched
-#          using _get_package_entry_from_package_list()
-# input  : the repository to search, the package name and architecture
-# output : matching package entries
-_get_package_entry_from_repository() {
-	# get the cache file name
-	cache="$(_get_repository_cache_file_name $1)"
-
-	# if the cache file exists, search it first
-	result="$(_get_package_entry_from_package_list \
-	                                             "$VAR_PREFIX/repo/$cache" \
-	                                             $2 \
-	                                             $3)"
-
-	# if there is a cache entry, end here
-	if [ -n "$result" ]
-	then
-		echo "$result"
-		return
-	fi
-
-	# otherwise, search the entire package list
-	result="$(_get_package_entry_from_package_list "$VAR_PREFIX/repo/$1" \
-	                                               $2 \
-	                                               $3)"
-
-	# if a match was found, add it to the cache
-	if [ -n "$result" ]
-	then
-		echo "$result" >> "$VAR_PREFIX/repo/$cache"
-		echo "$result"
-	fi
-}
-
-# purpose: a wrapper around get_package_entry_from_repository(), which searches
-#          all repositories of the current distribution
-# input  : a package name
-# output : matching package entries
-get_package_entry() {
-	result=""
-
-	# get the current distribution's architecture
-	architecture_aliases="$(get_architecture_aliases \
-	                        $(get_current_distro_arch))"
-
-	# get the names of the current distribution's repositories
-	repositories="$(get_current_distro_repository_names)"
-
-	# search all repositories, until a match is found; try all the packages
-	# which suit the architecture
-	for repo in $repositories
-	do
-		for alias in $architecture_aliases
-		do
-			result="$(_get_package_entry_from_repository $repo \
-			                                             $1 \
-			                                             $alias)"
-			[ -z "$result" ] && continue
-			echo "$result"
-			return
-		done
-	done
-}
+# the package database file name
+PACKAGE_DB_FILE_NAME="packages.txt"
 
 #####################
 # utility functions #
 #####################
 
 # download_file()
-# purpose: downloads a file
+# purpose: downloads a file to a given path
 # input  : a list of download URLs and the destination path
 # output : -
 download_file() {
@@ -358,6 +52,7 @@ download_file() {
 	wget -O "$2" "$(echo $1 | cut -f 1 -d \ )"
 	[ 0 -ne $? ] && return 1
 	return 0
+
 }
 
 # decompress_file()
@@ -421,9 +116,218 @@ extract_tar() {
 	return 0
 }
 
-########################
-# configuration access #
-########################
+###################################
+# distribution switching routines #
+###################################
+
+# get_current_distro()
+# purpose: returns the current distribution's name
+# input  : -
+# output : the current distribution's name
+get_current_distro() {
+	echo "$current_distro"
+}
+
+# get_current_distro_version()
+# purpose: returns the current distribution's version
+# input  : -
+# output : the current distribution's version
+get_current_distro_version() {
+	echo "$current_distro_version"
+}
+
+# get_current_distro_arch()
+# purpose: returns the current distribution's architecture
+# input  : -
+# output : the current distribution's architecture
+get_current_distro_arch() {
+	echo "$current_distro_arch"
+}
+
+# _load_distro_support_plug_in()
+# purpose: loads a distribution support plug-in
+# input  : the distribution name
+# output : -
+_load_distro_support_plug_in() {
+	cd "$INSTALL_PREFIX/distro"
+	[ ! -f "./$1" ] && return 1
+	. "./$1"
+	cd "$BASE_DIR"
+
+	return 0
+}
+
+# set_current_distro()
+# purpose: changes the current distribution
+# input  : the distribution name, version and architecture
+# output : -
+set_current_distro() {
+	# set the current distribution name and version
+	current_distro="$1"
+	current_distro_version="$2"
+
+	# load the distribution support plug-in
+	_load_distro_support_plug_in "$current_distro"
+	[ 0 -ne $? ] && return 1
+
+	# set the distribution architecture to the most accurate alias
+	current_distro_arch="$(get_architecture_aliases $3)"
+	[ -z "$current_distro_arch" ] && return 1
+	current_distro_arch="${current_distro_arch%% *}"
+
+	# reload the distribution's plugin, since it may rely on the set parameters
+	# (e.g the architecture, in package list URLs)
+	_load_distro_support_plug_in "$current_distro"
+
+	return 0
+}
+
+# get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+get_architecture_aliases() {
+	 $(get_current_distro)_get_architecture_aliases $1
+}
+
+# download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+download_package_list() {
+	$(get_current_distro)_download_package_list "$1" "$2"
+}
+
+# convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+convert_package_list() {
+	$(get_current_distro)_convert_package_list "$1" $2
+}
+
+# extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+extract_package() {
+	$(get_current_distro)_extract_package "$1" "$2"
+}
+
+##############################################
+# distribution information querying routines #
+##############################################
+
+# get_repository_names()
+# purpose: returns all repository names
+# input  : -
+# output : a list of repository names
+get_repository_names() {
+	for repository in $REPOSITORIES
+	do
+		echo "${repository##*|}"
+	done
+}
+
+# get_repository_package_list_url()
+# purpose: returns the package list URL for a given repository
+# input  : a repository name
+# output : the repository's package list URL
+get_repository_package_list_url() {
+	for repository in $REPOSITORIES
+	do
+		[ "${repository##*|}" != "$1" ] && continue
+		echo "${repository%%|*}"
+		break
+	done
+}
+
+# get_repository_mirrors()
+# purpose: retrieves the mirrors list
+# input  : -
+# output : the repository mirrors list
+get_repository_mirrors() {
+	echo "$MIRRORS"
+}
+
+#############################
+# package database routines #
+#############################
+
+# _get_package_database_path()
+# purpose: returns the path to the package database
+# input  : -
+# output : the package database path
+_get_package_database_path() {
+	echo "$VAR_PREFIX/$PACKAGE_DB_FILE_NAME"
+}
+
+# initialize_package_database()
+# purpose: creates an empty package database
+# input  : -
+# output : -
+initialize_package_database() {
+	# create an empty file
+	echo -n "" > "$(_get_package_database_path)"
+	return 0
+}
+
+# add_entries_to_package_database()
+# purpose: adds package entries to the package database
+# input  : package entries in list format, delimeted by "|" characters
+# output : -
+add_entries_to_package_database() {
+	cat >> "$(_get_package_database_path)"
+}
+
+# get_package_entries()
+# purpose: locates package entries by name, architecture and repository
+# input  : the package name, architecture and repository
+# output : matching package entries
+get_package_entries() {
+	awk -v name="$1" \
+	    -v arch="$2" \
+	    -v repo="$3" \
+	    -v distro_version="$(get_current_distro_version)" \
+	    -F \| '{
+		if (name == $1 && arch == $4 && distro_version == $8 && repo == $9)
+			print
+	}
+	' "$(_get_package_database_path)"
+}
+
+##########################
+# package entry routines #
+##########################
+
+# get_package_path()
+# purpose: returns a package's path within a repository
+# input  : a package entry
+# output : the package path field
+get_package_path() {
+	echo "$1" | cut -f 5 -d \|
+}
+
+# get_package_file_name()
+# purpose: returns a package's base file name
+# input  : a package entry
+# output : the package base file name
+get_package_file_name() {
+	package_path="$(get_package_path "$1")"
+	echo "${package_path##*/}"
+}
+
+# get_package_repository()
+# purpose: returns a package's repository
+# input  : a package entry
+# output : the package repository field
+get_package_repository() {
+	echo "${1##*|}"
+}
+
+#########################
+# package list routines #
+#########################
 
 # get_package_list()
 # purpose: returns the package list
@@ -434,28 +338,20 @@ get_package_list() {
 	echo "$DISTRO_PACKAGES" | grep -v -e ^# -e ^\$ | sort
 }
 
-# get_used_distros()
-# purpose: determines which distributions are used in the package list
-# input  : -
-# output : a list of distributions used in the package list
-get_used_distros() {
-	get_package_list | cut -f 1 -d \| | sort | uniq
-}
-
 # get_meta_package_name()
 # purpose: returns the name field of a meta-package entry
 # input  : a meta-package entry
 # output : the meta package name
 get_meta_package_name() {
-	echo "$1" | cut -f 2 -d \|
+	echo "${1%%|*}"
 }
 
 # get_meta_package_distro()
-# purpose: returns the distribution field of a meta-package entry
-# input  : a meta-package entry
-# output : the meta-package's distribution
+# purpose: receives a meta-package entry and returns the distribution fields
+# input  :  a meta-package entry
+# output : the distribution name, version and architecture
 get_meta_package_distro() {
-	echo "${1%%|*}"
+	echo "$1" | cut -f 3-5 -d \| | sed s/\|/\ /g
 }
 
 # get_meta_package_packages()
@@ -463,18 +359,170 @@ get_meta_package_distro() {
 # input  : a meta-package entry
 # output : a list of the packages contained within the meta-package
 get_meta_package_packages() {
-	echo "$1" | cut -f 3 -d \| | sed s/,/\ /g
+	echo "$1" | cut -f 2 -d \| | sed s/,/\ /g
+}
+
+# get_used_distros()
+# purpose: determines which distributions are used in the package list
+# input  : -
+# output : a list of distributions (name, version and architecture) used in the
+#          package list
+get_used_distros() {
+	# do not use get_meta_package_distro() - invoking both cut and sed is slow
+	get_package_list | awk -F \| '{print $3" "$4" "$5}' | sort | uniq
+}
+
+#########################
+# repository processing #
+#########################
+
+# _add_repository_to_package_database()
+# purpose: downloads a repository's package list and adds all package entries to
+#          the package database
+# input  : the repository name
+# output : -
+_add_repository_to_package_database() {
+	# get the package list URL
+	url="$(get_repository_package_list_url $1)"
+	[ -z "$url" ] && return 1
+
+	# create a temporary file
+	package_list="$(mktemp -u)"
+
+	# download the package list
+	download_package_list "$url" "$package_list"
+	[ 0 -ne $? ] && return 1
+
+	# convert the package list to the common format, then add all entries to
+	# the package database
+	convert_package_list "$package_list" $1	| \
+	sort | \
+	add_entries_to_package_database
+
+	# clean up
+	rm -f "$package_list"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+# _add_distro_to_package_database()
+# purpose: adds all package lists of the current distribution's repositories to
+#          the package database
+# input  : -
+# output : -
+_add_distro_to_package_database() {
+	for repository in $(get_repository_names)
+	do
+		_add_repository_to_package_database $repository
+		[ 0 -ne $? ] && return 1
+	done
+	return 0
+}
+
+# add_distros_to_package_database()
+# purpose: downloads and processes the package lists of all repositories, for
+#          each used distribution
+# input  : -
+# output : -
+add_distros_to_package_database() {
+	# create an empty package database
+	initialize_package_database
+	[ 0 -ne $? ] && return 1
+
+	get_used_distros | while read distro
+	do
+		# set the current distribution
+		set_current_distro $distro
+		[ 0 -ne $? ] && return 1
+
+		echo $distro $(get_current_distro_arch)
+
+		# process the distribution's repositories
+		_add_distro_to_package_database
+		[ 0 -ne $? ] && return 1
+	done
+
+	return 0
 }
 
 ##################
-# implementation #
+# package search #
 ##################
 
-# get_package_download_url()
+# find_package()
+# purpose: the interface for searching the package database; finds the most
+#          appropriate package entry
+# input  : a package name
+# output : the most appropriate entry for the package
+find_package() {
+	repositories="$(get_repository_names)"
+	architectures="$(get_architecture_aliases $(get_current_distro_arch))"
+
+	# try each repository, using all architecture aliases
+	for repository in $repositories
+	do
+		for architecture in $architectures
+		do
+			result="$(get_package_entries $1 \
+			                              $architecture \
+			                              $repository)"
+			[ -z "$result" ] && continue
+			echo "$result" | tail -n 1
+			return
+		done
+	done
+}
+
+###############################
+# configuration sanity checks #
+###############################
+
+# verify_configuration()
+# purpose: verifies that the configuration is sane
+# input  : -
+# output : -
+verify_configuration() {
+	get_used_distros | while read distro
+	do
+		# set the current distribution
+		set_current_distro $distro
+		[ 0 -ne $? ]  && return 1
+	done
+
+	return 0
+}
+
+####################
+# package download #
+####################
+
+# _get_mirrors_for_repository()
+# purpose: returns a list of all mirrors for a given repository
+# input  : a repository name
+# output : a list of mirror URLs
+_get_mirrors_for_repository() {
+	# for each mirror, filter the mirror URL and the list of repositories it
+	# mirrors
+	for mirror in $(get_repository_mirrors)
+	do
+		url="${mirror%%|*}"
+		repositories="${mirror##*|}"
+
+		# if the repository is mirrored, print the mirror URL
+		for repository in $(echo $repositories | sed s/,/\ /g)
+		do
+			[ "$repository" != "$1" ] && continue
+			echo "$url"
+			break
+		done
+	done
+}
+
+# _get_package_download_url()
 # purpose: returns download URLs for a given package
 # input  : a package entry
 # output : download URLs for the package
-get_package_download_url() {
+_get_package_download_url() {
 	# get the package path within a repository
 	package_path="$(get_package_path "$1")"
 
@@ -482,20 +530,19 @@ get_package_download_url() {
 	package_repository="$(get_package_repository "$1")"
 
 	# for each mirror of the package's repository, create a full URL
-	for mirror in $(get_current_distro_mirrors_for_repository \
-	                $package_repository)
+	for mirror in $(_get_mirrors_for_repository $package_repository)
 	do
 		echo "$mirror/$package_path"
 	done
 }
 
 # download_package()
-# purpose: downloads a package of the current distribution
-# input  : a package name
+# purpose: downloads a package
+# input  : the package name
 # output : -
 download_package() {
 	# locate the package entry
-	package_entry="$(get_package_entry $1)"
+	package_entry="$(find_package $1)"
 	[ -z "$package_entry" ] && return 1
 
 	# filter the package's base file name
@@ -506,34 +553,9 @@ download_package() {
 
 	# otherwise, download the package
 	[ ! -d "$VAR_PREFIX/package" ] && mkdir "$VAR_PREFIX/package"
-	download_file "$(get_package_download_url "$package_entry")" \
+	download_file "$(_get_package_download_url "$package_entry")" \
 	              "$VAR_PREFIX/package/$package_file_name"
 	return $?
-}
-
-# process_used_distro_repositories()
-# purpose: downloads and processes the package lists of all repositories of the
-#          distributions used in the package list
-# input  : -
-# output : -
-process_used_distro_repositories() {
-	for distro in $(get_used_distros)
-	do
-		echo "$distro"
-
-		# set the current distribution
-		set_current_distro $distro $DISTRO_ARCH
-
-		# process all repositories
-		for repository in $(get_current_distro_repository_names)
-		do
-			echo "  $repository"
-			process_current_distro_repository $repository
-			[ 0 -ne $? ] && return 1
-		done
-	done
-
-	return 0
 }
 
 # download_packages()
@@ -550,19 +572,24 @@ download_packages() {
 		distribution="$(get_meta_package_distro "$entry")"
 
 		# set the current distribution
-		set_current_distro $distribution $DISTRO_ARCH
-		
+		set_current_distro $distribution
+		[ 0 -ne $? ] && return 1
+
 		# download the packages
 		for package in $packages
 		do
-			echo "$package ($distribution)"
+			echo "$package"
 			download_package $package
 			[ 0 -ne $? ] && return 1
 		done
 	done
-	
+
 	return 0
 }
+
+######################
+# package extraction #
+######################
 
 # extract_packages()
 # purpose: a wrapper around extract_package() which extracts all packages
@@ -583,7 +610,8 @@ extract_packages() {
 		distribution="$(get_meta_package_distro "$entry")"
 
 		# set the current distribution
-		set_current_distro $distribution $DISTRO_ARCH
+		set_current_distro $distribution
+		[ 0 -ne $? ] && return 1
 
 		# make sure the output directory is empty
 		if [ -d "$VAR_PREFIX/extracted_package/$name" ]
@@ -599,7 +627,7 @@ extract_packages() {
 			echo "  $package"
 
 			# locate the package
-			entry="$(get_package_entry $package)"
+			entry="$(find_package $package)"
 			[ -z "$entry" ] && return 1
 
 			# filter the package base file name
@@ -616,8 +644,13 @@ extract_packages() {
 }
 
 case "$1" in
+	check)
+		verify_configuration
+		exit $?
+		;;
+
 	setup)
-		process_used_distro_repositories
+		add_distros_to_package_database
 		exit $?
 		;;
 
@@ -634,5 +667,5 @@ case "$1" in
 	*)
 		echo "$USAGE"
 		exit 1
-
+		;;
 esac

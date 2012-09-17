@@ -1,9 +1,6 @@
 # inherit from the Debian support plug-in
 . ./debian
 
-# set the distribution version
-set_current_distro_version "precise"
-
 # repositories - package list URL|repository name
 REPOSITORIES="http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/main/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_main
               http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/universe/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_universe
@@ -20,3 +17,35 @@ MIRRORS="http://ubuntu.mirror.tudos.de/ubuntu|ubuntu-updates_main,ubuntu-updates
          http://mirror.csclub.uwaterloo.ca/ubuntu|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted
          http://ubuntu.c3sl.ufpr.br/ubuntu|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted
          http://ftp.halifax.rwth-aachen.de/ubuntu|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted"
+
+# ubuntu_get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+ubuntu_get_architecture_aliases() {
+	debian_get_architecture_aliases $1
+}
+
+# ubuntu_download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+ubuntu_download_package_list() {
+	debian_download_package_list "$1" "$2"
+}
+
+# ubuntu_convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+ubuntu_convert_package_list() {
+	debian_convert_package_list "$1" "$2"
+}
+
+# ubuntu_extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+ubuntu_extract_package() {
+	debian_extract_package "$1" "$2"
+}

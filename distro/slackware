@@ -1,6 +1,3 @@
-# set the distribution version
-set_current_distro_version "current"
-
 # determine whether to use "slackware" or "slackware64"
 suffix=""
 case $(get_current_distro_arch) in
@@ -19,40 +16,38 @@ MIRRORS="ftp://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$(get_current_di
          http://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches
          http://slackware.mirrors.tds.net/pub/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches"
 
-# get_architecture_aliases()
+# slackware_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames
 # input  : an architecture name
 # output : the distribution's names for the architecture, ordered by accuracy
-get_architecture_aliases() {
-	result=""
-
+slackware_get_architecture_aliases() {
 	case "$1" in
 		x86_64|amd64)
-			result="x86_64 x86"
+			echo "x86_64 noarch x86"
 			;;
 		x86|i?86)
-			result="i486 x86"
+			echo "i486 noarch x86"
 			;;
 	esac
-
-	echo "$result noarch"
 }
 
-# download_package_list()
+# slackware_download_package_list()
 # purpose: downloads the distribution's package list
 # input  : the package list URL and the destination path
 # output : -
-download_package_list() {
+slackware_download_package_list() {
 	download_file "$1" "$2"
-	return $?
 }
 
-# convert_package_list()
+# slackware_convert_package_list()
 # purpose: converts a repository's package list to roar-ng's common format
 # input  : the package list path and the repository name
 # output : a package list in roar-ng's format
-convert_package_list() {
-	awk -v repo="$2" -F ":" '
+slackware_convert_package_list() {
+	awk -v distro="$(get_current_distro)" \
+	    -v distro_version="$(get_current_distro_version)" \
+	    -v repo="$2" \
+	    -F ":" '
 
 	# trims the beginning of a string
 	function trim(s) {
@@ -83,7 +78,7 @@ convert_package_list() {
 				package_name = package_name"-"name[i]
 			}
 			sub(/^-/, "", package_name)
-			printf("%s|%s|%s|%s|%s/%s|%s|%s\n",
+			printf("%s|%s|%s|%s|%s/%s|%s|%s|%s|%s\n",
 			       package_name,
 			       version,
 			       revision,
@@ -91,6 +86,8 @@ convert_package_list() {
 			       path,
 			       file_name,
 			       description,
+			       distro,
+			       distro_version,
 			       repo)
 		}
 		package_name = "";
@@ -103,29 +100,25 @@ convert_package_list() {
 	{
 		if ($1 == "PACKAGE NAME") {
 			file_name = trim($2);
-		}
+		} else {
+			if ($1 == "PACKAGE LOCATION") {
+				path = trim($2);
+				# trim and strip "./"
+				sub(/^\.\//, "", path)
+			} else {
+				if ($1 == "PACKAGE DESCRIPTION") {
+					getline description;
+					description = trim(description);
+					sub(/[^:]*: +/, "", description);
+				} else {
 
-		if ($1 == "PACKAGE LOCATION") {
-			path = trim($2);
-			# trim and strip "./"
-			sub(/^\.\//, "", path)
-	
-		}
-
-		if ($1 == "PACKAGE DESCRIPTION") {
-			getline description;
-			description = trim(description);
-			sub(/[^:]*:/, "", description);
-	
-			# strip the package name and the surrounding parentheses
-			sub(/.*\(/, "", description);
-			sub(/\)$/, "", description);
-
-		}
-		# when the empty line separator is reached, print the current
-		# entry
-		if ("" == $0 && "" != file_name) {
-			print_entry()
+					# when the empty line separator is
+					# reached, print the current entry
+					if ("" == $0 && "" != file_name) {
+						print_entry()
+					}
+				}
+			}
 		}
 	} END {
 		# when the end of the file is reached, print the current entry
@@ -135,11 +128,11 @@ convert_package_list() {
 	}' "$1"
 }
 
-# extract_package()
+# slackware_extract_package()
 # purpose: extracts a package of the distribution into a directory
 # input  : a package path and the destination directory
 # output : -
-extract_package() {
+slackware_extract_package() {
 	# extract the package
 	extract_tar "$1" "$2"
 	[ 0 -ne $? ] && return 1
@@ -155,6 +148,7 @@ extract_package() {
 
 	# remove the package metadata
 	rm -rf "$2/install"
+	[ 0 -ne $? ] && return 1
 
 	return 0
 }
