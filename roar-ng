@@ -64,7 +64,7 @@ download_file() {
 		# otherwise, use aria2
 		aria2c -d / \
 			   -o "$2" \
-			   --file-alocation none \
+			   --file-allocation none \
 			   --max-connection-per-server 4 \
 			   --min-split-size 1M \
 			   --split 4 \
