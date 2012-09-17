@@ -26,6 +26,12 @@ Build a GNU/Linux distribution.
 # the current directory
 BASE_DIR="$(pwd)"
 
+# the package database file name
+PACKAGE_DB_FILE_NAME="packages.txt"
+
+# the package templates hacks script file name
+PACKAGE_TEMPLATE_HACKS_FILE_NAME="hacks.sh"
+
 # the default distribution
 DEFAULT_DISTRO="subito"
 DEFAULT_DISTRO_VERSION="2"
@@ -39,9 +45,6 @@ DEFAULT_DISTRO_ARCH="x86_64"
 current_distro="$DEFAULT_DISTRO"
 current_distro_version="$DEFAULT_DISTRO_VERSION"
 current_distro_arch="$DEFAULT_DISTRO_ARCH"
-
-# the package database file name
-PACKAGE_DB_FILE_NAME="packages.txt"
 
 #####################
 # utility functions #
@@ -61,6 +64,7 @@ download_file() {
 		# otherwise, use aria2
 		aria2c -d / \
 			   -o "$2" \
+			   --file-alocation none \
 			   --max-connection-per-server 4 \
 			   --min-split-size 1M \
 			   --split 4 \
@@ -609,6 +613,35 @@ download_packages() {
 # package extraction #
 ######################
 
+# _apply_package_template()
+# purpose: applies a package template on an extracted package
+# input  : a package name and the path to the extracted package contents
+#          directory
+# output : -
+_apply_package_template() {
+	# if no package template exists, do nothing
+	[ ! -d "$INSTALL_PREFIX/package-templates/$1" ] && return 0
+
+	echo "  applying $INSTALL_PREFIX/package-templates/$1"
+
+	# otherwise, copy the package template into the extracted package directory
+	cd "$2"
+	cp -ar "$INSTALL_PREFIX/package-templates/$1"/* .
+	[ 0 -ne $? ] && return 1
+
+	# if a hacks script exists, run it
+	[ ! -f $PACKAGE_TEMPLATE_HACKS_FILE_NAME ] && return 0
+	chmod 755 $PACKAGE_TEMPLATE_HACKS_FILE_NAME
+	./$PACKAGE_TEMPLATE_HACKS_FILE_NAME
+
+	# clean up
+	cd "$BASE_DIR"
+	rm -f "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
 # extract_packages()
 # purpose: a wrapper around extract_package() which extracts all packages
 #          downloaded by download_packages()
@@ -631,13 +664,12 @@ extract_packages() {
 		set_current_distro $distribution
 		[ 0 -ne $? ] && return 1
 
-		# make sure the output directory is empty
-		if [ -d "$VAR_PREFIX/extracted_package/$name" ]
-		then
-			rm -rf "$VAR_PREFIX/extracted_package/$name"/*
-		else
-			mkdir -p "$VAR_PREFIX/extracted_package/$name"
-		fi
+		# if the output directory exists, skip the meta-package
+		[ -d "$VAR_PREFIX/extracted_package/$name" ] && continue
+
+		# otherwise, create it
+		mkdir -p "$VAR_PREFIX/extracted_package/$name"
+		[ 0 -ne $? ] && return 1
 
 		# extract all packages
 		for package in $packages
@@ -656,6 +688,10 @@ extract_packages() {
 			                "$VAR_PREFIX/extracted_package/$name"
 			[ 0 -ne $? ] && return 1
 		done
+
+		# apply the package template, if there is any
+		_apply_package_template $name "$VAR_PREFIX/extracted_package/$name"
+		[ 0 -ne $? ] && return 1
 	done
 
 	return 0
