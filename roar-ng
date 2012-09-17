@@ -15,6 +15,10 @@ else
 	VAR_PREFIX="$INSTALL_PREFIX"
 fi
 
+#############
+# constants #
+#############
+
 # the usage message
 USAGE="Usage: roar-ng {check|setup|download|extract}
 Build a GNU/Linux distribution.
@@ -45,14 +49,26 @@ PACKAGE_DB_FILE_NAME="packages.txt"
 
 # download_file()
 # purpose: downloads a file to a given path
-# input  : a list of download URLs and the destination path
+# input  : a list of download URLs and the absolute destination path
 # output : -
 download_file() {
-	# TODO: parallel download
-	wget -O "$2" "$(echo $1 | cut -f 1 -d \ )"
-	[ 0 -ne $? ] && return 1
-	return 0
+	# if aria2 is not present, use Wget
+	if [ -z "$(which aria2c)" ]
+	then
+		wget -O "$2" "$(echo $1 | cut -f 1 -d \ )"
+		[ 0 -ne $? ] && return 1
+	else
+		# otherwise, use aria2
+		aria2c -d / \
+			   -o "$2" \
+			   --max-connection-per-server 4 \
+			   --min-split-size 1M \
+			   --split 4 \
+			   $1
+		[ 0 -ne $? ] && return 1
+	fi
 
+	return 0
 }
 
 # decompress_file()
@@ -290,10 +306,12 @@ get_package_entries() {
 	    -v repo="$3" \
 	    -v distro_version="$(get_current_distro_version)" \
 	    -F \| '{
-		if (name == $1 && arch == $4 && distro_version == $8 && repo == $9)
-			print
-	}
-	' "$(_get_package_database_path)"
+	            	if (name == $1 &&
+	            	    arch == $4 &&
+	            	    distro_version == $8 &&
+	            	    repo == $9)
+	            		print
+	           }' "$(_get_package_database_path)"
 }
 
 ##########################
