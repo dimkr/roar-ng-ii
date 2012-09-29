@@ -34,7 +34,7 @@ fi
 #############
 
 # the usage message
-USAGE="Usage: roar-ng {check|setup|download|extract|build} [TYPE]
+USAGE="Usage: roar-ng {check|setup|download|extract|build} [TYPE] [DEST]
 Build a GNU/Linux distribution.
 
 Supported bootable media types: $(ls -1 $INSTALL_PREFIX/media | tr '\n' ' ')
@@ -879,7 +879,7 @@ _build_rootfs() {
 
 # build_bootable_media_image()
 # purpose: builds a bootable media image
-# input  : the bootable media type
+# input  : the bootable media type and the output file path
 # output : -
 build_bootable_media_image() {
 	# make sure the given media is supported
@@ -915,7 +915,7 @@ build_bootable_media_image() {
 
 	# build a bootable media image
 	. "$INSTALL_PREFIX/media/$1"
-	build_media_$1
+	build_media_$1 "$VAR_PREFIX/media" "$2"
 	[ 0 -ne $? ] && return 1
 
 	return 0
@@ -961,8 +961,8 @@ roar_ng_main() {
 			;;
 
 		build)
-			[ 2 -ne $# ] && _show_usage
-			build_bootable_media_image "$2"
+			[ 3 -ne $# ] && _show_usage
+			build_bootable_media_image "$2" "$3"
 			exit $?
 			;;
 
@@ -974,8 +974,8 @@ roar_ng_main() {
 
 # if the script was invoked as "roar-ng", run the script's main logic;
 # otherwise, do nothing, to allow the script to be included in other scripts
-case "$0" in
-	roar-ng|*/roar-ng)
+case "$0 $@" in
+	"roar-ng "*|*" roar-ng "*|*"/roar-ng "*)
 		roar_ng_main "$@"
 		;;
 esac
