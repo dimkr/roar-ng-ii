@@ -1,7 +1,7 @@
 # /etc/buildpkgrc: a configuration file for buildpkg
 
-# include the distribution information file
-. /etc/distrorc
+# include the roar-ng configuration file
+. /etc/roar-ng.conf
 
 # get the processor architecture
 arch="$(uname -m)"

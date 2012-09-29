@@ -4,6 +4,9 @@
 # installation path handling #
 ##############################
 
+# the roar-ng configuration file path, when roar-ng is installed as a package
+CONFIGURATION_INSTALL_PATH="etc/roar-ng.conf"
+
 # determine where roar-ng runs from - if the configuration file exists in its
 # normal location, roar-ng is installed
 if [ -f "/$CONFIGURATION_INSTALL_PATH" ]
@@ -34,10 +37,17 @@ fi
 #############
 
 # the usage message
-USAGE="Usage: roar-ng {check|setup|download|extract|build} [TYPE] [DEST]
+USAGE="Usage: roar-ng {check|setup|download|extract}
+       roar-ng build TYPE DEST
+       roar-ng package [NAME]
+
 Build a GNU/Linux distribution.
 
-Supported bootable media types: $(ls -1 $INSTALL_PREFIX/media | tr '\n' ' ')
+Supported bootable media types: $(ls -1 "$INSTALL_PREFIX/media" | tr '\n' ' ')
+
+Supported packages: $(ls -1 "$INSTALL_PREFIX/skeleton/rootfs/var/packages" | \
+                      sed s/.sh//g | \
+                      tr '\n' ' ')
 "
 
 # the current directory
@@ -77,8 +87,22 @@ ROOT_FS_FILE_NAME="rootfs.sfs"
 # the package post-installation script name
 POST_INSTALL_SCRIPT_FILE_NAME="post_install.sh"
 
-# the roar-ng configuration file path, when roar-ng is installed as a package
-CONFIGURATION_INSTALL_PATH="etc/roar-ng.conf"
+####################
+# package building #
+####################
+
+# virtual file systems and directories to bind to the host's before calling
+# chroot
+CHROOT_VIRTUAL_FS="proc sys dev"
+
+# files to copy into the chroot environment
+CHROOT_FILES="etc/resolv.conf"
+
+# the prefix for package building operations
+BUILD_PREFIX="tmp"
+
+# the prefix for package build results
+BUILD_RESUTLT_PREFIX="usr/src"
 
 ###########
 # options #
@@ -105,18 +129,32 @@ current_distro_arch="$DEFAULT_DISTRO_ARCH"
 
 # download_file()
 # purpose: downloads a file to a given path
-# input  : a list of download URLs and the absolute destination path
+# input  : a list of download URLs and the destination path (optional)
 # output : -
 download_file() {
+	# filter the first URL
+	first_url="$(echo $1 | cut -f 1 -d \ )"
+
+	# if no destination was specified, filter the base file name
+	if [ -z "$2" ]
+	then
+		destination="${first_url##*/}"
+	else
+		destination="$2"
+	fi
+
+	# turn relative paths into absolute ones
+	destination="$(realpath "$destination")"
+
 	# if aria2 is not present, use Wget
 	if [ -z "$(which aria2c)" ]
 	then
-		wget -O "$2" "$(echo $1 | cut -f 1 -d \ )"
+		wget -O "$destination" "$first_url"
 		[ 0 -ne $? ] && return 1
 	else
 		# otherwise, use aria2
 		aria2c -d / \
-			   -o "$2" \
+			   -o "$destination" \
 			   --file-allocation none \
 			   --max-connection-per-server 4 \
 			   --min-split-size 1M \
@@ -921,6 +959,86 @@ build_bootable_media_image() {
 	return 0
 }
 
+# _set_up_chroot()
+# purpose: sets up a chroot environment within a built distribution
+# input  : the root file system path
+# output : -
+_set_up_chroot() {
+	# bind all virtual file systems
+	for i in $CHROOT_VIRTUAL_FS
+	do
+		mount --bind /$i "$1/$i"
+		[ 0 -ne $? ] && return 1
+	done
+
+	# copy required files into the chroot environment
+	for i in $CHROOT_FILES
+	do
+		cp /$i "$1/$i"
+		[ 0 -ne $? ] && return 1
+	done
+
+	return 0
+}
+
+# _clean_up_chroot()
+# purpose: cleans up the chroot environment created using _set_up_chroot()
+# input  : the root file system path
+# output : -
+_clean_up_chroot() {
+	# assume everything succeeds
+	is_success=1
+
+	# unbind all virtual file systems
+	for i in $CHROOT_VIRTUAL_FS
+	do
+		# if no file system is mounted - the binding loop was stopped due a
+		# failure - just try to unbind the next
+		mountpoint -q "$1/$i"
+		[ 1 -eq $? ] && continue
+
+		umount "$1/$i"
+		[ 0 -ne $? ] && is_success=0
+	done
+
+	[ 0 -eq $is_success ] && return 1
+	return 0
+}
+
+# _build_package()
+# purpose: builds a package within the result distribution; must run after
+#          _set_up_chroot()
+# input  : the chroot environment path and the package name
+# output : -
+_build_package() {
+	# if the package was already built, fail immediately
+	[ -e "$1/$BUILD_RESUTLT_PREFIX/$2" ] && return 1
+
+	# create a temporary directory for the building operation
+	build_dir="$(mktemp -d -p "$1/$BUILD_PREFIX" "$2XXXXXX" | sed s~"$1"~~)"
+
+	# call buildpkg to download the package sources
+	chroot "$1" \
+	       /bin/sh -c "cd $build_dir; buildpkg download /var/packages/$2.sh"
+	[ 0 -ne $? ] && return 1
+
+	# build the package
+	chroot "$1" \
+	       /bin/sh -c "cd $build_dir; buildpkg build /var/packages/$2.sh"
+	[ 0 -ne $? ] && return 1
+
+	# if the compilation succeeded, move the directory to the build results
+	# directory
+	mv "$1/$build_dir" "$1/$BUILD_RESUTLT_PREFIX/$2"
+	[ 0 -ne $? ] && return 1
+
+	# install the package within the chroot environment, using hpm
+	chroot "$1" /bin/sh -c "hpm-install /$BUILD_RESUTLT_PREFIX/$2/*.rxz $2"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
 # _show_usage()
 # purpose: shows the usage message and exits
 # input  : -
@@ -964,6 +1082,38 @@ roar_ng_main() {
 			[ 3 -ne $# ] && _show_usage
 			build_bootable_media_image "$2" "$3"
 			exit $?
+			;;
+
+		package)
+			[ 2 -ne $# ] && _show_usage
+
+			# prepare a chroot environment
+			_set_up_chroot "$VAR_PREFIX/rootfs"
+			if [ 0 -ne $? ]
+			then
+				echo "Error: failed to set up a chroot environment."
+				exit 1
+			fi
+
+			# attempt to build the package
+			_build_package "$VAR_PREFIX/rootfs" "$2"
+			exit_code=$?
+
+			# clean up
+			_clean_up_chroot "$VAR_PREFIX/rootfs"
+			if [ 0 -ne $? ]
+			then
+				echo "Error: failed to clean up the chroot environment."
+				exit 1
+			fi
+
+			if [ 0 -ne $exit_code ]
+			then
+				echo "Error: failed to build $2."
+				exit 1
+			else
+				exit 0
+			fi
 			;;
 
 		*)
