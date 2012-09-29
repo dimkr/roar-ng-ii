@@ -1,0 +1,31 @@
+#!/bin/dash
+
+# /etc/init.d/nscd: an init script for nscd
+
+case "$1" in
+	start)
+		echo -n "Starting nscd ..."
+		nscd	
+		success=$?
+		echo " done"
+		exit $success
+		;;
+
+	stop)
+		echo -n "Stopping nscd ..."
+		nscd -K
+		success=$?
+		echo " done"
+		exit $success
+		;;
+
+	restart)
+		"$0" stop
+		"$0" start
+		;;
+
+	*)
+		echo "nscd{start|stop|restart}"
+		exit 1
+		;;
+esac

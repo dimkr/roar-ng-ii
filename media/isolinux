@@ -1,0 +1,48 @@
+# media/isolinux: a bootable media construction plug-in for roar-ng II, which
+# builds ISO9660 images with ISOLINUX.
+
+build_media_isolinux() {
+	# copy the boot image to the bootable media root
+	cp -af \
+	   $(find "$VAR_PREFIX/rootfs" -type f -name isolinux.bin) \
+	   "$VAR_PREFIX/media"
+	[ 0 -ne $? ] && return 1
+
+	# write the boot message file
+	cat << EOF > "$VAR_PREFIX/media/message.txt"
+Welcome to $DISTRO_NAME!
+
+Available boot codes:
+- root (e.g root=sr0) - specifies the partition to boot from.
+- sleep (e.g sleep=5) - wait for a given number of seconds.
+- persistent          - run in persistent, non-live mode
+
+Type \"$DISTRO_NICKNAME\", followed by boot codes."
+EOF
+	[ 0 -ne $? ] && return 1
+
+	# write the boot loader's configuration file
+	cat << EOF > "$VAR_PREFIX/media/isolinux.cfg"
+DEFAULT $DISTRO_NICKNAME
+PROMPT 1
+TIMEOUT 50
+DISPLAY message.txt
+
+LABEL $DISTRO_NICKNAME
+	LINUX /$KERNEL_IMAGE_PATH
+	APPEND root=sr0 sleep=5
+	INITRD /boot/initrd.gz
+EOF
+	[ 0 -ne $? ] && return 1
+
+	# create the bootable ISO9660 image
+	mkisofs -D -R \
+	        -o $DISTRO_NICKNAME-$DISTRO_VERSION_NUMERIC.iso \
+	        -b isolinux.bin  \
+	        -c boot.cat \
+	        -no-emul-boot -boot-load-size 4 -boot-info-table \
+	        "$VAR_PREFIX/media"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}

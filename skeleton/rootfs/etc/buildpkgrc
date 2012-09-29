@@ -1,0 +1,151 @@
+# /etc/buildpkgrc: a configuration file for buildpkg
+
+# include the distribution information file
+. /etc/distrorc
+
+# get the processor architecture
+arch="$(uname -m)"
+
+# set the compiler and linker flags
+case $arch in
+	i?86)
+		LIBDIR_SUFFIX=""
+		CFLAGS="-march=i486 -mtune=i686"
+		LDFLAGS=""
+		PKG_ARCH="i486"
+		PKG_CPU="i486"
+		;;
+	x86_64)
+		LIBDIR_SUFFIX="64"
+		CFLAGS="-march=x86-64 -mtune=generic -fPIC"
+		LDFLAGS="-fPIC"
+		PKG_ARCH="x86_64"
+		PKG_CPU="x86_64"
+		;;
+	armv6)
+		LIBDIR_SUFFIX=""
+		CFLAGS="-march=armv6 -mfpu=vfp -mfloat-abi=hard"
+		LDFLAGS=""
+		PKG_ARCH="armv6"
+		PKG_CPU="armv6"
+		;;
+esac
+
+# append shared flags
+CFLAGS="$CFLAGS -Os -fomit-frame-pointer -pipe"
+CXXFLAGS="$CFLAGS"
+
+# the C compiler
+export CC="cc"
+
+# set the number of build threads; use the number of processors, if
+# /proc/cpuinfo is present
+if [ -f /proc/cpuinfo ]
+then
+	BUILD_THREADS="$(grep processor /proc/cpuinfo | wc -l)"
+else
+	BUILD_THREADS=1
+fi
+
+# the package build target
+BUILD_TARGET="$PKG_ARCH-$DISTRO_NICKNAME-$(uname -s | tr '[:upper:]' '[:lower:]')-gnu"
+
+##############
+# base paths #
+##############
+
+# the base install prefix for packages
+BASE_INSTALL_PREFIX="usr"
+
+# the /etc directory
+CONF_DIR="etc"
+
+# the variable data directory
+VAR_DIR="var"
+
+# the run-time information directory
+RUN_DIR="run"
+
+# the temporary files directory
+TMP_DIR="tmp"
+
+##################
+# relative paths #
+##################
+
+# the binaries directory
+BIN_DIR="$BASE_INSTALL_PREFIX/bin"
+
+# the system binaries directory
+SBIN_DIR="$BASE_INSTALL_PREFIX/sbin"
+
+# the libraries directory
+LIB_DIR="$BASE_INSTALL_PREFIX/lib$LIBDIR_SUFFIX"
+
+# the library executables directory
+LIBEXEC_DIR="$LIB_DIR/$PKG_NAME"
+
+#################################
+# architecture-independent data #
+#################################
+
+# the headers directory
+INCLUDE_DIR="$BASE_INSTALL_PREFIX/include"
+
+# the shared data directory
+SHARE_DIR="$BASE_INSTALL_PREFIX/share"
+
+# the documentation directory
+DOC_DIR="$SHARE_DIR/doc"
+
+# the man pages directory
+MAN_DIR="$SHARE_DIR/man"
+
+# the locales directory
+LOCALE_DIR="$SHARE_DIR/locale"
+
+#######################
+# special directories #
+#######################
+
+# the directory for legal information
+LEGAL_DIR="$DOC_DIR/legal"
+
+# the directory for source code
+SOURCE_DIR="$BASE_INSTALL_PREFIX/src"
+
+# the directory for boot-related files, such as the boot loader's stuff and the
+# kernel image
+BOOT_DIR="boot"
+
+###########
+# generic #
+###########
+
+# the base options for autotools-based packages
+AUTOTOOLS_BASE_OPTS="--build=$BUILD_TARGET \
+                     --prefix=/$BASE_INSTALL_PREFIX \
+                     --bindir=/$BIN_DIR \
+                     --sbindir=/$SBIN_DIR \
+                     --libexecdir=/$LIBEXEC_DIR \
+                     --sysconfdir=/$CONF_DIR \
+                     --localstatedir=/$VAR_DIR \
+                     --libdir=/$LIB_DIR \
+                     --includedir=/$INCLUDE_DIR \
+                     --datarootdir=/$SHARE_DIR \
+                     --datadir=/$SHARE_DIR \
+                     --localedir=/$LOCALE_DIR \
+                     --mandir=/$MAN_DIR \
+                     --docdir=/$DOC_DIR/$PKG_NAME"
+
+# set the pkgconfig search path
+for i in $(grep ^/ /etc/ld.so.conf)
+do
+	PKG_CONFIG_PATH="$i/pkgconfig:$PKG_CONFIG_PATH"
+done
+export PKG_CONFIG_PATH
+
+# export the compiler and linker flags
+export CFLAGS="$CFLAGS -I/$INCLUDE_DIR -L/$LIB_DIR"
+export CXXFLAGS="$CXXFLAGS -I/$INCLUDE_DIR -L/$LIB_DIR"
+export LDFLAGS="$LDFLAGS -L/$LIB_DIR"

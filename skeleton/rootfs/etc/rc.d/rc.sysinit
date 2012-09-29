@@ -1,0 +1,69 @@
+#!/bin/dash
+
+# /etc/rc.d/rc.sysinit: a system init script
+# dependencies: dash, busybox and udev
+
+# set the executable search path
+export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/opt/bin:/opt/sbin:/usr/local/bin:/usr/local/sbin"
+
+# include the configuration file
+. /etc/rc.conf.d/sysinit
+
+# mount a tmpfs file system under /run; it is also used to keep /var/run and
+# /var/lock clean
+mount -t tmpfs run /run
+mkdir /run/lock /run/shm /run/tmp /run/udev
+ln -s ../run/shm /dev/shm
+
+# set the sticky bit of /run/tmp
+chmod 1777 /run/tmp
+
+# mount remaining virtual file systems
+mkdir /dev/pts
+mount -t devpts devpts /dev/pts
+
+# generate the loader cache
+[ ! -f /etc/ld.so.cache ] && ldconfig
+
+# generate module dependency files
+[ ! -f /lib/modules/$(uname -r)/modules.dep ] && depmod -a
+
+# start udev and wait for it to load all required modules
+udevd --daemon
+udevadm trigger
+udevadm settle
+
+# set the console font
+for i in 1 2 3 4 5
+do
+	setfont $CONSOLE_FONT -C /dev/tty$i
+done
+
+# mount all fstab file systems
+mount -a
+
+# enable all swap partitions specified in /etc/fstab
+swapon -a
+
+# set the hostname
+hostname -F /etc/hostname
+
+# set up up a loopback interface
+ifconfig lo 127.0.0.1 up
+route add -net 127.0.0.0 netmask 255.0.0.0 lo
+
+# start logging daemons
+klogd
+syslogd -D -S
+
+# start extra daemons
+for i in /etc/init.d/*
+do
+	[ -x $i ] && $i start
+done
+
+# run the user's custom init script, if it exists
+[ -x /etc/rc.local ] && . /etc/rc.local
+
+# generate the locale archive
+[ ! -f /usr/lib/locale/locale-archive ] && locale-gen

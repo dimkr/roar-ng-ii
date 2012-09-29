@@ -1,30 +1,63 @@
 #!/bin/sh
 
-# include the roar-ng configuration file
-if [ -f /etc/roar-ng.conf ]
+##############################
+# installation path handling #
+##############################
+
+# determine where roar-ng runs from - if the configuration file exists in its
+# normal location, roar-ng is installed
+if [ -f "/$CONFIGURATION_INSTALL_PATH" ]
 then
-	. /etc/roar-ng.conf
 	INSTALL_PREFIX="/usr/share/roar-ng"
 	VAR_PREFIX="/var/roar-ng"
-	[ ! -d $VAR_PREFIX ] && mkdir "$VAR_PREFIX"
+	CONFIGURATION_PATH="/$CONFIGURATION_INSTALL_PATH"
 else
 	# otherwise, if it doesn't exist, assume roar-ng runs from the sources
 	# directory
-	. ./roar-ng.conf
 	INSTALL_PREFIX="$(pwd)"
-	VAR_PREFIX="$INSTALL_PREFIX"
+	VAR_PREFIX="$INSTALL_PREFIX/sandbox"
+	CONFIGURATION_PATH="$INSTALL_PREFIX/roar-ng.conf"
 fi
+
+##################
+# initialization #
+##################
+
+# create the variable data directory
+[ ! -d "$VAR_PREFIX" ] && mkdir "$VAR_PREFIX"
+
+# include the roar-ng configuration file
+. "$CONFIGURATION_PATH"
 
 #############
 # constants #
 #############
 
 # the usage message
-USAGE="Usage: roar-ng {check|setup|download|extract}
+USAGE="Usage: roar-ng {check|setup|download|extract|build} [TYPE]
 Build a GNU/Linux distribution.
+
+Supported bootable media types: $(ls -1 $INSTALL_PREFIX/media | tr '\n' ' ')
 "
+
 # the current directory
 BASE_DIR="$(pwd)"
+
+# the default distribution
+DEFAULT_DISTRO="subito"
+DEFAULT_DISTRO_VERSION="2"
+DEFAULT_DISTRO_ARCH="x86_64"
+
+##################
+# package choice #
+##################
+
+# must-have packages for the initramfs
+INITRAMFS_PACKAGES="busybox"
+
+#########
+# paths #
+#########
 
 # the package database file name
 PACKAGE_DB_FILE_NAME="packages.txt"
@@ -32,10 +65,30 @@ PACKAGE_DB_FILE_NAME="packages.txt"
 # the package templates hacks script file name
 PACKAGE_TEMPLATE_HACKS_FILE_NAME="hacks.sh"
 
-# the default distribution
-DEFAULT_DISTRO="subito"
-DEFAULT_DISTRO_VERSION="2"
-DEFAULT_DISTRO_ARCH="x86_64"
+# the kernel image path
+KERNEL_IMAGE_PATH="boot/vmlinuz"
+
+# the initramfs file name
+INITRAMFS_FILE_NAME="initrd.gz"
+
+# the root file system image file name
+ROOT_FS_FILE_NAME="rootfs.sfs"
+
+# the package post-installation script name
+POST_INSTALL_SCRIPT_FILE_NAME="post_install.sh"
+
+# the roar-ng configuration file path, when roar-ng is installed as a package
+CONFIGURATION_INSTALL_PATH="etc/roar-ng.conf"
+
+###########
+# options #
+###########
+
+# the mksquashfs flags used
+MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 524288 -no-exports"
+
+# the gzip flags used to compress the initramfs
+GZIP_OPTIONS="--best"
 
 ###########
 # globals #
@@ -131,6 +184,26 @@ extract_tar() {
 
 	# extract the archive
 	tar -xf "$1" -C "$2"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# execute_and_delete_script()
+# purpose: executes a script in its directory and deletes it
+# input  : the script path
+# output : -
+execute_and_delete_script() {
+	# make the script executable
+	chmod 755 "$1"
+
+	# switch to the script's directory and run it
+	cd "$(dirname "$1")"
+	"$1"
+	cd "$BASE_DIR"
+
+	# delete the script
+	rm -f "$1"
 	[ 0 -ne $? ] && return 1
 
 	return 0
@@ -357,7 +430,7 @@ get_package_repository() {
 # output : the package list
 get_package_list() {
 	# filter comments and empty lines
-	echo "$DISTRO_PACKAGES" | grep -v -e ^# -e ^\$ | sort
+	echo "$DISTRO_PACKAGES" | grep -v -e ^# -e ^\$
 }
 
 # get_meta_package_name()
@@ -368,6 +441,13 @@ get_meta_package_name() {
 	echo "${1%%|*}"
 }
 
+# get_meta_package_names()
+# purpose: returns all meta-package names
+# input  : -
+# output : all meta package names
+get_meta_package_names() {
+	get_package_list | cut -f 1 -d \|
+}
 # get_meta_package_distro()
 # purpose: receives a meta-package entry and returns the distribution fields
 # input  :  a meta-package entry
@@ -453,11 +533,11 @@ add_distros_to_package_database() {
 
 	get_used_distros | while read distro
 	do
+		echo "$distro"
+
 		# set the current distribution
 		set_current_distro $distro
 		[ 0 -ne $? ] && return 1
-
-		echo $distro $(get_current_distro_arch)
 
 		# process the distribution's repositories
 		_add_distro_to_package_database
@@ -625,21 +705,13 @@ _apply_package_template() {
 	echo "  applying $INSTALL_PREFIX/package-templates/$1"
 
 	# otherwise, copy the package template into the extracted package directory
-	cd "$2"
-	cp -ar "$INSTALL_PREFIX/package-templates/$1"/* .
+	cp -ar "$INSTALL_PREFIX/package-templates/$1"/* "$2"
 	[ 0 -ne $? ] && return 1
 
 	# if a hacks script exists, run it
-	[ ! -f $PACKAGE_TEMPLATE_HACKS_FILE_NAME ] && return 0
-	chmod 755 $PACKAGE_TEMPLATE_HACKS_FILE_NAME
-	./$PACKAGE_TEMPLATE_HACKS_FILE_NAME
-
-	# clean up
-	cd "$BASE_DIR"
-	rm -f "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME"
-	[ 0 -ne $? ] && return 1
-
-	return 0
+	[ ! -f "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME" ] && return 0
+	execute_and_delete_script "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME"
+	return $?
 }
 
 # extract_packages()
@@ -697,29 +769,213 @@ extract_packages() {
 	return 0
 }
 
-case "$1" in
-	check)
-		verify_configuration
-		exit $?
-		;;
+#####################################
+# bootable media image construction #
+#####################################
 
-	setup)
-		add_distros_to_package_database
-		exit $?
-		;;
+# _build_module()
+# purpose: builds a module of the bootable media image
+# input  : the module name, destination directory and the list of packages
+# output : -
+_build_module() {
+	echo "$1"
 
-	download)
-		download_packages
-		exit $?
-		;;
+	# create the destination directory
+	if [ ! -d "$2" ]
+	then
+		mkdir "$2"
+		[ 0 -ne $? ] && return 1
+	fi
 
-	extract)
-		extract_packages
-		exit $?
-		;;
+	# create a temporary file which will contain the post-installation script
+	post_install="$(mktemp -u -p "$2")"
 
-	*)
-		echo "$USAGE"
-		exit 1
+	(
+		# create a list of all package directories
+		for package in $3
+		do
+			echo "$VAR_PREFIX/extracted_package/$package"
+		done
+
+		# append the module's skeleton
+		echo "$INSTALL_PREFIX/skeleton/$1"
+	) | while read path
+	do
+		echo "  $path"
+
+		# copy the contents of each directory to the destination
+		cp -a --remove-destination "$path"/* "$2"
+		[ 0 -ne $? ] && return 1
+
+		# if a post-installation script exists, merge it with the previous ones
+		[ ! -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME" ] && continue
+		cat "$2/$POST_INSTALL_SCRIPT_FILE_NAME" >> "$post_install"
+		rm -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME"
+		[ 0 -ne $? ] && return 1
+	done
+
+	# if at least one post-installation script exists, run it
+	[ ! -f "$post_install" ] && return 0
+	execute_and_delete_script "$post_install"
+	return $?
+}
+
+# _build_initramfs()
+# purpose: builds the initramfs
+# input  : the extracted initramfs contents directory and the destination path
+# output : -
+_build_initramfs() {
+	# copy the initramfs packages and skeleton
+	_build_module "initramfs" "$1" "$INITRAMFS_PACKAGES"
+	[ 0 -ne $? ] && return 1
+
+	# create and compress the initramfs
+	cd "$1"
+	find . | cpio -o -H newc | gzip $GZIP_OPTIONS > "$2"
+	exit_code=$?
+	cd "$BASE_DIR"
+	[ 0 -ne $exit_code ] && return 1
+
+	# if AdvanceCOMP is installed, recompress the initramfs
+	[ -z "$(which advdef)" ] && return 0
+	advdef -z4 "$2"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# _build_rootfs()
+# purpose: builds the root file system Squashfs image
+# input  : the extracted root file system contents directory and the destination
+#          path
+# output : -
+_build_rootfs() {
+	# copy roar-ng's configuration to the root file system
+	install -D -m 644 "$CONFIGURATION_PATH" "$1/$CONFIGURATION_INSTALL_PATH"
+	[ 0 -ne $? ] && return 1
+
+	# copy the root file system packages and skeleton
+	_build_module "rootfs" "$1" "$(get_meta_package_names)"
+	[ 0 -ne $? ] && return 1
+
+	# create /etc/hostname
+	echo -n "$DISTRO_NICKNAME" > "$1/etc/hostname"
+
+	# replace DISTRO_NAME and DISTRO_VERSION with their values, in /etc/issue
+	# and /etc/motd
+	for i in issue motd
+	do
+		sed -e s~DISTRO_NAME~"$DISTRO_NAME"~g \
+		    -e s~DISTRO_VERSION~"$DISTRO_VERSION"~g \
+		    -i "$1/etc/$i"
+	done
+
+	# create a Squashfs image
+	mksquashfs "$1" "$2" $MKSQUASHFS_OPTIONS
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# build_bootable_media_image()
+# purpose: builds a bootable media image
+# input  : the bootable media type
+# output : -
+build_bootable_media_image() {
+	# make sure the given media is supported
+	[ ! -f "$INSTALL_PREFIX/media/$1" ] && return 1
+
+	# create a root directory for the bootable media contents
+	if [ -d "$VAR_PREFIX/media" ]
+	then
+		rm -rf "$VAR_PREFIX/media"/*
+		[ 0 -ne $? ] && return 1
+	else
+		mkdir "$VAR_PREFIX/media"
+		[ 0 -ne $? ] && return 1
+	fi
+
+	# create /boot
+	mkdir "$VAR_PREFIX/media/boot"
+	[ 0 -ne $? ] && return 1
+
+	# build the initramfs
+	_build_initramfs "$VAR_PREFIX/initramfs" \
+	                 "$VAR_PREFIX/media/boot/$INITRAMFS_FILE_NAME"
+	[ 0 -ne $? ] && return 1
+
+	# build the root file system image
+	_build_rootfs "$VAR_PREFIX/rootfs" \
+	              "$VAR_PREFIX/media/boot/$ROOT_FS_FILE_NAME"
+	[ 0 -ne $? ] && return 1
+
+	# move the kernel image from the root file system to the media itself
+	mv -f "$VAR_PREFIX/rootfs/$KERNEL_IMAGE_PATH" \
+	      "$VAR_PREFIX/media/$KERNEL_IMAGE_PATH"
+
+	# build a bootable media image
+	. "$INSTALL_PREFIX/media/$1"
+	build_media_$1
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# _show_usage()
+# purpose: shows the usage message and exits
+# input  : -
+# output : -
+_show_usage() {
+	echo "$USAGE"
+	exit 1
+}
+
+# roar_ng_main()
+# purpose: runs roar-ng
+# input  : -
+# output : the command-line arguments the script was executed with
+roar_ng_main() {
+	case "$1" in
+		check)
+			[ 1 -ne $# ] && _show_usage
+			verify_configuration
+			exit $?
+			;;
+
+		setup)
+			[ 1 -ne $# ] && _show_usage
+			add_distros_to_package_database
+			exit $?
+			;;
+
+		download)
+			[ 1 -ne $# ] && _show_usage
+			download_packages
+			exit $?
+			;;
+
+		extract)
+			[ 1 -ne $# ] && _show_usage
+			extract_packages
+			exit $?
+			;;
+
+		build)
+			[ 2 -ne $# ] && _show_usage
+			build_bootable_media_image "$2"
+			exit $?
+			;;
+
+		*)
+			_show_usage
+			;;
+	esac
+}
+
+# if the script was invoked as "roar-ng", run the script's main logic;
+# otherwise, do nothing, to allow the script to be included in other scripts
+case "$0" in
+	roar-ng|*/roar-ng)
+		roar_ng_main "$@"
 		;;
 esac

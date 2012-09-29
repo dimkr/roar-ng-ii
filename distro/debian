@@ -17,24 +17,20 @@ MIRRORS="http://mirror.csclub.uwaterloo.ca/debian|debian-main,debian-contrib,deb
 # input  : an architecture name
 # output : the distribution's names for the architecture, ordered by accuracy
 debian_get_architecture_aliases() {
-	result=""
-
 	case "$1" in
 		x86_64|amd64)
-			result="amd64"
+			echo "amd64 noarch"
 			;;
 		x86|i?86)
-			result="i386"
+			echo "i386 noarch"
 			;;
 		arm7|armv7)
-			result="armhf"
+			echo "armhf noarch"
 			;;
 		arm*)
-			result="armel"
+			echo "armel noarch"
 			;;
 	esac
-
-	echo "$result $noarch"
 }
 
 # debian_download_package_list()

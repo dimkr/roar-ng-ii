@@ -1,0 +1,63 @@
+################
+# search paths #
+################
+
+# the executable search path
+export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/opt/bin:/opt/sbin:/usr/local/bin:/usr/local/sbin"
+
+# the new file permissions mask
+umask 022
+
+#################
+# shell options #
+#################
+
+# set the prompt
+if [ 0 -eq "$(id -u)" ]
+then
+	prompt="#"
+else
+	prompt="\$"
+fi
+export PS1="[\u@\h \W]$prompt "	
+
+# the history file size
+export HISTFILESIZE=1000
+
+# ignore duplicates in the history
+export HISTCONTROL="ignoredups"
+
+##########
+# extras #
+##########
+
+for i in /etc/profile.d/*.sh
+do
+	. $i
+done
+
+[ -e /etc/profile.local ] && . /etc/profile.local
+
+#######################
+# important variables #
+#######################
+
+# the terminal type
+export TERM="linux"
+
+# the default text editor
+export EDITOR="vi"
+
+# the system locale
+export LANG="en_US.UTF-8"
+export LC_ALL="$LANG"
+
+###############################
+# freedesktop.org directories #
+###############################
+
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_DIRS="/usr/share:/opt/share:/usr/local/share"
+export XDG_CONFIG_DIRS="/etc/xdg"
+export XDG_CACHE_HOME="$HOME/.cache"

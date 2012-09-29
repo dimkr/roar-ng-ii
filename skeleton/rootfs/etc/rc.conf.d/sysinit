@@ -1,0 +1,4 @@
+# /etc/rc.conf.d/sysinit: configuration file for the system init script
+
+# the console font
+CONSOLE_FONT="ter-v16n"

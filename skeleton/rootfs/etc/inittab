@@ -1,0 +1,22 @@
+# /etc/inittab: init actions
+
+# system init
+::sysinit:/etc/rc.d/rc.sysinit
+
+# virtual terminals
+tty1::respawn:/sbin/getty 38400 tty1
+tty2::respawn:/sbin/getty 38400 tty2
+tty3::respawn:/sbin/getty 38400 tty3
+tty4::respawn:/sbin/getty 38400 tty4
+
+# system shutdown
+::shutdown:/etc/rc.d/rc.shutdown
+::shutdown:/bin/umount -ar
+
+# system reboot
+::restart:/etc/rc.d/rc.shutdown
+::restart:/bin/umount -ar
+::restart:/sbin/init
+
+# CTRL + ALT + DEL
+::ctrlaltdel:/sbin/reboot

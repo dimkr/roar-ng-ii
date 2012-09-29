@@ -1,0 +1,4 @@
+# /etc/init.conf.d/gpm: configuration file for the gpm init script
+
+# addtional options to pass to gpm
+ADDITIONAL_OPTS="-m /dev/mouse -t imps2"
