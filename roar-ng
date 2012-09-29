@@ -1087,6 +1087,10 @@ roar_ng_main() {
 		package)
 			[ 2 -ne $# ] && _show_usage
 
+			# make sure there is a build script for the specified package
+			[ ! -f "$INSTALL_PREFIX/skeleton/rootfs/var/packages/$2.sh" ] && \
+			                                                         _show_usage
+
 			# prepare a chroot environment
 			_set_up_chroot "$VAR_PREFIX/rootfs"
 			if [ 0 -ne $? ]
