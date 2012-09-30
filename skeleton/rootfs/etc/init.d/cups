@@ -5,6 +5,7 @@
 case "$1" in
 	start)
 		echo -n "Starting CUPS ..."
+		[ ! -d /run/cups ] && mkdir /run/cups
 		cupsd
 		success=$?
 		pidof cupsd > /run/cups/cups.pid

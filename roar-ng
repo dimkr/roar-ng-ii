@@ -42,12 +42,6 @@ USAGE="Usage: roar-ng {check|setup|download|extract}
        roar-ng package [NAME]
 
 Build a GNU/Linux distribution.
-
-Supported bootable media types: $(ls -1 "$INSTALL_PREFIX/media" | tr '\n' ' ')
-
-Supported packages: $(ls -1 "$INSTALL_PREFIX/skeleton/rootfs/var/packages" | \
-                      sed s/.sh//g | \
-                      tr '\n' ' ')
 "
 
 # the current directory
@@ -102,7 +96,7 @@ CHROOT_FILES="etc/resolv.conf"
 BUILD_PREFIX="tmp"
 
 # the prefix for package build results
-BUILD_RESUTLT_PREFIX="usr/src"
+BUILD_RESULT_PREFIX="usr/src"
 
 ###########
 # options #
@@ -149,7 +143,7 @@ download_file() {
 	# if aria2 is not present, use Wget
 	if [ -z "$(which aria2c)" ]
 	then
-		wget -O "$destination" "$first_url"
+		wget --no-check-certificate -O "$destination" "$first_url"
 		[ 0 -ne $? ] && return 1
 	else
 		# otherwise, use aria2
@@ -159,6 +153,7 @@ download_file() {
 			   --max-connection-per-server 4 \
 			   --min-split-size 1M \
 			   --split 4 \
+			   --check-certificate=false \
 			   $1
 		[ 0 -ne $? ] && return 1
 	fi
@@ -676,14 +671,18 @@ _get_package_download_url() {
 	done
 }
 
-# download_package()
+# _download_package()
 # purpose: downloads a package
 # input  : the package name
 # output : -
-download_package() {
+_download_package() {
 	# locate the package entry
 	package_entry="$(find_package $1)"
-	[ -z "$package_entry" ] && return 1
+	if [ -z "$package_entry" ]
+	then
+		echo "Error: failed to locate $1."
+		return 1
+	fi
 
 	# filter the package's base file name
 	package_file_name="$(get_package_file_name "$package_entry")"
@@ -695,11 +694,17 @@ download_package() {
 	[ ! -d "$VAR_PREFIX/package" ] && mkdir "$VAR_PREFIX/package"
 	download_file "$(_get_package_download_url "$package_entry")" \
 	              "$VAR_PREFIX/package/$package_file_name"
-	return $?
+	if [ 0 -ne $? ]
+	then
+		echo "Error: failed to download $package_file_name."
+		return 1
+	fi
+
+	return 0
 }
 
 # download_packages()
-# purpose: a wrapper around download_package() which downloads all packages
+# purpose: a wrapper around _download_package() which downloads all packages
 #          specified in the package list
 # input  : -
 # output : -
@@ -708,8 +713,14 @@ download_packages() {
 	# packages
 	get_package_list | while read entry
 	do
+		name="$(get_meta_package_name "$entry")"
 		packages="$(get_meta_package_packages "$entry")"
 		distribution="$(get_meta_package_distro "$entry")"
+
+		# if the meta-package was already extracted, end here - all packages
+		# were downloaded already, of course; this saves the long process of
+		# locating their package entries
+		[ -d "$VAR_PREFIX/extracted_package/$name" ] && continue
 
 		# set the current distribution
 		set_current_distro $distribution
@@ -719,7 +730,7 @@ download_packages() {
 		for package in $packages
 		do
 			echo "$package"
-			download_package $package
+			_download_package $package
 			[ 0 -ne $? ] && return 1
 		done
 	done
@@ -796,7 +807,11 @@ extract_packages() {
 			# extract the package
 			extract_package "$VAR_PREFIX/package/$file_name" \
 			                "$VAR_PREFIX/extracted_package/$name"
-			[ 0 -ne $? ] && return 1
+			if [ 0 -ne $? ]
+			then
+				echo "Error: failed to extract $file_name."
+				return 1
+			fi
 		done
 
 		# apply the package template, if there is any
@@ -829,25 +844,26 @@ _build_module() {
 	post_install="$(mktemp -u -p "$2")"
 
 	(
+		# add the module's skeleton
+		echo "$INSTALL_PREFIX/skeleton/$1"
+
 		# create a list of all package directories
 		for package in $3
 		do
 			echo "$VAR_PREFIX/extracted_package/$package"
 		done
-
-		# append the module's skeleton
-		echo "$INSTALL_PREFIX/skeleton/$1"
 	) | while read path
 	do
 		echo "  $path"
 
 		# copy the contents of each directory to the destination
-		cp -a --remove-destination "$path"/* "$2"
+		cp -L -a --remove-destination "$path"/* "$2"
 		[ 0 -ne $? ] && return 1
 
 		# if a post-installation script exists, merge it with the previous ones
 		[ ! -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME" ] && continue
 		cat "$2/$POST_INSTALL_SCRIPT_FILE_NAME" >> "$post_install"
+		echo >> "$post_install"
 		rm -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME"
 		[ 0 -ne $? ] && return 1
 	done
@@ -865,19 +881,31 @@ _build_module() {
 _build_initramfs() {
 	# copy the initramfs packages and skeleton
 	_build_module "initramfs" "$1" "$INITRAMFS_PACKAGES"
-	[ 0 -ne $? ] && return 1
+	if [ 0 -ne $? ]
+	then
+		echo "Error: failed to build the initramfs."
+		return 1
+	fi
 
 	# create and compress the initramfs
 	cd "$1"
 	find . | cpio -o -H newc | gzip $GZIP_OPTIONS > "$2"
 	exit_code=$?
 	cd "$BASE_DIR"
-	[ 0 -ne $exit_code ] && return 1
+	if [ 0 -ne $? ]
+	then
+		echo "Error: failed to create the initramfs."
+		return 1
+	fi
 
 	# if AdvanceCOMP is installed, recompress the initramfs
 	[ -z "$(which advdef)" ] && return 0
 	advdef -z4 "$2"
-	[ 0 -ne $? ] && return 1
+	if [ 0 -ne $? ]
+	then
+		echo "Error: failed to recompress the initramfs."
+		return 1
+	fi
 
 	return 0
 }
@@ -894,7 +922,11 @@ _build_rootfs() {
 
 	# copy the root file system packages and skeleton
 	_build_module "rootfs" "$1" "$(get_meta_package_names)"
-	[ 0 -ne $? ] && return 1
+	if [ 0 -ne $? ]
+	then
+		echo "Error: failed to build the root file system."
+		return 1
+	fi
 
 	# create /etc/hostname
 	echo -n "$DISTRO_NICKNAME" > "$1/etc/hostname"
@@ -908,9 +940,23 @@ _build_rootfs() {
 		    -i "$1/etc/$i"
 	done
 
+	# move things under /var to /run
+	mv "$1/var/run"/* "$1/run"
+	[ 0 -ne $? ] && return 1
+	mv "$1/var/lock"/* "$1/run/lock"
+	[ 0 -ne $? ] && return 1
+
+	# populate /root with the home directory skeleton
+	cp -a "$1/etc/skel"/* "$1/root"
+	[ 0 -ne $? ] && return 1
+
 	# create a Squashfs image
 	mksquashfs "$1" "$2" $MKSQUASHFS_OPTIONS
-	[ 0 -ne $? ] && return 1
+	if [ 0 -ne $? ]
+	then
+		echo "Error: failed to create the root file system image."
+		return 1
+	fi
 
 	return 0
 }
@@ -954,7 +1000,11 @@ build_bootable_media_image() {
 	# build a bootable media image
 	. "$INSTALL_PREFIX/media/$1"
 	build_media_$1 "$VAR_PREFIX/media" "$2"
-	[ 0 -ne $? ] && return 1
+	if [ 0 -ne $? ]
+	then
+		echo "Error: failed to create the bootable media image."
+		return 1
+	fi
 
 	return 0
 }
@@ -1011,29 +1061,52 @@ _clean_up_chroot() {
 # input  : the chroot environment path and the package name
 # output : -
 _build_package() {
-	# if the package was already built, fail immediately
-	[ -e "$1/$BUILD_RESUTLT_PREFIX/$2" ] && return 1
-
 	# create a temporary directory for the building operation
 	build_dir="$(mktemp -d -p "$1/$BUILD_PREFIX" "$2XXXXXX" | sed s~"$1"~~)"
 
+	# if the sources were downloaded already, copy them to the build directory
+	if [ -d "$VAR_PREFIX/source/$2" ]
+	then
+		cp -f "$VAR_PREFIX/source/$2"/* "$1/$build_dir"
+		[ 0 -ne $? ] && return 1
+	else
+		mkdir -p "$VAR_PREFIX/source/$2"
+		[ 0 -ne $? ] && return 1
+	fi
+
 	# call buildpkg to download the package sources
 	chroot "$1" \
-	       /bin/sh -c "cd $build_dir; buildpkg download /var/packages/$2.sh"
+	       /bin/sh -c "cd $build_dir; /usr/sbin/buildpkg download /var/packages/$2.sh"
+	[ 0 -ne $? ] && return 1
+
+	# copy the sources to the sources directory, so they don't have to be
+	# downloaded again next time
+	cp -f "$1/$build_dir"/* "$VAR_PREFIX/source/$2"
 	[ 0 -ne $? ] && return 1
 
 	# build the package
 	chroot "$1" \
-	       /bin/sh -c "cd $build_dir; buildpkg build /var/packages/$2.sh"
+	       /bin/sh -c "cd $build_dir; /usr/sbin/buildpkg build /var/packages/$2.sh"
 	[ 0 -ne $? ] && return 1
+
+	# if the package was already built, remove the old build
+	if [ -e "$1/$BUILD_RESULT_PREFIX/$2" ]
+	then
+		rm -rf "$1/$BUILD_RESULT_PREFIX/$2"
+		[ 0 -ne $? ] && return 1
+	fi
 
 	# if the compilation succeeded, move the directory to the build results
 	# directory
-	mv "$1/$build_dir" "$1/$BUILD_RESUTLT_PREFIX/$2"
+	mv "$1/$build_dir" "$1/$BUILD_RESULT_PREFIX/$2"
+	[ 0 -ne $? ] && return 1
+
+	# copy the package to the binary packages directory
+	cp -f "$1/$BUILD_RESULT_PREFIX/$2"/*.rxz "$VAR_PREFIX/package"
 	[ 0 -ne $? ] && return 1
 
 	# install the package within the chroot environment, using hpm
-	chroot "$1" /bin/sh -c "hpm-install /$BUILD_RESUTLT_PREFIX/$2/*.rxz $2"
+	chroot "$1" /bin/sh -c "hpm-install /$BUILD_RESULT_PREFIX/$2/*.rxz $2"
 	[ 0 -ne $? ] && return 1
 
 	return 0

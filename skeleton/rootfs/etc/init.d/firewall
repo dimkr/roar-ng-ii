@@ -6,7 +6,7 @@
 case "$1" in
 	start)
 		echo -n "Starting firewall ..."
-	
+
 		# include the configuration file
 		. /etc/init.conf.d/firewall
 

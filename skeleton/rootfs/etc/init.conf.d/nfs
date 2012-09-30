@@ -1,0 +1,4 @@
+# /etc/init.conf.d/nfs: configuration file for the NFS server init script
+
+# the number of server threads
+SERVER_THREADS=8

@@ -38,10 +38,8 @@ package() {
 	make DESTDIR=$INSTALL_DIR install
 	[ 0 -ne $? ] && return 1
 
-	# install the license and the list of authors
+	# install the license; the README contains only installation guidelines
 	install -D -m 644 COPYING $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/COPYING
-	[ 0 -ne $? ] && return 1
-	install -D -m 644 AUTHORS $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/AUTHORS
 	[ 0 -ne $? ] && return 1
 
 	return 0

@@ -84,6 +84,10 @@ package() {
 	make DESTDIR=$INSTALL_DIR install
 	[ 0 -ne $? ] && return 1
 
+	# create $BIN_DIR/vi, a symlink to vim
+	ln -s vim $INSTALL_DIR/$BIN_DIR/vi
+	[ 0 -ne $? ] && return 1
+
 	# install the license
 	install -D -m 644 runtime/doc/uganda.txt $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/uganda.txt
 	[ 0 -ne $? ] && return 1

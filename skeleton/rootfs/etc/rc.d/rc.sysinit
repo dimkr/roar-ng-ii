@@ -1,7 +1,7 @@
 #!/bin/dash
 
 # /etc/rc.d/rc.sysinit: a system init script
-# dependencies: dash, busybox and udev
+# dependencies: dash, BusyBox and udev
 
 # set the executable search path
 export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/opt/bin:/opt/sbin:/usr/local/bin:/usr/local/sbin"
@@ -13,12 +13,20 @@ export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/opt/bin:/opt/sbin:/usr/local/bin:/us
 # /var/lock clean
 mount -t tmpfs run /run
 mkdir /run/lock /run/shm /run/tmp /run/udev
-ln -s ../run/shm /dev/shm
 
 # set the sticky bit of /run/tmp
 chmod 1777 /run/tmp
 
-# mount remaining virtual file systems
+# bind directories to /run
+mount -o bind /run/tmp /tmp
+mount -o bind /run /var/run
+mount -o bind /run/lock /var/lock
+
+# bind /dev/shm to /run/shm, to avoid the need for another tmpfs
+mkdir /dev/shm
+mount -o bind /run/shm /dev/shm
+
+# mount a devpts file system under /dev/pts
 mkdir /dev/pts
 mount -t devpts devpts /dev/pts
 

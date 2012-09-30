@@ -9,7 +9,7 @@ case "$1" in
 
 	start)
 		echo -n "Starting Dropbear ..."
-	
+
 		# generate the keys
 		for i in rsa dss
 		do

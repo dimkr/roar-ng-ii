@@ -5,7 +5,7 @@ PKG_VER="3.2.30"
 PKG_REV="1"
 PKG_DESC="A monolithic kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="BuildingBlock"
-PKG_DEPS=""
+PKG_DEPS="+gawk,+perl"
 
 # the kernel image file name
 KERNEL_IMAGE_FILE_NAME="vmlinuz"
@@ -17,10 +17,19 @@ PKG_MAJOR_VER="$(echo $PKG_VER | cut -f 1-2 -d .)"
 AUFS_TARBALL_NAME="aufs3-$PKG_MAJOR_VER-git$(date +%d%m%Y)"
 
 download() {
-	# download the sources tarball
-	if [ ! -f $PKG_NAME-$PKG_VER.tar.xz ]
+	# download the sources tarball of the major version - it will be downloaded
+	# once, for each major version
+	if [ ! -f $PKG_NAME-$PKG_MAJOR_VER.tar.xz ]
 	then
-		download_file http://www.kernel.org/pub/linux/kernel/v3.0/$PKG_NAME-$PKG_VER.tar.xz
+		download_file http://www.kernel.org/pub/linux/kernel/v3.0/$PKG_NAME-$PKG_MAJOR_VER.tar.xz
+		[ 0 -ne $? ] && return 1
+	fi
+
+	# download the minor version patch, which is small - every minor version has
+	# an incremental patch of all previous releases
+	if [ ! -f patch-$PKG_VER.xz ]
+	then
+		download_file http://www.kernel.org/pub/linux/kernel/v3.0/patch-$PKG_VER.xz
 		[ 0 -ne $? ] && return 1
 	fi
 
@@ -28,9 +37,9 @@ download() {
 	if [ ! -f $AUFS_TARBALL_NAME.tar.xz ]
 	then
 		# download the sources
-		git clone --depth 1 \
-		    git://aufs.git.sourceforge.net/gitroot/aufs/aufs3-standalone.git \
-		    $AUFS_TARBALL_NAME
+		git clone \
+		      git://aufs.git.sourceforge.net/gitroot/aufs/aufs3-standalone.git \
+		      $AUFS_TARBALL_NAME
 		[ 0 -ne $? ] && return 1
 
 		# switch to the matching branch
@@ -49,15 +58,24 @@ download() {
 	fi
 
 	# download the Linux-libre deblobbing scripts
+	if [ ! -f deblob-$PKG_MAJOR_VER ]
+	then
+		download_file http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER-gnu/deblob-$PKG_MAJOR_VER
+		[ 0 -ne $? ] && return 1
+	fi
+
 	if [ ! -f deblob-check ]
 	then
 		download_file http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER-gnu/deblob-check
 		[ 0 -ne $? ] && return 1
 	fi
 
-	if [ ! -f deblob-$PKG_MAJOR_VER ]
+	# download the deblobbing log of the Linux-libre sources tarball, to make
+	# sure the scripts succeeded; they may fail if a modifcation (e.g Aufs)
+	# conflicts with their constants
+	if [ ! -f linux-libre-$PKG_VER-gnu.log ]
 	then
-		download_file http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER-gnu/deblob-$PKG_MAJOR_VER
+		download_file http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER-gnu/linux-libre-$PKG_VER-gnu.log
 		[ 0 -ne $? ] && return 1
 	fi
 
@@ -66,19 +84,27 @@ download() {
 
 build() {
 	# extract the sources
-	tar -xJvf $PKG_NAME-$PKG_VER.tar.xz
+	tar -xJvf $PKG_NAME-$PKG_MAJOR_VER.tar.xz
+	[ 0 -ne $? ] && return 1
+
+	# decompress the minor version patch
+	xz -d patch-$PKG_VER.xz
 	[ 0 -ne $? ] && return 1
 
 	# extract the Aufs sources
 	tar -xJvf $AUFS_TARBALL_NAME.tar.xz
 	[ 0 -ne $? ] && return 1
 
-	cd $PKG_NAME-$PKG_VER
+	cd $PKG_NAME-$PKG_MAJOR_VER
 
 	# clean the kernel sources
 	make clean
 	[ 0 -ne $? ] && return 1
 	make mrproper
+	[ 0 -ne $? ] && return 1
+
+	# apply the minor version patch
+	patch -p1 < ../patch-$PKG_VER
 	[ 0 -ne $? ] && return 1
 
 	# apply the Aufs patches
@@ -101,16 +127,20 @@ build() {
 	[ 0 -ne $? ] && return 1
 
 	# force deblob-check to use gawk, to prevent it from using Python
-	sed -i s~'\$check "\$@"'~'$check --use-awk "$@"'~ ../deblob-check
+	sed -i s~'set_main_cmd=set_.*_main$'~'set_main_cmd=set_awk_main'~g \
+	    ../deblob-check
 	[ 0 -ne $? ] && return 1
 
-	# make the deblobbing scripts executable - the former is executed by the
-	# latter
-	chmod 755 ../deblob-check ../deblob-$PKG_MAJOR_VER
+	# make the deblobbing scripts executable
+	chmod 755 ../deblob-$PKG_MAJOR_VER ../deblob-check
 	[ 0 -ne $? ] && return 1
 
-	# deblob the kernel
-	../deblob-$PKG_MAJOR_VER
+	# deblob the kernel; save the deblobbing script's output
+	(../deblob-$PKG_MAJOR_VER) 2>&1 | tee ../deblob.log
+	[ 0 -ne $? ] && return 1
+
+	# make sure the deblobbing succeeded by comparing the logs
+	cmp ../deblob.log ../linux-libre-$PKG_VER-gnu.log
 	[ 0 -ne $? ] && return 1
 
 	# reset the minor version number, so the package is backwards-compatible
@@ -151,33 +181,13 @@ package() {
 	install -D -m 644 System.map $INSTALL_DIR/$BOOT_DIR/System.map
 	[ 0 -ne $? ] && return 1
 
-	# set the kernel module and firmware installation paths
-	sed -e s~'^MODLIB\t=.*'~"MODLIB\t=\$(INSTALL_MOD_PATH)/$LIB_DIR/modules/\$(KERNELRELEASE)"~ \
-	    -e s~'^INSTALL_FW_PATH=.*'~"INSTALL_FW_PATH=\$(INSTALL_MOD_PATH)/$LIB_DIR/firmware"~ \
-	    -i Makefile
-	[ 0 -ne $? ] && return 1
-
-	# create backwards-compatibility symlinks under /lib; they are required,
-	# since the makefile assumes it's the installation path - tools like depmod
-	# fail
-	if [ "lib" != "$LIB_DIR" ]
-	then
-		mkdir $INSTALL_DIR/lib
-		[ 0 -ne $? ] && return 1
-		for i in modules firmware
-		do
-			ln -s ../$LIB_DIR/$i $INSTALL_DIR/lib/$i
-			[ 0 -ne $? ] && return 1
-		done
-	fi
-
 	# install the kernel modules and firmware
 	make INSTALL_MOD_PATH=$INSTALL_DIR modules_install
 	[ 0 -ne $? ] && return 1
 
 	# remove all generated module dependency files - depmod is able to
 	# generate them at boot-time
-	for i in $INSTALL_DIR/$LIB_DIR/modules/$PKG_MAJOR_VER/modules.*
+	for i in $INSTALL_DIR/lib/modules/$PKG_MAJOR_VER/modules.*
 	do
 		case "$i" in
 			*/modules.builtin|*/modules.order)
@@ -193,10 +203,10 @@ package() {
 	# sources directory, make them point to /$SOURCE_DIR/$PKG_NAME
 	for i in build source
 	do
-		path="$INSTALL_DIR/$LIB_DIR/modules/$PKG_MAJOR_VER/$i"
+		path="$INSTALL_DIR/lib/modules/$PKG_MAJOR_VER/$i"
 		rm -f "$path"
 		[ 0 -ne $? ] && return 1
-		ln -s /$SOURCE_DIR/$PKG_NAME "$path"
+		ln -s ../../../$SOURCE_DIR/$PKG_NAME "$path"
 		[ 0 -ne $? ] && return 1
 	done
 

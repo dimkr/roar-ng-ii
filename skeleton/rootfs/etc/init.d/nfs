@@ -2,11 +2,11 @@
 
 # /etc/init.d/nfs: an init script for a NFS server
 
-# the number of server threads
-THREADS=8
-
 case "$1" in
 	start)
+		# include the configuration file
+		. /etc/init.conf.d/nfs
+
 		echo -n "Starting the RPC port mapper ..."
 		rpc.portmap
 		pidof rpc.portmap > /run/rpc.portmap.pid
@@ -20,7 +20,7 @@ case "$1" in
 		echo -n "Starting the NFS server ..."
 		[ ! -f /proc/1/net/rpc/nfsd ] && modprobe -q nfsd
 		mount -t nfsd none /proc/fs/nfsd
-		rpc.nfsd $THREADS
+		rpc.nfsd $SERVER_THREADS
 		echo " done"
 
 		echo -n "Exporting NFS shares ..."

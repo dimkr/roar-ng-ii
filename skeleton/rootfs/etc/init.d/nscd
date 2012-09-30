@@ -5,7 +5,8 @@
 case "$1" in
 	start)
 		echo -n "Starting nscd ..."
-		nscd	
+		[ ! -d /run/nscd ] && mkdir /run/nscd
+		nscd
 		success=$?
 		echo " done"
 		exit $success
@@ -25,7 +26,7 @@ case "$1" in
 		;;
 
 	*)
-		echo "nscd{start|stop|restart}"
+		echo "nscd {start|stop|restart}"
 		exit 1
 		;;
 esac

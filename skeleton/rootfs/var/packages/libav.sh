@@ -11,7 +11,7 @@ download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 
 	# download the sources
-	git clone --depth 1 git://git.libav.org/libav.git $PKG_NAME-$PKG_VER
+	git clone git://git.libav.org/libav.git $PKG_NAME-$PKG_VER
 	[ 0 -ne $? ] && return 1
 
 	cd $PKG_NAME-$PKG_VER
