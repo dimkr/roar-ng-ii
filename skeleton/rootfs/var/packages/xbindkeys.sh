@@ -14,14 +14,6 @@ download() {
 	return 0
 }
 
-download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://www.nongnu.org/xbindkeys/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
-	return 0
-}
-
 build() {
 	# extract the sources tarball
 	tar -xzvf $PKG_NAME-$PKG_VER.tar.gz

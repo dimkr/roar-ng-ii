@@ -17,33 +17,32 @@ PKG_MAJOR_VER="$(echo $PKG_VER | cut -f 1-2 -d .)"
 PKG_PATCH_VER="$(echo $PKG_VER | cut -f 3 -d .)"
 
 download() {
-	if [ ! -f $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz ]
-	then
-		# create a directory for the patches
-		mkdir $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER
+	[ -f $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz ] && return 0
+
+	# create a directory for the patches
+	mkdir $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER
+	[ 0 -ne $? ] && return 1
+
+	cd $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER
+
+	# download the patches
+	for i in $(seq -w $PKG_PATCH_VER)
+	do
+		file_name="$PKG_NAME$(echo $PKG_MAJOR_VER | sed s/'\.'//g)"-$i
+		[ -f "$file_name" ] && continue
+		download_file http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_MAJOR_VER-patches/$file_name
 		[ 0 -ne $? ] && return 1
+	done
 
-		cd $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER
+	cd ..
 
-		# download the patches
-		for i in $(seq -w $PKG_PATCH_VER)
-		do
-			file_name="$PKG_NAME$(echo $PKG_MAJOR_VER | sed s/'\.'//g)"-$i
-			[ -f "$file_name" ] && continue
-			download_file http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_MAJOR_VER-patches/$file_name
-			[ 0 -ne $? ] && return 1
-		done
+	# create a patches tarball
+	tar -c $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER | xz -9 -e > $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz
+	[ 0 -ne $? ] && return 1
 
-		cd ..
-
-		# create a patches tarball
-		tar -c $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER | xz -9 -e > $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz
-		[ 0 -ne $? ] && return 1
-
-		# clean up
-		rm -rf $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER
-		[ 0 -ne $? ] && return 1
-	fi
+	# clean up
+	rm -rf $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER
+	[ 0 -ne $? ] && return 1
 
 	return 0
 }

@@ -27,29 +27,26 @@ PKG_SRC="http://www.kernel.org/pub/linux/kernel/v3.0/linux-$PKG_VER.tar.xz
 AUFS_TARBALL_NAME="aufs3-$PKG_VER-git$(date +%d%m%Y)"
 
 download() {
+	[ -f $AUFS_TARBALL_NAME.tar.xz ] && return 0
+
 	# download the Aufs sources
-	if [ ! -f $AUFS_TARBALL_NAME.tar.xz ]
-	then
-		# download the sources
-		git clone \
-		      git://aufs.git.sourceforge.net/gitroot/aufs/aufs3-standalone.git \
-		      $AUFS_TARBALL_NAME
-		[ 0 -ne $? ] && return 1
+	git clone git://aufs.git.sourceforge.net/gitroot/aufs/aufs3-standalone.git \
+	          $AUFS_TARBALL_NAME
+	[ 0 -ne $? ] && return 1
 
-		# switch to the matching branch
-		cd $AUFS_TARBALL_NAME
-		git checkout origin/aufs$PKG_VER
-		[ 0 -ne $? ] && return 1
-		cd ..
+	# switch to the matching branch
+	cd $AUFS_TARBALL_NAME
+	git checkout origin/aufs$PKG_VER
+	[ 0 -ne $? ] && return 1
+	cd ..
 
-		# create a sources tarball
-		tar -c $AUFS_TARBALL_NAME | xz -9 -e > $AUFS_TARBALL_NAME.tar.xz
-		[ 0 -ne $? ] && return 1
+	# create a sources tarball
+	tar -c $AUFS_TARBALL_NAME | xz -9 -e > $AUFS_TARBALL_NAME.tar.xz
+	[ 0 -ne $? ] && return 1
 
-		# clean up
-		rm -rf $AUFS_TARBALL_NAME
-		[ 0 -ne $? ] && return 1
-	fi
+	# clean up
+	rm -rf $AUFS_TARBALL_NAME
+	[ 0 -ne $? ] && return 1
 
 	return 0
 }
