@@ -7,11 +7,10 @@ PKG_DESC="Standlone system tray"
 PKG_CAT="Desktop"
 PKG_DEPS="+util-linux,+xorg_base"
 
+# the package source files
+PKG_SRC="http://downloads.sourceforge.net/project/stalonetray/stalonetray/$PKG_NAME-$PKG_VER/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://downloads.sourceforge.net/project/stalonetray/stalonetray/$PKG_NAME-$PKG_VER/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

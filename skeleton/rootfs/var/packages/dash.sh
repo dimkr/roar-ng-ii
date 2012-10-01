@@ -7,11 +7,10 @@ PKG_DESC="A small and fast POSIX-compliant shell"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
 
+# the package source files
+PKG_SRC="http://gondor.apana.org.au/~herbert/dash/files/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://gondor.apana.org.au/~herbert/dash/files/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

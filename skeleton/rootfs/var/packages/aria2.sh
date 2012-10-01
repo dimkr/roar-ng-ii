@@ -7,11 +7,10 @@ PKG_DESC="Multi-protoocol download tool"
 PKG_CAT="Internet"
 PKG_DEPS="+expat,+gnutls"
 
+# the package source files
+PKG_SRC="http://downloads.sourceforge.net/project/aria2/stable/$PKG_NAME-$PKG_VER/$PKG_NAME-$PKG_VER.tar.xz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
-	# download the sources tarball
-	download_file http://downloads.sourceforge.net/project/aria2/stable/$PKG_NAME-$PKG_VER/$PKG_NAME-$PKG_VER.tar.xz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

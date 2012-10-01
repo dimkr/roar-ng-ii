@@ -7,11 +7,10 @@ PKG_DESC="Recompression utilities"
 PKG_CAT="BuildingBlock"
 PKG_DEPS="+zlib"
 
+# the package source files
+PKG_SRC="http://prdownloads.sourceforge.net/advancemame/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://prdownloads.sourceforge.net/advancemame/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

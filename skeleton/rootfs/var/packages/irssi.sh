@@ -7,11 +7,10 @@ PKG_DESC="IRC client"
 PKG_CAT="Internet"
 PKG_DEPS="+ncurses,+openssl,+glib2"
 
+# the package source files
+PKG_SRC="http://irssi.org/files/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://irssi.org/files/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

@@ -8,6 +8,9 @@ PKG_CAT="Desktop"
 PKG_DEPS="+xorg_base,+cwm,+rxvt-unicode,+stalonetray,+grun,+xbindkeys"
 PKG_ARCH="noarch"
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 

@@ -7,11 +7,10 @@ PKG_DESC="File manager with vi-like key bindings"
 PKG_CAT="System"
 PKG_DEPS="+ncurses,+file"
 
+# the package source files
+PKG_SRC="http://downloads.sourceforge.net/project/vifm/vifm/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://downloads.sourceforge.net/project/vifm/vifm/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

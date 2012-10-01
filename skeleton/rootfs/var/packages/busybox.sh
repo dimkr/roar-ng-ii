@@ -7,6 +7,9 @@ PKG_DESC="A tiny implementation of many Unix utilities"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
 
+# the package source files
+PKG_SRC="http://busybox.net/downloads/$PKG_NAME-$PKG_VER.tar.bz2"
+
 # the required bug-fix patches
 PATCHES="kernel_ver"
 
@@ -14,13 +17,6 @@ PATCHES="kernel_ver"
 MODULES_DIR="/lib/modules"
 
 download() {
-	# download the sources tarball
-	if [ ! -f $PKG_NAME-$PKG_VER.tar.bz2 ]
-	then
-		download_file http://busybox.net/downloads/$PKG_NAME-$PKG_VER.tar.bz2
-		[ 0 -ne $? ] && return 1
-	fi
-
 	# download the patches
 	for patch in $PATCHES
 	do

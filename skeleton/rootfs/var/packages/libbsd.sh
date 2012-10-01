@@ -7,11 +7,10 @@ PKG_DESC="BSD functions library"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
 
+# the package source files
+PKG_SRC="http://libbsd.freedesktop.org/releases/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://libbsd.freedesktop.org/releases/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

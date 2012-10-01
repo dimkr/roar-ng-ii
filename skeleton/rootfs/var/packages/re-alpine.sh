@@ -7,6 +7,9 @@ PKG_DESC="E-mail client, continuation of Alpine"
 PKG_CAT="Internet"
 PKG_DEPS="+ncurses,+openssl,+cyrus-sasl2,+openldap"
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 

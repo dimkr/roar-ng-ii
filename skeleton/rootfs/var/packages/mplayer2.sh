@@ -7,6 +7,9 @@ PKG_DESC="Video player forked from MPlayer"
 PKG_CAT="Multimedia"
 PKG_DEPS="+ncurses,+libav"
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 

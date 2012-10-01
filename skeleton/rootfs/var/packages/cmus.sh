@@ -7,11 +7,10 @@ PKG_DESC="Console music player"
 PKG_CAT="Multimedia"
 PKG_DEPS="+ncurses,+alsa-lib,+libmad,+libvorbis,+flac,+libav"
 
+# the package source files
+PKG_SRC="http://sourceforge.net/projects/cmus/files/$PKG_NAME-v$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-v$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://sourceforge.net/projects/cmus/files/$PKG_NAME-v$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

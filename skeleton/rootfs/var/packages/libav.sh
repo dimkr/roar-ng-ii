@@ -7,6 +7,9 @@ PKG_DESC="Complete audio and video conversion, recording and streaming solution 
 PKG_CAT="Multimedia"
 PKG_DEPS="+libvorbis,+libogg,+libtheora"
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 
@@ -15,13 +18,13 @@ download() {
 	[ 0 -ne $? ] && return 1
 
 	cd $PKG_NAME-$PKG_VER
-	
+
 	# switch to the stable branch
 	git checkout release/0.8
 	[ 0 -ne $? ] && return 1
-	
+
 	cd ..
-	
+
 	# create a sources tarball
 	tar -c $PKG_NAME-$PKG_VER | xz -9 -e > $PKG_NAME-$PKG_VER.tar.xz
 	[ 0 -ne $? ] && return 1

@@ -7,11 +7,10 @@ PKG_DESC="Hex editor"
 PKG_CAT="Develop"
 PKG_DEPS="+ncurses"
 
+# the package source files
+PKG_SRC="http://downloads.sourceforge.net/project/shed/shed/shed%20$PKG_VER/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://downloads.sourceforge.net/project/shed/shed/shed%20$PKG_VER/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

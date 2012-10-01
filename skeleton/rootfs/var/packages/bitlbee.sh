@@ -7,11 +7,10 @@ PKG_DESC="An IRC to other networks gateway"
 PKG_CAT="Internet"
 PKG_DEPS="+gnutls,+glib2"
 
+# the package source files
+PKG_SRC="http://get.bitlbee.org/src/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://get.bitlbee.org/src/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

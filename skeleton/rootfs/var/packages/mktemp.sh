@@ -7,11 +7,10 @@ PKG_DESC="Tool for creation of temporary files and directories"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
 
+# the package source files
+PKG_SRC="ftp://ftp.mktemp.org/pub/mktemp/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file ftp://ftp.mktemp.org/pub/mktemp/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

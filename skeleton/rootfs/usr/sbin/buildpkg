@@ -51,6 +51,14 @@ path=$(realpath "$2")
 # handle the "download" command
 if [ "download" = "$1" ]
 then
+	# download the package source files
+	for file in $PKG_SRC
+	do
+		download_file $file
+		[ 0 -ne $? ] && exit 1
+	done
+
+	# if there's anything to do besides this, do it
 	download
 	[ 0 -ne $? ] && exit 1
 	exit 0

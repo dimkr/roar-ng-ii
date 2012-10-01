@@ -7,6 +7,9 @@ PKG_DESC="Improved implementation of the vi text editor"
 PKG_CAT="Document"
 PKG_DEPS="+ncurses,+gpm"
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 

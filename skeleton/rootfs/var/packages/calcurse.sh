@@ -7,11 +7,10 @@ PKG_DESC="Calendar and scheduling application"
 PKG_CAT="Utility"
 PKG_DEPS="+ncurses"
 
+# the package source files
+PKG_SRC="http://calcurse.org/files/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://calcurse.org/files/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

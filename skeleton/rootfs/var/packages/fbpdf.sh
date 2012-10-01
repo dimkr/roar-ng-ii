@@ -7,6 +7,9 @@ PKG_DESC="A small PDF viewer for the framebuffer console"
 PKG_CAT="Document"
 PKG_DEPS="+poppler"
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 

@@ -7,11 +7,10 @@ PKG_DESC="English dictionary for Aspell"
 PKG_CAT="BuildingBlock"
 PKG_DEPS="+aspell"
 
+# the package source files
+PKG_SRC="ftp://ftp.gnu.org/gnu/aspell/dict/en/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file ftp://ftp.gnu.org/gnu/aspell/dict/en/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

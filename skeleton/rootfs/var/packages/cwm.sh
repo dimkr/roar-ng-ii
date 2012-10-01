@@ -7,6 +7,9 @@ PKG_DESC="Minimalistic window manager"
 PKG_CAT="Desktop"
 PKG_DEPS="+xorg_base,+libbsd"
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 

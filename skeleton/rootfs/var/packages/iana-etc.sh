@@ -8,11 +8,10 @@ PKG_CAT="BuildingBlock"
 PKG_DEPS=""
 PKG_ARCH="noarch"
 
+# the package source files
+PKG_SRC="http://www.sethwklein.net/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://www.sethwklein.net/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

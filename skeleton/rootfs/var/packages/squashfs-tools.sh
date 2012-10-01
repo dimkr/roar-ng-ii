@@ -7,6 +7,9 @@ PKG_DESC="Tools for the Squashfs file system"
 PKG_CAT="BuildingBlock"
 PKG_DEPS="+zlib,+xz,+lzo"
 
+# the package source files
+PKG_SRC="http://downloads.sourceforge.net/project/squashfs/squashfs/squashfs$PKG_VER/squashfs$PKG_VER.tar.gz"
+
 # choose the default compression - LZO for ARM, otherwise XZ
 case $PKG_ARCH in
 	arm*)
@@ -18,10 +21,6 @@ case $PKG_ARCH in
 esac
 
 download() {
-	[ -f squashfs$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://downloads.sourceforge.net/project/squashfs/squashfs/squashfs$PKG_VER/squashfs$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

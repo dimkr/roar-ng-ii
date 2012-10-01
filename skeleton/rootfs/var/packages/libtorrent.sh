@@ -7,11 +7,10 @@ PKG_DESC="BitTorrent library"
 PKG_CAT="Internet"
 PKG_DEPS="+openssl,+libsigc++"
 
+# the package source files
+PKG_SRC="http://libtorrent.rakshasa.no/downloads/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://libtorrent.rakshasa.no/downloads/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

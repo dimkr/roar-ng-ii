@@ -8,6 +8,9 @@ PKG_CAT="BuildingBlock"
 PKG_DEPS=""
 PKG_ARCH="noarch"
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 

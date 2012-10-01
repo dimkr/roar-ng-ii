@@ -7,11 +7,10 @@ PKG_DESC="Text web browser"
 PKG_CAT="Internet"
 PKG_DEPS="+zlib,+bzip2,+xz,+openssl,+gpm"
 
+# the package source files
+PKG_SRC="http://links.twibright.com/download/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://links.twibright.com/download/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

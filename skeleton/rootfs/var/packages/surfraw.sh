@@ -7,11 +7,10 @@ PKG_DESC="Search engines frontend"
 PKG_CAT="Internet"
 PKG_DEPS="+perl"
 
+# the package source files
+PKG_SRC="http://surfraw.alioth.debian.org/dist/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://surfraw.alioth.debian.org/dist/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

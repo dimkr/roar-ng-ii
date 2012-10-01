@@ -7,11 +7,10 @@ PKG_DESC="Terminal emulator"
 PKG_CAT="Utility"
 PKG_DEPS="+xorg_base"
 
+# the package source files
+PKG_SRC="http://dist.schmorp.de/rxvt-unicode/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://dist.schmorp.de/rxvt-unicode/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 
@@ -85,6 +84,6 @@ package() {
 	# create a backwards-compatibility symlink
 	ln -s urxvt $INSTALL_DIR/$BIN_DIR/rxvt
 	[ 0 -ne $? ] && return 1
-	
+
 	return 0
 }

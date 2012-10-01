@@ -7,23 +7,17 @@ PKG_DESC="Lightweight boot loaders"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
 
-download() {
-	# download the sources tarball
-	if [ ! -f $PKG_NAME-$PKG_VER.tar.xz ]
-	then
-		download_file http://www.kernel.org/pub/linux/utils/boot/syslinux/$PKG_NAME-$PKG_VER.tar.xz
-		[ 0 -ne $? ] && return 1
-	fi
+# the package source files
+PKG_SRC="http://www.kernel.org/pub/linux/utils/boot/syslinux/$PKG_NAME-$PKG_VER.tar.xz"
 
-	# download a required patch: the boot loader fails when built with
-	# GCC 4.7
-	if [ ! -f handle-ctors-dtors-via-init_array-and-fini_array.patch ]
-	then
-		download_file \
-		https://projects.archlinux.org/svntogit/packages.git/plain/trunk/handle-ctors-dtors-via-init_array-and-fini_array.patch?h=packages/syslinux \
-		handle-ctors-dtors-via-init_array-and-fini_array.patch
-		[ 0 -ne $? ] && return 1
-	fi
+download() {
+	[ -f handle-ctors-dtors-via-init_array-and-fini_array.patch ] && return 0
+
+	# download a required patch: the boot loader fails when built with GCC 4.7
+	download_file \
+	https://projects.archlinux.org/svntogit/packages.git/plain/trunk/handle-ctors-dtors-via-init_array-and-fini_array.patch?h=packages/syslinux \
+	handle-ctors-dtors-via-init_array-and-fini_array.patch
+	[ 0 -ne $? ] && return 1
 
 	return 0
 }

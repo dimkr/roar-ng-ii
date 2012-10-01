@@ -7,11 +7,10 @@ PKG_DESC="FTP client"
 PKG_CAT="Internet"
 PKG_DEPS="+less,+ncurses,+readline,+gnutls"
 
+# the package source files
+PKG_SRC="http://ftp.yar.ru/pub/source/lftp/$PKG_NAME-$PKG_VER.tar.xz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
-	# download the sources tarball
-	download_file http://ftp.yar.ru/pub/source/lftp/$PKG_NAME-$PKG_VER.tar.xz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

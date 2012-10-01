@@ -7,14 +7,13 @@ PKG_DESC="SSH2 server and client"
 PKG_CAT="Network"
 PKG_DEPS="+zlib"
 
+# the package source files
+PKG_SRC="http://matt.ucc.asn.au/dropbear/releases/$PKG_NAME-$PKG_VER.tar.bz2"
+
 # the programs to build
 PROGRAMS="dbclient dropbearkey"
 
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://matt.ucc.asn.au/dropbear/releases/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 
@@ -39,11 +38,11 @@ build() {
 	# set the xauth path
 	sed -i s~'/usr/bin/X11/xauth'~"$(which xauth)"~ options.h
 	[ 0 -ne $? ] && return 1
-	
+
 	# set the key paths
 	sed -i s~/etc/dropbear~"/$CONF_DIR/dropbear"~g options.h
 	[ 0 -ne $? ] && return 1
-	
+
 	# build the package
 	make -j $BUILD_THREADS PROGRAMS="dropbear $PROGRAMS" MULTI=1
 	[ 0 -ne $? ] && return 1

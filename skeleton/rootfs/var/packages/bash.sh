@@ -7,6 +7,9 @@ PKG_DESC="A sh-compatible shell"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
 
+# the package source files
+PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_MAJOR_VER.tar.gz"
+
 # the package major version
 PKG_MAJOR_VER="$(echo $PKG_VER | cut -f 1-2 -d .)"
 
@@ -14,13 +17,6 @@ PKG_MAJOR_VER="$(echo $PKG_VER | cut -f 1-2 -d .)"
 PKG_PATCH_VER="$(echo $PKG_VER | cut -f 3 -d .)"
 
 download() {
-	# download the sources tarball
-	if [ ! -f $PKG_NAME-$PKG_MAJOR_VER.tar.gz ]
-	then
-		download_file http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_MAJOR_VER.tar.gz
-		[ 0 -ne $? ] && return 1
-	fi
-
 	if [ ! -f $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz ]
 	then
 		# create a directory for the patches

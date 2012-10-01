@@ -7,6 +7,13 @@ PKG_DESC="A key bindings tool"
 PKG_CAT="Utility"
 PKG_DEPS="+xorg-base"
 
+# the package source files
+PKG_SRC="http://semicomplete.googlecode.com/files/$PKG_NAME-$PKG_VER.tar.gz"
+
+download() {
+	return 0
+}
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
 	# download the sources tarball

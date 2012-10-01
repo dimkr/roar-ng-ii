@@ -8,11 +8,10 @@ PKG_CAT="Desktop"
 PKG_DEPS=""
 PKG_ARCH="noarch"
 
+# the package source files
+PKG_SRC="http://sourceforge.net/projects/terminus-font/files/$PKG_NAME-$PKG_VER/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://sourceforge.net/projects/terminus-font/files/$PKG_NAME-$PKG_VER/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

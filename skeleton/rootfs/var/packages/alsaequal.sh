@@ -7,11 +7,10 @@ PKG_DESC="An equalizer plugin for ALSA"
 PKG_CAT="Multimedia"
 PKG_DEPS="+alsa-lib,+caps"
 
+# the package source files
+PKG_SRC="http://www.thedigitalmachine.net/tools/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://www.thedigitalmachine.net/tools/$PKG_NAME-$PKG_VER.tar.bz2 
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 
@@ -50,7 +49,7 @@ package() {
 	make DESTDIR=$INSTALL_DIR install
 	[ 0 -ne $? ] && return 1
 
-	# install the README 
+	# install the README
 	install -D -m 644 README $INSTALL_DIR/$DOC_DIR/$PKG_NAME/README
 	[ 0 -ne $? ] && return 1
 

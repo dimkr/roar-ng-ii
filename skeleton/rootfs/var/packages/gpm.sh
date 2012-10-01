@@ -7,11 +7,10 @@ PKG_DESC="A mouse server"
 PKG_CAT="BuildingBlock"
 PKG_DEPS="+ncurses"
 
+# the package source files
+PKG_SRC="http://www.nico.schottelius.org/software/gpm/archives/$PKG_NAME-$PKG_VER.tar.bz2"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.bz2 ] && return 0
-	# download the sources tarball
-	download_file http://www.nico.schottelius.org/software/gpm/archives/$PKG_NAME-$PKG_VER.tar.bz2
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

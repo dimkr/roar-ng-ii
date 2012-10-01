@@ -136,6 +136,10 @@ download_file() {
 	# turn relative paths into absolute ones
 	destination="$(realpath "$destination")"
 
+	# if the destination exists already, do nothing and assume it's the right
+	# file
+	[ -f "$destination" ] && return 0
+
 	# if aria2 is not present, use Wget
 	if [ -z "$(which aria2c)" ]
 	then

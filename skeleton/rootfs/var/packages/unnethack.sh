@@ -10,11 +10,10 @@ PKG_DEPS="+ncurses"
 # the source package release date
 PKG_DATE="20120401"
 
+# the package source files
+PKG_SRC="http://downloads.sourceforge.net/project/unnethack/unnethack/$PKG_VER/$PKG_NAME-$PKG_VER-$PKG_DATE.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER-$PKG_DATE.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://downloads.sourceforge.net/project/unnethack/unnethack/$PKG_VER/$PKG_NAME-$PKG_VER-$PKG_DATE.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

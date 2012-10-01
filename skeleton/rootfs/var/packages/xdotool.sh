@@ -7,11 +7,10 @@ PKG_DESC="An X11 automation tool"
 PKG_CAT="Utility"
 PKG_DEPS="+xorg_base"
 
+# the package source files
+PKG_SRC="http://semicomplete.googlecode.com/files/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://semicomplete.googlecode.com/files/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

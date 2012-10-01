@@ -7,11 +7,10 @@ PKG_DESC="Framebuffer console configuration tool"
 PKG_CAT="Utility"
 PKG_DEPS=""
 
+# the package source files
+PKG_SRC="http://users.telenet.be/geertu/Linux/fbdev/$PKG_NAME-$PKG_VER.tar.gz"
+
 download() {
-	[ -f $PKG_NAME-$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://users.telenet.be/geertu/Linux/fbdev/$PKG_NAME-$PKG_VER.tar.gz
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 

@@ -7,6 +7,9 @@ PKG_DESC="A simple suspend tool"
 PKG_CAT="System"
 PKG_DEPS=""
 
+# the package source files
+PKG_SRC=""
+
 download() {
 	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
 

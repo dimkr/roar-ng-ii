@@ -3,15 +3,14 @@
 PKG_NAME="caps"
 PKG_VER="0.4.5"
 PKG_REV="1"
-PKG_DESC="An audio plugin suite" 
+PKG_DESC="An audio plugin suite"
 PKG_CAT="Multimedia"
 PKG_DEPS=""
 
+# the package source files
+PKG_SRC="http://www.quitte.de/dsp/${PKG_NAME}_$PKG_VER.tar.gz"
+
 download() {
-	[ -f ${PKG_NAME}_$PKG_VER.tar.gz ] && return 0
-	# download the sources tarball
-	download_file http://www.quitte.de/dsp/${PKG_NAME}_$PKG_VER.tar.gz 
-	[ 0 -ne $? ] && return 1
 	return 0
 }
 
@@ -43,7 +42,7 @@ package() {
 	make DESTDIR=$INSTALL_DIR install
 	[ 0 -ne $? ] && return 1
 
-	# install the documentation 
+	# install the documentation
 	install -D -m 644 caps.html $INSTALL_DIR/$DOC_DIR/$PKG_NAME/caps.html
 	[ 0 -ne $? ] && return 1
 
