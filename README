@@ -20,6 +20,8 @@ a complete redesign of roar-ng and thrives to be more flexible and smarter:
  - Support for distributions is provided by a smart plug-in system.
  - roar-ng II itself can be installed as a regular package and "propagate" into
    the distributions built by it, to make them truly self-hosting.
+ - It is able to build packages from source, within distributions built by it,
+   in a clean way.
 
 Distributions currently supported by roar-ng II are:
   - Debian (http://www.debian.org/) and derivatives:
@@ -71,6 +73,29 @@ of extra, third-party tools:
     packages originating in openSUSE. It is needed due to limitations in many
     implementations of rpm2cpio: it is a very lightweight and
     architecture-independent solution for RPM package extraction.
+
+#########
+# Usage #
+#########
+
+roar-ng is an all-in-one script which exposes all roar-ng II's functionality. It
+recevies the following command-line arguments:
+  - check    : performs sanity checks of the configuration.
+  - setup    : downloads and processes the package lists of all used
+               repositories.
+  - download : downloads all binary packages.
+  - extract  : extracts the downloaded binary packages.
+  - build    : builds a bootable image of the distribution; receives two
+               additional command-line arguments: the bootable media type and
+               the output file path. Intermediate directories are kept, for use
+               with "package".
+  - package  : builds a binary package from source, within the distribution;
+               must run after "build". In this mode, roar-ng II needs sufficient
+               permissions to run mount and chroot.
+  - cleanup  : cleans up after "build" by removing intermediate directories.
+
+In a typical session, roar-ng II is executed with "setup", "download", "extract"
+and "build".
 
 ######################
 # Design Philosophy  #

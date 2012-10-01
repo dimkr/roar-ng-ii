@@ -1,42 +1,65 @@
-#!/bin/sh
+#!/bin/busybox ash
 
 # /init: a system init script
-# dependencies: BusyBox
+# dependencies:
+#   - Linux, with the following built-in:
+#       - Aufs
+#       - Squashfs
+#       - Drivers for all block devices and file systems the distribution should
+#         be able to boot from
+#   - BusyBox (at /bin/busybox), with the following applets:
+#       - ash
+#       - mount, FEATURE_MOUNT_LABEL is unused
+#       - cat
+#       - sleep
+#       - blkid
+#       - grep
+#       - cut
+#       - cp
+#       - umount
+#       - mountpoint
+#       - mkdir
+#       - switch_root
 
-# the size of the tmpfs file system used as the writeable layer, if no save file
-# is used
+# file systems to move to the union file system
+VIRTUAL_FS="proc sys dev"
+
+# the size of the tmpfs file system used as the writeable layer
 TMPFS_SIZE="75%"
 
 # the directory containing the kernel, the initramfs and other files required to
 # boot the system
 BOOT_DIR="boot"
 
-# the main Squashfs image path
+# the main Squashfs image file name
 MAIN_SFS_NAME="rootfs.sfs"
 
-# usage: show_error $error
+# show_error()
+# purpose: displays a fatal error and terminates the boot process
+# input  : the error message
+# output : -
 show_error()
 {
 	echo
 	echo "Error: $1."
-	sleep 20
+	/bin/busybox sleep 20
 	exit 0
 }
 
-# set the executable search path
-export PATH="/bin:/sbin:/usr/bin:/usr/sbin"
-
 # mount all virtual file systems
-mount -t rootfs -o remount,rw rootfs /
-mount -t proc proc /proc
-mount -t sysfs sysfs /sys
-mount -t devtmpfs dev /dev
+/bin/busybox mount -t rootfs -o remount,rw rootfs /
+/bin/busybox mount -t proc proc /proc
+/bin/busybox mount -t sysfs sysfs /sys
+/bin/busybox mount -t devtmpfs dev /dev
 
 # the session is non-persistent, unless the "parsistent" boot code was passed
 is_persistent=0
 
+# by default, do not copy the root file system to RAM
+should_copy=0
+
 # parse the kernel command-line
-for argument in $(cat /proc/cmdline)
+for argument in $(/bin/busybox cat /proc/cmdline)
 do
 	case "$argument" in
 		root=*)
@@ -48,77 +71,135 @@ do
 		persistent)
 			is_persistent=1
 			;;
+		copy)
+			should_copy=1
+			;;
 	esac
 done
 
 # make sure a root partition was specified
 [ -z "$root" ] && show_error "no root partition was specified"
 
+# make sure copying to RAM is used only under live sessions
+[ 1 -eq $should_copy ] && [ 1 -eq $is_persistent ] && \
+      show_error "cannot copy the root file system to RAM under persistent mode"
+
 # if the "sleep" argument was passed, sleep for the given number of seconds
 case "$sleep" in
 	[0-9]*)
 		echo -n "Sleeping for $sleep second(s) ..."
-		sleep $sleep
+		/bin/busybox sleep $sleep
 		echo " done"
 		;;
-esac
-
-# if the root partition was specified through its UUID, determine its name
-case "$root" in
-	*-*-*-*-*)
-		root="$(blkid | \
-		        grep UUID=\"$root\" | \
-		        cut -f 1 -d : | cut -f 3- -d /)"
-		[ -z "$root" ] && show_error "the given UUID was not found"
+	*)
+		[ -z "$root" ] && show_error "an invalid sleep interval was specified"
 		;;
 esac
 
-# mount the root partition
-mount /dev/$root /mnt/root
-[ 0 -ne $? ] && show_error "failed to mount the root partition"
+# if the root partition was specified by UUID, translate it into the device name
+case "$root" in
+	*-*-*-*-*)
+		root="$(/bin/busybox blkid | \
+		        /bin/busybox grep UUID=\"$root\" | \
+		        /bin/busybox cut -f 1 -d :)"
+		[ -z "$root" ] && show_error "the given root partition UUID is invalid"
+		;;
+	*)
+		root="/dev/$root"
+		;;
+esac
 
-# mount the main Squashfs image, located under the root partition
-mount /mnt/root/$BOOT_DIR/$MAIN_SFS_NAME /mnt/ro -t squashfs -o loop,ro
-[ 0 -ne $? ] && show_error "failed to mount the main file system image"
-
-# initialize a list of the mounted file systems
-file_systems="ro root"
-
-# prepare a writeable file system
-if [ 0 -eq $is_persistent ]
+# determine which mount point to use for the root file system - under
+# non-persistent mode, use /mnt/root, but for persistent sessions, use /mnt/rw
+if [ 1 -eq $is_persistent ]
 then
-	# under non-persistent mode, use a tmpfs file system
-	mount -t tmpfs -o size=$TMPFS_SIZE,rw tmpfs /mnt/rw
-	[ 0 -ne $? ] && show_error "failed to mount a tmpfs file system"
-	writeable_layer="rw"
-
-	# append the newly mounted file system to the list
-	file_systems="rw $file_systems"
+	root_partition_mount_point="/mnt/rw"
 else
-	# under persistent mode, use the root partition
-	writeable_layer="root"
+	root_partition_mount_point="/mnt/root"
 fi
 
-# create a union of the writeable file system and the main Squashfs image
-mount -t aufs -o br=/mnt/$writeable_layer=rw:/mnt/ro=ro aufs /mnt/union
+# mount the root partition
+/bin/busybox mount $root $root_partition_mount_point
+[ 0 -ne $? ] && show_error "failed to mount the root partition"
+
+# under non-persistent mode, mount a temporary, writeable file system under
+# /mnt/rw, instead of the root file system
+if [ 0 -eq $is_persistent ]
+then
+	/bin/busybox mount -t tmpfs -o size=$TMPFS_SIZE,rw tmpfs /mnt/rw
+	[ 0 -ne $? ] && show_error "failed to mount a tmpfs file system"
+fi
+
+# set the root file system image path - the root partition is always mounted
+root_fs_path="$root_partition_mount_point/$BOOT_DIR/$MAIN_SFS_NAME"
+
+# if the root file system should be copied to RAM, copy the image from the root
+# partition to /mnt/rw (the tmpfs file system - copying cannot be used under
+# persistent sessions) and unmount the root partition
+if [ 1 -eq $should_copy ]
+then
+	# copy the root file system image to the tmpfs file system
+	/bin/busybox cp -f "$root_fs_path" /mnt/rw
+	[ 0 -ne $? ] && show_error "failed to copy the root file system to RAM"
+
+	# unmount the root partition
+	/bin/busybox umount $root_partition_mount_point
+	[ 0 -ne $? ] && show_error "failed to unmount the root partition"
+
+	# replace the root file system image path with the copy's one
+	root_fs_path="/mnt/rw/$MAIN_SFS_NAME"
+fi
+
+# mount the main Squashfs image under /mnt/ro, from either the root file system
+# or from a copy under the tmpfs file system
+/bin/busybox mount "$root_fs_path" \
+                   /mnt/ro \
+                   -t squashfs \
+                   -o loop,ro
+[ 0 -ne $? ] && show_error "failed to mount the root file system image"
+
+# create a union of the writeable file system (the root partition or the tmpfs)
+# and the root file system (the Squashfs image), under /mnt/union
+/bin/busybox mount -t aufs -o br=/mnt/rw=rw:/mnt/ro=ro aufs /mnt/union
 [ 0 -ne $? ] && show_error "failed to set up the layered file system"
 
-# move mounted file systems to the union file system's /mnt
-for file_system in $file_systems
+# move all mounted file systems to the union file system's /mnt
+for file_system in ro rw root
 do
-	mkdir -p /mnt/union/mnt/$file_system
-	mount --move /mnt/$file_system /mnt/union/mnt/$file_system
+	# if a mount point wasn't used, skip it - this happens with the root file
+	# system's mount point (/mnt/root), which is unused under persistent mode
+	/bin/busybox mountpoint -q /mnt/$file_system
+	[ 1 -eq $? ] && continue
+
+	# create a mount point under the union file system
+	if [ ! -d /mnt/union/mnt/$file_system ]
+	then
+		/bin/busybox mkdir /mnt/union/mnt/$file_system
+		[ 0 -ne $? ] && show_error "failed to create a mount point"
+	fi
+
+	# move the file system
+	/bin/busybox mount --move /mnt/$file_system /mnt/union/mnt/$file_system
 	[ 0 -ne $? ] && show_error "failed to set up the layered file system"
 done
 
 # also, move virtual file systems, so they don't have to re-mounted by the real
 # init script
-for file_system in proc sys dev
+for file_system in $VIRTUAL_FS
 do
-	mount --move /$file_system /mnt/union/$file_system
+	# if the mount point got accidently removed, restore it
+	if [ ! -d /mnt/union/$file_system ]
+	then
+		/bin/busybox mkdir /mnt/union/$file_system
+		[ 0 -ne $? ] && \
+		           show_error "failed to create a mount point for /$file_system"
+	fi
+
+	# move the file system
+	/bin/busybox mount --move /$file_system /mnt/union/$file_system
 	[ 0 -ne $? ] && show_error "failed to set up the layered file system"
 done
 
 # switch to the union file system
-exec switch_root /mnt/union /sbin/init
+exec /bin/busybox switch_root /mnt/union /sbin/init
 show_error "failed to switch to the layered file system"
