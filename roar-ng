@@ -99,7 +99,7 @@ BUILD_RESULT_PREFIX="usr/src"
 ###########
 
 # the mksquashfs flags used
-MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 524288 -no-exports"
+MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 512K -no-exports"
 
 # the gzip flags used to compress the initramfs
 GZIP_OPTIONS="--best"

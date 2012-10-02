@@ -131,13 +131,17 @@ done
 
 # if the "sleep" argument was passed, sleep for the given number of seconds
 case "$sleep" in
+	"")
+		;;
+
 	[0-9]*)
 		echo -n "Sleeping for $sleep second(s) ..."
 		/bin/busybox sleep $sleep
 		echo " done"
 		;;
+
 	*)
-		[ -z "$root" ] && show_error "an invalid sleep interval was specified"
+		show_error "an invalid sleep interval was specified"
 		;;
 esac
 
