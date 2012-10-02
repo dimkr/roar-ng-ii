@@ -46,11 +46,59 @@ show_error()
 	exit 0
 }
 
+# find_root()
+# purpose: locates and mounts the root partition
+# input  : the root partition's mount point and the full path to the root file
+#          system image
+# output : -
+find_root() {
+	is_found=0
+
+	echo -n "Searching for the root file system ..."
+
+	for device in $(/bin/busybox blkid | /bin/busybox cut -f 1 -d :)
+	do
+		echo -n " ${device##*/}"
+
+		# mount the device, read-only; upon failure, just skip it
+		/bin/busybox mount -o ro "$device" "$1" > /dev/null 2>&1
+		[ 0 -ne $? ] && continue
+
+		# if the root file system image exists, make it read-write, break the
+		# loop and keep the device mounted; if the remounting failed, the device
+		# will be unmounted and ignored
+		if [ -f "$2" ]
+		then
+			/bin/busybox mount -o remount,rw "$device" "$1" > /dev/null 2>&1
+			if [ 0 -eq $? ]
+			then
+				is_found=1
+				break
+			fi
+		fi
+
+		# unmount the device
+		/bin/busybox umount "$1"
+		[ 0 -ne $? ] && break
+	done
+
+	# terminate the printed line with a line break
+	echo ""
+
+	[ 1 -eq $is_found ] && return 0
+	return 1
+}
+
+# clear the screen from the boot loader's output
+/bin/busybox clear
+
 # mount all virtual file systems
+echo -n "Mounting virtual file systems ..."
 /bin/busybox mount -t rootfs -o remount,rw rootfs /
 /bin/busybox mount -t proc proc /proc
 /bin/busybox mount -t sysfs sysfs /sys
 /bin/busybox mount -t devtmpfs dev /dev
+echo " done"
 
 # the session is non-persistent, unless the "parsistent" boot code was passed
 is_persistent=0
@@ -77,9 +125,6 @@ do
 	esac
 done
 
-# make sure a root partition was specified
-[ -z "$root" ] && show_error "no root partition was specified"
-
 # make sure copying to RAM is used only under live sessions
 [ 1 -eq $should_copy ] && [ 1 -eq $is_persistent ] && \
       show_error "cannot copy the root file system to RAM under persistent mode"
@@ -98,12 +143,16 @@ esac
 
 # if the root partition was specified by UUID, translate it into the device name
 case "$root" in
+	"")
+		;;
+
 	*-*-*-*-*)
 		root="$(/bin/busybox blkid | \
 		        /bin/busybox grep UUID=\"$root\" | \
 		        /bin/busybox cut -f 1 -d :)"
 		[ -z "$root" ] && show_error "the given root partition UUID is invalid"
 		;;
+
 	*)
 		root="/dev/$root"
 		;;
@@ -118,9 +167,22 @@ else
 	root_partition_mount_point="/mnt/root"
 fi
 
+# set the root file system image path - the root partition is always mounted, so
+# it must exist
+root_fs_path="$root_partition_mount_point/$BOOT_DIR/$MAIN_SFS_NAME"
+
 # mount the root partition
-/bin/busybox mount $root $root_partition_mount_point
-[ 0 -ne $? ] && show_error "failed to mount the root partition"
+if [ -z "$root" ]
+then
+	# if no root partition was specified explicitly, locate it by mounting all
+	# partitions, one by one
+	find_root "$root_partition_mount_point" "$root_fs_path"
+	[ 0 -ne $? ] && show_error "failed to locate and mount the root partition"
+else
+	# otherwise, use the one specified via the "root" boot code
+	/bin/busybox mount $root $root_partition_mount_point
+	[ 0 -ne $? ] && show_error "failed to mount the root partition"
+fi
 
 # under non-persistent mode, mount a temporary, writeable file system under
 # /mnt/rw, instead of the root file system
@@ -130,21 +192,22 @@ then
 	[ 0 -ne $? ] && show_error "failed to mount a tmpfs file system"
 fi
 
-# set the root file system image path - the root partition is always mounted
-root_fs_path="$root_partition_mount_point/$BOOT_DIR/$MAIN_SFS_NAME"
-
 # if the root file system should be copied to RAM, copy the image from the root
 # partition to /mnt/rw (the tmpfs file system - copying cannot be used under
 # persistent sessions) and unmount the root partition
 if [ 1 -eq $should_copy ]
 then
 	# copy the root file system image to the tmpfs file system
+	echo -n "Copying the root file system to RAM ..."
 	/bin/busybox cp -f "$root_fs_path" /mnt/rw
 	[ 0 -ne $? ] && show_error "failed to copy the root file system to RAM"
+	echo " done"
 
 	# unmount the root partition
+	echo -n "Unmounting the root partition ..."
 	/bin/busybox umount $root_partition_mount_point
 	[ 0 -ne $? ] && show_error "failed to unmount the root partition"
+	echo " done"
 
 	# replace the root file system image path with the copy's one
 	root_fs_path="/mnt/rw/$MAIN_SFS_NAME"
@@ -152,11 +215,15 @@ fi
 
 # mount the main Squashfs image under /mnt/ro, from either the root file system
 # or from a copy under the tmpfs file system
+echo -n "Mounting the root file system ..."
 /bin/busybox mount "$root_fs_path" \
                    /mnt/ro \
                    -t squashfs \
                    -o loop,ro
 [ 0 -ne $? ] && show_error "failed to mount the root file system image"
+echo " done"
+
+echo -n "Setting up a layered file system ..."
 
 # create a union of the writeable file system (the root partition or the tmpfs)
 # and the root file system (the Squashfs image), under /mnt/union
@@ -199,6 +266,8 @@ do
 	/bin/busybox mount --move /$file_system /mnt/union/$file_system
 	[ 0 -ne $? ] && show_error "failed to set up the layered file system"
 done
+
+echo " done"
 
 # switch to the union file system
 exec /bin/busybox switch_root /mnt/union /sbin/init

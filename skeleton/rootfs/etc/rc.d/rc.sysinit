@@ -9,6 +9,8 @@ export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/opt/bin:/opt/sbin:/usr/local/bin:/us
 # include the configuration file
 . /etc/rc.conf.d/sysinit
 
+echo -n "Setting up /run ..."
+
 # mount a tmpfs file system under /run; it is also used to keep /var/run and
 # /var/lock clean
 mount -t tmpfs run /run
@@ -26,43 +28,71 @@ mount -o bind /run/lock /var/lock
 mkdir /dev/shm
 mount -o bind /run/shm /dev/shm
 
+echo " done"
+
 # mount a devpts file system under /dev/pts
+echo -n "Mounting devpts ..."
 mkdir /dev/pts
 mount -t devpts devpts /dev/pts
+echo " done"
 
 # generate the loader cache
-[ ! -f /etc/ld.so.cache ] && ldconfig
+if [ ! -f /etc/ld.so.cache ]
+then
+	echo -n "Generating the loader cache ..."
+	ldconfig
+	echo " done"
+fi
 
 # generate module dependency files
-[ ! -f /lib/modules/$(uname -r)/modules.dep ] && depmod -a
+if [ ! -f /lib/modules/$(uname -r)/modules.dep ]
+then
+	echo -n "Generating module dependency files ..."
+	depmod -a
+	echo " done"
+fi
 
 # start udev and wait for it to load all required modules
+echo -n "Starting udev ..."
 udevd --daemon
 udevadm trigger
 udevadm settle
+echo " done"
 
 # set the console font
+echo -n "Setting the console font ..."
 for i in 1 2 3 4 5
 do
 	setfont $CONSOLE_FONT -C /dev/tty$i
 done
+echo " done"
 
 # mount all fstab file systems
+echo -n "Mounting file systems ..."
 mount -a
+echo " done"
 
 # enable all swap partitions specified in /etc/fstab
+echo -n "Setting up swap ..."
 swapon -a
+echo " done"
 
 # set the hostname
+echo -n "Setting the hostname ..."
 hostname -F /etc/hostname
+echo " done"
 
 # set up up a loopback interface
+echo -n "Configuring a loopback interface ..."
 ifconfig lo 127.0.0.1 up
 route add -net 127.0.0.0 netmask 255.0.0.0 lo
+echo " done"
 
 # start logging daemons
+echo -n "Starting logging daemons ..."
 klogd
 syslogd -D -S
+echo " done"
 
 # start extra daemons
 for i in /etc/init.d/*
@@ -74,4 +104,9 @@ done
 [ -x /etc/rc.local ] && . /etc/rc.local
 
 # generate the locale archive
-[ ! -f /usr/lib/locale/locale-archive ] && locale-gen
+if [ ! -f /usr/lib/locale/locale-archive ]
+then
+	echo -n "Generating locales ..."
+	locale-gen > /dev/null 2>&1
+	echo " done"
+fi

@@ -953,7 +953,10 @@ _build_rootfs() {
 	done
 
 	# populate /root with the home directory skeleton
-	cp -a "$1/etc/skel"/* "$1/root"
+	[ -d "$1/root" ] && rm -rf "$1/root"
+	cp -a "$1/etc/skel" "$1/root"
+	chown -R 0:0 "$1/root"
+	chmod 600 "$1/root"
 	[ 0 -ne $? ] && return 1
 
 	# create a Squashfs image
