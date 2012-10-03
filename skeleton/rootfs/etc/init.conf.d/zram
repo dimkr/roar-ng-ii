@@ -1,0 +1,10 @@
+# /etc/init.conf.d/zram: configuration file for the zram init script
+
+# the number of zram devices
+DEVICE_COUNT="$(grep processor /proc/cpuinfo | wc -l)"
+
+# the size of each device (128 MB)
+DEVICE_SIZE=134217728
+
+# the swap device priority (the maximum, according to the swapon man page)
+SWAP_PRIORITY=32767

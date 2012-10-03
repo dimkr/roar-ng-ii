@@ -1,0 +1,74 @@
+#!/bin/dash
+
+# /etc/init.d/zram: an init script for setting up zram, a compressed swap device
+
+case "$1" in
+	start)
+		echo -n "Starting zram ..."
+	
+		# include the configuration file
+		. /etc/init.conf.d/zram
+
+		# load the zram kernel module
+		modprobe zram zram_num_devices=$DEVICES_COUNT
+		success=$?
+
+		# set the size of each device and activate swap
+		if [ 0 -eq $success ]
+		then
+			i=0
+			while [ $DEVICE_COUNT -gt $i ]
+			do
+				# set the device size
+				echo $DEVICE_SIZE > /sys/block/zram$i/disksize
+
+				# set up swap on the device
+				mkswap /dev/zram$i > /dev/null
+				success=$?
+				[ 0 -ne $success ] && break
+
+				# activate the swap
+				swapon /dev/zram$i -p $SWAP_PRIORITY
+				success=$?
+				[ 0 -ne $success ] && break
+
+				i=$((1 + $i))
+			done
+		fi
+
+		echo " done"
+		exit $success
+		;;
+
+	stop)
+		echo -n "Stopping zram ..."
+	
+		# include the configuration file
+		. /etc/init.conf.d/zram
+
+		# disable swap on each device
+		success=0
+		i=0
+		while [ $DEVICE_COUNT -gt $i ]
+		do
+			swapoff /dev/zram$i
+			success=$?
+			[ 0 -ne $success ] && break
+
+			i=$((1 + $i))
+		done
+
+		echo " done"
+		exit $success
+		;;
+
+	restart)
+		"$0" stop
+		"$0" start
+		;;
+
+	*)
+		echo "zram {start|stop|restart}"
+		exit 1
+		;;
+esac
