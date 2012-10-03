@@ -10,9 +10,9 @@ case "$1" in
 		. /etc/init.conf.d/zram
 
 		# load the zram kernel module
-		modprobe zram zram_num_devices=$DEVICES_COUNT
+		modprobe zram zram_num_devices=$DEVICE_COUNT
 		success=$?
-
+	
 		# set the size of each device and activate swap
 		if [ 0 -eq $success ]
 		then
@@ -57,6 +57,13 @@ case "$1" in
 
 			i=$((1 + $i))
 		done
+
+		# unload the zram kernel module
+		if [ 0 -eq $success ]
+		then
+			rmmod zram
+			success=$?
+		fi
 
 		echo " done"
 		exit $success
