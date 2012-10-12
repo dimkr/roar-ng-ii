@@ -1,7 +1,6 @@
 #!/bin/dash
 
 # /etc/rc.d/rc.shutdown: a system shutdown script
-# dependencies: dash and busybox
 
 # stop extra daemons
 for i in /etc/init.d/*
@@ -9,12 +8,12 @@ do
 	[ -x $i ] && $i stop
 done
 
+# stop udev
+kill $(pidof udevd)
+
 # stop logging daemons
 kill $(pidof syslogd)
 kill $(pidof klogd)
-
-# stop other daemons
-kill $(pidof udevd)
 
 # disable swap
 swapoff -a

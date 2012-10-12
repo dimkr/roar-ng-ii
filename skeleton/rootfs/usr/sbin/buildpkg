@@ -98,7 +98,7 @@ fi
 cd $INSTALL_DIR
 
 # create the binary package
-tar -c * | xz -e --best > "$base_dir/$PKG_NAME-$PKG_VER.$PKG_EXTENSION"
+tar -c * | xz -e --best > "$base_dir/$PKG_NAME-$PKG_VER-$PKG_REV.$PKG_EXTENSION"
 if [ 0 -ne $? ]
 then
 	echo "Error: failed to create the package."

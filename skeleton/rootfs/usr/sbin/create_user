@@ -1,6 +1,7 @@
 #!/bin/dash
 
 # /usr/sbin/create_user: a user creation script
+# dependencies: dash and dialog
 
 # the default groups new users belong to
 DEFAULT_GROUPS="audio cdrom dialout disk floppy lp netdev plugdev tape tty video
