@@ -75,82 +75,82 @@ centos_convert_package_list() {
 	awk -v distro="$(get_current_distro)" \
 	    -v distro_version="$(get_current_distro_version)" \
 	    -v repo="$2" '
-	BEGIN {
-		RS = "<"
-	}
+	    BEGIN {
+	    	RS = "<"
+	    }
 
-	# prints a package entry
-	function print_entry() {
-		if ("" != name) {
-			printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-			       name,
-			       version,
-			       revision,
-			       arch,
-			       file_name,
-			       description,
-			       distro,
-			       distro_version,
-			       repo)
-		}
-	}
+	    # prints a package entry
+	    function print_entry() {
+	    	if ("" != name) {
+	    		printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    			   name,
+	    			   version,
+	    			   revision,
+	    			   arch,
+	    			   file_name,
+	    			   description,
+	    			   distro,
+	    			   distro_version,
+	    			   repo)
+	    	}
+	    }
 
-	{
-		if ($1 ~ "^name") {
-			sub(/^name>/, "", $0);
-			name = $0
-		} else {
-			if ($1 ~ "^arch") {
-				sub(/^arch>/, "", $0);
-				arch = $0
-			} else {
-				if ("version" == $1) {
-					for (i = 2; NF >= i; i++) {
-						value = $i
+	    {
+	    	if ($1 ~ "^name") {
+	    		sub(/^name>/, "", $0);
+	    		name = $0
+	    	} else {
+	    		if ($1 ~ "^arch") {
+	    			sub(/^arch>/, "", $0);
+	    			arch = $0
+	    		} else {
+	    			if ("version" == $1) {
+	    				for (i = 2; NF >= i; i++) {
+	    					value = $i
 
-						# remove the attribute name and
-						# the "="
-						sub(/.*=\"/, "", value);
+	    					# remove the attribute name and
+	    					# the "="
+	    					sub(/.*=\"/, "", value);
 
-						# remove the trailing "\"/"
-						sub(/\".*/, "", value);
+	    					# remove the trailing "\"/"
+	    					sub(/\".*/, "", value);
 
-						if ($i ~ "^ver") {
-							version = value
-						} else {
-							if ($i ~ "^rel") {
-								revision = value
-							}
-						}
+	    					if ($i ~ "^ver") {
+	    						version = value
+	    					} else {
+	    						if ($i ~ "^rel") {
+	    							revision = value
+	    						}
+	    					}
 
-					}
-				} else {
-					if ("location" == $1) {
-						# remove the "href=\""
-						sub(/.*href=\"/, "", $2);
+	    				}
+	    			} else {
+	    				if ("location" == $1) {
+	    					# remove the "href=\""
+	    					sub(/.*href=\"/, "", $2);
 
-						# remove the trailing quotes and
-						# everything afterwards
-						sub(/\".*/, "", $2);
+	    					# remove the trailing quotes and
+	    					# everything afterwards
+	    					sub(/\".*/, "", $2);
 
-						file_name = $2
-					} else {
-						if ($1 ~ "^summary") {
-							# strip the closing tag
-							sub(/^summary>/,
-							    "",
-							    $0);
-							description = $0
-						} else {
-							if ("/package>" == $1) {
-								print_entry()
-							}
-						}
-					}
-				}
-			}
-		}
-	}' "$1"
+	    					file_name = $2
+	    				} else {
+	    					if ($1 ~ "^summary") {
+	    						# strip the closing tag
+	    						sub(/^summary>/,
+	    							"",
+	    							$0);
+	    						description = $0
+	    					} else {
+	    						if ("/package>" == $1) {
+	    							print_entry()
+	    						}
+	    					}
+	    				}
+	    			}
+	    		}
+	    	}
+	    }' "$1"
 }
 
 # centos_extract_package()

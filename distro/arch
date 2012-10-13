@@ -1,0 +1,97 @@
+# repositories - package list URL|repository name
+REPOSITORIES="ftp://ftp.archlinux.org/core/os/$(get_current_distro_arch)/core.db.tar.gz|arch-core
+              ftp://ftp.archlinux.org/extra/os/$(get_current_distro_arch)/extra.db.tar.gz|arch-extra
+              ftp://ftp.archlinux.org/community/os/$(get_current_distro_arch)/community.db.tar.gz|arch-community"
+
+# package download mirrors - more at http://www.archlinux.org/mirrors/status/
+MIRRORS="http://mirrors.kernel.org/archlinux/core/os/$(get_current_distro_arch)|arch-core
+         http://mirrors.kernel.org/archlinux/extra/os/$(get_current_distro_arch)|arch-extra
+         http://mirrors.kernel.org/archlinux/community/os/$(get_current_distro_arch)|arch-community
+         ftp://mirror.lividpenguin.com/pub/archlinux/core/os/$(get_current_distro_arch)|arch-core
+         ftp://mirror.lividpenguin.com/pub/archlinux/extra/os/$(get_current_distro_arch)|arch-extra
+         ftp://mirror.lividpenguin.com/pub/archlinux/community/os/$(get_current_distro_arch)|arch-community
+         ftp://ftp.archlinux.org/core/os/$(get_current_distro_arch)|arch-core
+         ftp://ftp.archlinux.org/extra/os/$(get_current_distro_arch)|arch-extra
+         ftp://ftp.archlinux.org/community/os/$(get_current_distro_arch)|arch-community"
+
+# arch_get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+arch_get_architecture_aliases() {
+	case "$1" in
+		x86_64|amd64)
+			echo "x86_64 any"
+			;;
+		x86|i?86)
+			echo "i686 any"
+			;;
+	esac
+}
+
+# arch_download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+arch_download_package_list() {
+	# download the package details tarball
+	download_file "$1" "$2"
+	[ 0 -ne $? ] && return 1
+
+	# decompress the tarball
+	decompress_file "$2"
+}
+
+# arch_convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+arch_convert_package_list() {
+	# extract the tar archive and print all files
+	tar -xOf "$1" | \
+	awk -v distro="$(get_current_distro)" \
+	    -v distro_version="$(get_current_distro_version)" \
+	    -v repo="$2" '
+	    {
+	    	if ("%FILENAME%" == $1) {
+	    		getline file_name
+	    	} else {
+	    		if ("%NAME%" == $1) {
+	    			getline name
+	    		} else {
+	    			if ("%VERSION%" == $1) {
+	    				getline line;
+	    				split(line, line_split, "-");
+	    				version = line_split[1];
+	    				revision = line_split[2];
+	    			} else {
+	    				if ("%DESC%" == $1) {
+	    					getline description
+	    				} else {
+	    					if ("%ARCH%" == $1) {
+	    						getline architecture;
+	    						printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    							   name,
+	    							   version,
+	    							   revision,
+	    							   architecture,
+	    							   file_name,
+	    							   description,
+	    							   distro,
+	    							   distro_version,
+	    							   repo)
+	    					}
+	    				}
+	    			}
+	    		}
+	    	}
+	    }'
+}
+
+# arch_extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+arch_extract_package() {
+	extract_tarball "$1" "$2"
+}

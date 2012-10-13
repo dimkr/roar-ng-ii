@@ -49,82 +49,77 @@ slackware_convert_package_list() {
 	    -v repo="$2" \
 	    -F ":" '
 
-	# trims the beginning of a string
-	function trim(s) {
-		sub(/^ */, "", s);
-		return s
-	}
+	    # trims the beginning of a string
+	    function trim(s) {
+	    	sub(/^ */, "", s);
+	    	return s
+	    }
 
-	# prints a package list entry
-	function print_entry() {
-		# split the name by "-"
-		name_items = split(file_name, name, "-");
+	    # prints a package list entry
+	    function print_entry() {
+	    	# split the name by "-"
+	    	name_items = split(file_name, name, "-");
 
-		# check if there are enough fields
-		if (3 < name_items) {
-			# strip the extension
-			sub(/\..*/, "", name[name_items]);
-			revision = name[name_items];
+	    	# check if there are enough fields
+	    	if (3 < name_items) {
+	    		# strip the extension
+	    		sub(/\..*/, "", name[name_items]);
+	    		revision = name[name_items];
 
-			# filter the version
-			version = name[name_items - 2];
+	    		# filter the version
+	    		version = name[name_items - 2];
 
-			# filter the architecture
-			arch = name[name_items - 1];
+	    		# filter the architecture
+	    		arch = name[name_items - 1];
 
-			# add the rest of the fields to the package name and
-			# remove the "-" at the beginning
-			for (i = 1; name_items - 2 > i; i++) {
-				package_name = package_name"-"name[i]
-			}
-			sub(/^-/, "", package_name)
-			printf("%s|%s|%s|%s|%s/%s|%s|%s|%s|%s\n",
-			       package_name,
-			       version,
-			       revision,
-			       arch,
-			       path,
-			       file_name,
-			       description,
-			       distro,
-			       distro_version,
-			       repo)
-		}
-		package_name = "";
-		version = "";
-		revision = "";
-		path = "";
-		file_name = "";
-		description = "";
-	}
-	{
-		if ($1 == "PACKAGE NAME") {
-			file_name = trim($2);
-		} else {
-			if ($1 == "PACKAGE LOCATION") {
-				path = trim($2);
-				# trim and strip "./"
-				sub(/^\.\//, "", path)
-			} else {
-				if ($1 == "PACKAGE DESCRIPTION") {
-					getline description;
-					description = trim(description);
-					sub(/[^:]*: +/, "", description);
-				} else {
+	    		# add the rest of the fields to the package name and
+	    		# remove the "-" at the beginning
+	    		for (i = 1; name_items - 2 > i; i++) {
+	    			package_name = package_name"-"name[i]
+	    		}
+	    		sub(/^-/, "", package_name)
+	    		printf("%s|%s|%s|%s|%s/%s|%s|%s|%s|%s\n",
+	    		       package_name,
+	    		       version,
+	    		       revision,
+	    		       arch,
+	    		       path,
+	    		       file_name,
+	    		       description,
+	    		       distro,
+	    		       distro_version,
+	    		       repo)
+	    		file_name = ""
+	    	}
+	    }
+	    {
+	    	if ($1 == "PACKAGE NAME") {
+	    		file_name = trim($2);
+	    	} else {
+	    		if ($1 == "PACKAGE LOCATION") {
+	    			path = trim($2);
+	    			# trim and strip "./"
+	    			sub(/^\.\//, "", path)
+	    		} else {
+	    			if ($1 == "PACKAGE DESCRIPTION") {
+	    				getline description;
+	    				description = trim(description);
+	    				sub(/[^:]*: +/, "", description);
+	    			} else {
 
-					# when the empty line separator is
-					# reached, print the current entry
-					if ("" == $0 && "" != file_name) {
-						print_entry()
-					}
-				}
-			}
-		}
-	} END {
-		# when the end of the file is reached, print the current entry
-		if ("" != file_name) {
-			print_entry()
-		}
+	    				# when the empty line separator is
+	    				# reached, print the current entry
+	    				if ("" == $0 && "" != file_name) {
+	    					print_entry()
+	    				}
+	    			}
+	    		}
+	    	}
+	    } END {
+	    	# when the end of the file is reached, print the current entry
+	    	if ("" != file_name) {
+	    		print_entry()
+	    	}
 	}' "$1"
 }
 

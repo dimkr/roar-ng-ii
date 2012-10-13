@@ -56,59 +56,59 @@ debian_convert_package_list() {
 	    -v distro_version="$(get_current_distro_version)" \
 	    -v repo="$2" \
 	    -F ": " '
-	function print_entry() {
-		printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-		       name,
-		       version,
-		       revision,
-		       arch,
-		       file_name,
-		       description,
-		       distro,
-		       distro_version,
-		       repo)
-	}
+	    function print_entry() {
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	       name,
+	    	       version,
+	    	       revision,
+	    	       arch,
+	    	       file_name,
+	    	       description,
+	    	       distro,
+	    	       distro_version,
+	    	       repo)
+	    }
 
-	{
-		if ("Package" == $1) {
-			name = $2
-		} else {
-			if ("Architecture" == $1) {
-				arch = $2
-			} else {
-				if ("Version" == $1) {
-					split($2, version_split, "-");
-					version = version_split[1];
-					revision = version_split[2]
-				} else {
-					if ("Filename" == $1) {
-						file_name = $2
-					} else {
-						if ("Description" == $1) {
-							description = $2
-						} else {
-							if ("" == $0 &&
-							    "" != name) {
-								print_entry();
-								name = "";
-								version = "";
-								revision = "";
-								arch = "";
-								file_name = "";
-								description = ""
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	    {
+	    	if ("Package" == $1) {
+	    		name = $2
+	    	} else {
+	    		if ("Architecture" == $1) {
+	    			arch = $2
+	    		} else {
+	    			if ("Version" == $1) {
+	    				split($2, version_split, "-");
+	    				version = version_split[1];
+	    				revision = version_split[2]
+	    			} else {
+	    				if ("Filename" == $1) {
+	    					file_name = $2
+	    				} else {
+	    					if ("Description" == $1) {
+	    						description = $2
+	    					} else {
+	    						if ("" == $0 &&
+	    						    "" != name) {
+	    							print_entry();
+	    							name = "";
+	    							version = "";
+	    							revision = "";
+	    							arch = "";
+	    							file_name = "";
+	    							description = ""
+	    						}
+	    					}
+	    				}
+	    			}
+	    		}
+	    	}
+	    }
 
-	END {
-		if ("" != name) {
-			print_entry()
-		}
-	}' "$1"
+	    END {
+	    	if ("" != name) {
+	    		print_entry()
+	    	}
+	    }' "$1"
 }
 
 # debian_extract_package()

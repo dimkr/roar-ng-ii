@@ -25,16 +25,19 @@ a complete redesign of roar-ng and thrives to be more flexible and smarter:
 
 Distributions currently supported by roar-ng II are:
   - Debian (http://www.debian.org/) and derivatives:
-    - Ubuntu (http://www.ubuntu.com/)
-    - Linux Mint (http://www.linuxmint.com/)
-    - Raspbian (http://www.raspbian.org/)
+      - Ubuntu (http://www.ubuntu.com/)
+      - Linux Mint (http://www.linuxmint.com/)
+      - Raspbian (http://www.raspbian.org/)
   - RPM-based distributions:
-    - Mageia (http://www.mageia.org/)
-    - Fedora (http://fedoraproject.org/)
-    - CentOS (https://www.centos.org/)
-    - openSUSE (http://www.opensuse.org/)
+      - Mageia (http://www.mageia.org/)
+      - Fedora (http://fedoraproject.org/)
+      - CentOS (https://www.centos.org/)
+      - openSUSE (http://www.opensuse.org/)
+  - Arch Linux (http://www.archlinux.org/)
   - Slackware (http://www.slackware.com/)
-  - Puppy Linux (http://www.puppylinux.org/)
+  - Puppy Linux (http://www.puppylinux.org/) and derivatives:
+      - Slacko
+      - Wary (http://bkhome.org/wary/)
 
 All processor archietcures and all versions of these distributions are supported
 in parallel.

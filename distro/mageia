@@ -53,49 +53,49 @@ mageia_convert_package_list() {
 	    -v distro_version="$(get_current_distro_version)" \
 	    -v repo="$2" \
 	    -F @ '
-		{
-			if ("summary" == $2) {
-				description = $3
-			} else {
-				if ("info" == $2) {
-					# the file name is this field, with the extension
-					file_name = ($3".rpm");
+	    {
+	    	if ("summary" == $2) {
+	    		description = $3
+	    	} else {
+	    		if ("info" == $2) {
+	    			# the file name is this field, with the extension
+	    			file_name = ($3".rpm");
 
-					# split the string by "-"
-					count = split($3, elements, "-");
+	    			# split the string by "-"
+	    			count = split($3, elements, "-");
 
-					# the revision and the architecture are stuffed in the last
-					# element
-					revision_and_architecture = elements[count];
+	    			# the revision and the architecture are stuffed in the last
+	    			# element
+	    			revision_and_architecture = elements[count];
 
-					# the version always comes before the revision
-					version = elements[count - 1];
+	    			# the version always comes before the revision
+	    			version = elements[count - 1];
 
-					# the name is the rest
-					name = elements[1];
-					for (i = 2; (count - 1) > i; i++) {
-						name = (name"-"elements[i])
-					}
+	    			# the name is the rest
+	    			name = elements[1];
+	    			for (i = 2; (count - 1) > i; i++) {
+	    				name = (name"-"elements[i])
+	    			}
 
-					# strip the architecture and actual revision
-					count = split(revision_and_architecture, elements, ".");
-					revision = elements[1];
-					architecture = elements[count];
+	    			# strip the architecture and actual revision
+	    			count = split(revision_and_architecture, elements, ".");
+	    			revision = elements[1];
+	    			architecture = elements[count];
 
-					# print the entry
-					printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-					       name,
-					       version,
-					       revision,
-					       architecture,
-					       file_name,
-					       description,
-					       distro,
-					       distro_version,
-					       repo)
-				}
-			}
-		}' "$1"
+	    			# print the entry
+	    			printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    			       name,
+	    			       version,
+	    			       revision,
+	    			       architecture,
+	    			       file_name,
+	    			       description,
+	    			       distro,
+	    			       distro_version,
+	    			       repo)
+	    		}
+	    	}
+	    }' "$1"
 }
 
 # mageia_extract_package()
