@@ -1,0 +1,43 @@
+# inherit from the Ubuntu support plug-in
+. ./ubuntu
+
+# repositories - package list URL|repository name
+REPOSITORIES="http://linux-mint.froonix.org/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.gz|mint-main
+              http://linux-mint.froonix.org/dists/$(get_current_distro_version)/upstream/binary-$(get_current_distro_arch)/Packages.gz|mint-upstream
+              http://linux-mint.froonix.org/dists/$(get_current_distro_version)/import/binary-$(get_current_distro_arch)/Packages.gz|mint-import"
+
+# package download mirrors
+MIRRORS="http://linux-mint.froonix.org|mint-main,mint-upstream,mint-import
+         ftp://ftp.is.co.za/mirrors/linuxmint.com/packages|mint-main,mint-upstream,mint-import"
+
+# mint_get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+mint_get_architecture_aliases() {
+	ubuntu_get_architecture_aliases $1
+}
+
+# mint_download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+mint_download_package_list() {
+	ubuntu_download_package_list "$1" "$2"
+}
+
+# mint_convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+mint_convert_package_list() {
+	ubuntu_convert_package_list "$1" "$2"
+}
+
+# mint_extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+mint_extract_package() {
+	ubuntu_extract_package "$1" "$2"
+}
