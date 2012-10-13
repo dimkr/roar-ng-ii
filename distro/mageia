@@ -1,0 +1,107 @@
+# inherit from the openSUSE support plug-in
+. ./opensuse
+
+# repositories - package list URL|repository name
+REPOSITORIES="http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_core_updates.cz|mageia-core_updates
+              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_core_release.cz|mageia-core
+              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_tainted_updates.cz|mageia-tainted_updates
+              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_tainted_release.cz|mageia-tainted
+              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_nonfree_updates.cz|mageia-nonfree_updates
+              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_nonfree_release.cz|mageia-nonfree"
+
+# package download mirrors
+MIRRORS="http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/core/updates|mageia-core_updates
+         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/core/release|mageia-core
+         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/tainted/updates|mageia-tainted_updates
+         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/tainted/release|mageia-tainted
+         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/nonfree/updates|mageia-nonfree_updates
+         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/nonfree/release|mageia-nonfree
+         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/core/updates|mageia-core_updates
+         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/core/release|mageia-core
+         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/tainted/updates|mageia-tainted_updates
+         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/tainted/release|mageia-tainted
+         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/nonfree/updates|mageia-nonfree_updates
+         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/nonfree/release|mageia-nonfree"
+
+# mageia_get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+mageia_get_architecture_aliases() {
+	opensuse_get_architecture_aliases "$1"
+}
+
+# mageia_download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+mageia_download_package_list() {
+	# download the package list
+	download_file "$1" "$2"
+	[ 0 -ne $? ] && return 1
+
+	# decompress the package list
+	decompress_file "$2"
+}
+
+# mageia_convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+mageia_convert_package_list() {
+	awk -v distro="$(get_current_distro)" \
+	    -v distro_version="$(get_current_distro_version)" \
+	    -v repo="$2" \
+	    -F @ '
+		{
+			if ("summary" == $2) {
+				description = $3
+			} else {
+				if ("info" == $2) {
+					# the file name is this field, with the extension
+					file_name = ($3".rpm");
+
+					# split the string by "-"
+					count = split($3, elements, "-");
+
+					# the revision and the architecture are stuffed in the last
+					# element
+					revision_and_architecture = elements[count];
+
+					# the version always comes before the revision
+					version = elements[count - 1];
+
+					# the name is the rest
+					name = elements[1];
+					for (i = 2; (count - 1) > i; i++) {
+						name = (name"-"elements[i])
+					}
+
+					# strip the architecture and actual revision
+					count = split(revision_and_architecture, elements, ".");
+					revision = elements[1];
+					architecture = elements[count];
+
+					# print the entry
+					printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+					       name,
+					       version,
+					       revision,
+					       architecture,
+					       file_name,
+					       description,
+					       distro,
+					       distro_version,
+					       repo)
+				}
+			}
+		}' "$1"
+}
+
+# mageia_extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+mageia_extract_package() {
+	opensuse_extract_package "$1" "$2"
+}

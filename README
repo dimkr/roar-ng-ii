@@ -28,9 +28,10 @@ Distributions currently supported by roar-ng II are:
     - Raspbian (http://www.raspbian.org/)
     - Ubuntu (http://www.ubuntu.com/)
   - RPM-based distributions:
+    - Mageia (http://www.mageia.org/)
     - Fedora (http://fedoraproject.org/)
-    - openSUSE (http://www.opensuse.org/)
     - CentOS (https://www.centos.org/)
+    - openSUSE (http://www.opensuse.org/)
   - Slackware (http://www.slackware.com/)
   - Puppy Linux (http://www.puppylinux.org/)
 
@@ -71,8 +72,8 @@ of extra, third-party tools:
   - AdvanceCOMP (http://advancemame.sourceforge.net/), for better compression of
     the initramfs. Without it, it will be a bit bigger.
   - exploderpm, part of src2pkg (http://www.src2pkg.net/), for extraction of RPM
-    packages originating in openSUSE. It is needed due to limitations in many
-    implementations of rpm2cpio: it is a very lightweight and
+    packages originating in openSUSE and Mageia. It is needed due to limitations
+    in many implementations of rpm2cpio: it is a very lightweight and
     architecture-independent solution for RPM package extraction.
 
 #########
