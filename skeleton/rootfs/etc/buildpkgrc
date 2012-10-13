@@ -3,6 +3,9 @@
 # include the roar-ng configuration file
 . /etc/roar-ng.conf
 
+# include roar-ng itself, for download_file() and make_tarball_and_delete()
+. /usr/bin/roar-ng
+
 # get the processor architecture
 arch="$(uname -m)"
 

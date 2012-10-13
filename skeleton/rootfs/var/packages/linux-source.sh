@@ -41,27 +41,22 @@ download() {
 	cd ..
 
 	# create a sources tarball
-	tar -c $AUFS_TARBALL_NAME | xz -9 -e > $AUFS_TARBALL_NAME.tar.xz
-	[ 0 -ne $? ] && return 1
-
-	# clean up
-	rm -rf $AUFS_TARBALL_NAME
-	[ 0 -ne $? ] && return 1
+	make_tarball_and_delete $AUFS_TARBALL_NAME $AUFS_TARBALL_NAME.tar.xz
 
 	return 0
 }
 
 build() {
 	# extract the sources
-	tar -xJvf linux-$PKG_VER.tar.xz
+	extract_tarball linux-$PKG_VER.tar.xz
 	[ 0 -ne $? ] && return 1
 
 	# decompress the minor version patch
-	xz -d patch-$PKG_VER.$PKG_REV.xz
+	decompress_file patch-$PKG_VER.$PKG_REV.xz patch-$PKG_VER.$PKG_REV
 	[ 0 -ne $? ] && return 1
 
 	# extract the Aufs sources
-	tar -xJvf $AUFS_TARBALL_NAME.tar.xz
+	extract_tarball $AUFS_TARBALL_NAME.tar.xz
 	[ 0 -ne $? ] && return 1
 
 	cd linux-$PKG_VER

@@ -19,7 +19,7 @@ download() {
 
 build() {
 	# extract the sources tarball
-	tar -xzvf $PKG_NAME-$PKG_VER-$PKG_DATE.tar.gz
+	extract_tarball $PKG_NAME-$PKG_VER-$PKG_DATE.tar.gz
 	[ 0 -ne $? ] && return 1
 
 	cd $PKG_NAME-$PKG_VER-$PKG_DATE

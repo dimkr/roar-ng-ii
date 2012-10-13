@@ -24,7 +24,7 @@ download() {
 
 build() {
 	# extract the sources tarball
-	tar -xJvf $PKG_NAME-$PKG_VER.tar.xz
+	extract_tarball $PKG_NAME-$PKG_VER.tar.xz
 	[ 0 -ne $? ] && return 1
 
 	cd $PKG_NAME-$PKG_VER

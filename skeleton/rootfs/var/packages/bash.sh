@@ -37,11 +37,7 @@ download() {
 	cd ..
 
 	# create a patches tarball
-	tar -c $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER | xz -9 -e > $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz
-	[ 0 -ne $? ] && return 1
-
-	# clean up
-	rm -rf $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER
+	make_tarball_and_delete $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz
 	[ 0 -ne $? ] && return 1
 
 	return 0
@@ -49,11 +45,11 @@ download() {
 
 build() {
 	# extract the sources tarball
-	tar -xzvf $PKG_NAME-$PKG_MAJOR_VER.tar.gz
+	extract_tarball $PKG_NAME-$PKG_MAJOR_VER.tar.gz
 	[ 0 -ne $? ] && return 1
 
 	# extract the patches tarball
-	tar -xJvf $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz
+	extract_tarball $PKG_NAME-$PKG_MAJOR_VER.001-$PKG_PATCH_VER.tar.xz
 	[ 0 -ne $? ] && return 1
 
 	cd $PKG_NAME-$PKG_MAJOR_VER

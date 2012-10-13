@@ -11,9 +11,6 @@ USAGE="buildpkg [download|build] SCRIPT
 
 Build a binary package, according to a build script."
 
-# include roar-ng, for download_file()
-. /usr/bin/roar-ng
-
 # include the hpm configuration file, for PKG_EXTENSION
 . /etc/hpmrc
 
@@ -33,10 +30,10 @@ case "$1" in
 		;;
 esac
 
-# include the settings file
+# include the settings file; it will also include roar-ng
 . /etc/buildpkgrc
 
-# get the full script path
+# get the full build script path
 path=$(realpath "$2")
 
 # include the build script
@@ -67,8 +64,6 @@ fi
 # handle the "build" command
 INSTALL_DIR="$(mktemp -u -d)"
 
-base_dir="$(pwd)"
-
 # build the package
 build
 if [ 0 -ne $? ]
@@ -85,7 +80,7 @@ then
 	exit 1
 fi
 
-cd "$base_dir"
+cd "$BASE_DIR"
 
 # optimize the package
 strippkg $INSTALL_DIR
@@ -95,20 +90,14 @@ then
 	exit 1
 fi
 
-cd $INSTALL_DIR
-
-# create the binary package
-tar -c * | xz -e --best > "$base_dir/$PKG_NAME-$PKG_VER-$PKG_REV.$PKG_EXTENSION"
+# create the binary package; do not include the parent directory
+make_tarball_and_delete $INSTALL_DIR \
+                        "$BASE_DIR/$PKG_NAME-$PKG_VER-$PKG_REV.$PKG_EXTENSION" \
+                        0
 if [ 0 -ne $? ]
 then
 	echo "Error: failed to create the package."
 	exit 1
 fi
-
-cd "$base_dir"
-
-# clean up
-rm -rf $INSTALL_DIR
-[ 0 -ne $? ] && exit 1
 
 exit 0

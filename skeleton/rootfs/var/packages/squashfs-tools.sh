@@ -26,7 +26,7 @@ download() {
 
 build() {
 	# extract the sources tarball
-	tar -xzvf squashfs$PKG_VER.tar.gz
+	extract_tarball squashfs$PKG_VER.tar.gz
 	[ 0 -ne $? ] && return 1
 
 	cd squashfs$PKG_VER/squashfs-tools

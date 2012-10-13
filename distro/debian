@@ -136,7 +136,7 @@ debian_extract_package() {
 	fi
 
 	# extract the files archive
-	extract_tar $temp_file "$2"
+	extract_tarball $temp_file "$2"
 	is_success=$?
 	rm -f $temp_file
 	[ 0 -ne $is_success ] && return 1

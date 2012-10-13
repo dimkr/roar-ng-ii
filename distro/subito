@@ -41,5 +41,5 @@ subito_convert_package_list() {
 # output : -
 subito_extract_package() {
 	# extract the package
-	extract_tar "$1" "$2"
+	extract_tarball "$1" "$2"
 }

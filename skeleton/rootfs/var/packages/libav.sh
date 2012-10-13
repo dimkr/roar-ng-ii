@@ -26,11 +26,7 @@ download() {
 	cd ..
 
 	# create a sources tarball
-	tar -c $PKG_NAME-$PKG_VER | xz -9 -e > $PKG_NAME-$PKG_VER.tar.xz
-	[ 0 -ne $? ] && return 1
-
-	# clean up
-	rm -rf $PKG_NAME-$PKG_VER
+	make_tarball_and_delete $PKG_NAME-$PKG_VER $PKG_NAME-$PKG_VER.tar.xz
 	[ 0 -ne $? ] && return 1
 
 	return 0
@@ -38,7 +34,7 @@ download() {
 
 build() {
 	# extract the sources tarball
-	tar -xJvf $PKG_NAME-$PKG_VER.tar.xz
+	extract_tarball $PKG_NAME-$PKG_VER.tar.xz
 	[ 0 -ne $? ] && return 1
 
 	cd $PKG_NAME-$PKG_VER

@@ -163,12 +163,20 @@ download_file() {
 
 # decompress_file()
 # purpose: decompresses compressed files
-# input  : a compressed file
+# input  : a compressed file and an optional output file path
 # output : -
 decompress_file() {
 	# get the archive's MIME type
 	file_type="$(file -bi "$1")"
 	file_type="${file_type%%;*}"
+
+	# choose the destination path
+	if [ -z "$2" ]
+	then
+		destination="$1"
+	else
+		destination="$2"
+	fi
 
 	# choose the decompression tool
 	case "$file_type" in
@@ -199,24 +207,32 @@ decompress_file() {
 		return 1
 	fi
 
-	# override the file with the decompressed one
-	mv -f $decompressed_file "$1"
+	# move the decompressed file to the destination path
+	mv -f $decompressed_file "$destination"
 	[ 0 -ne $? ] && return 1
 
 	return 0
 }
 
-# extract_tar()
+# extract_tarball()
 # purpose: extracts a tar archive
-# input  : the archive path and a destination directory
+# input  : the archive path and a destination directory (optional)
 # output : -
-extract_tar() {
+extract_tarball() {
 	# check whether the tar archive is compressed - if yes, decompress it
 	decompress_file "$1"
 	[ 0 -ne $? ] && return 1
 
+	# if no destination path was given, extract to the current directory
+	if [ -z "$2" ]
+	then
+		destination="."
+	else
+		destination="$2"
+	fi
+
 	# extract the archive
-	tar -xf "$1" -C "$2"
+	tar -xf "$1" -C "$destination"
 	[ 0 -ne $? ] && return 1
 
 	return 0
@@ -238,6 +254,65 @@ execute_and_delete_script() {
 	# delete the script
 	rm -f "$1"
 	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# make_tarball()
+# purpose: creates a compressed tarball from a directory
+# input  : a directory path, the tarball path and an optional boolean which
+#          indicates whether the parent directory should be kept (1 by default)
+# output : -
+make_tarball() {
+	# make the directory path absolute
+	directory="$(realpath "$1")"
+
+	# determine whether the parent directory should be included; the default is
+	# yes
+	if [ -z "$3" ]
+	then
+		keep_parent=1
+	else
+		keep_parent="$3"
+	fi
+
+	# choose the parent directory for the tarball contents and the actual
+	# contents
+	if [ 1 -eq $keep_parent ]
+	then
+		parent="${directory%/*}"
+		contents="${directory##*/}"
+	else
+		parent="$directory"
+		contents="*"
+	fi
+
+	# make the output file path absolute
+	destination="$(realpath "$2")"
+
+	# create a compressed tarball from the directory
+	cd "$parent"
+	tar -c $contents | xz -e --best > "$destination"
+	exit_code=$?
+	cd "$BASE_DIR"
+	[ 0 -ne $exit_code ] && return 1
+
+	return 0
+}
+
+# make_tarball_and_delete()
+# purpose: creates a compressed tarball from a directory and recursively deletes
+#          it
+# input  : see the documentation for make_tarball()
+# output : -
+make_tarball_and_delete() {
+	# create the tarball
+	make_tarball "$1" "$2" "$3"
+	[ 0 -ne $exit_code ] && return 1
+
+	# delete the directory
+	rm -rf "$1"
+	[ 0 -ne $exit_code ] && return 1
 
 	return 0
 }
