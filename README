@@ -32,6 +32,7 @@ Distributions currently supported by roar-ng II are:
     - openSUSE (http://www.opensuse.org/)
     - CentOS (https://www.centos.org/)
   - Slackware (http://www.slackware.com/)
+  - Puppy Linux (http://www.puppylinux.org/)
 
 All processor archietcures and all versions of these distributions are supported
 in parallel.

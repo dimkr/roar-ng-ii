@@ -1,0 +1,144 @@
+# a dummy package architecture field
+PUPPY_PACKAGE_ARCH="any"
+
+# the size of a MD5 hash, in bytes
+MD5_SIZE=32
+
+# unneeded files to remove from PET packages
+PET_UNNEEDED_FILES="pet.specs puninstall.sh"
+
+# the post-installation script name
+PET_POST_INSTALL_FILE_NAME="pinstall.sh"
+
+# repositories - package list URL|repository name
+REPOSITORIES="http://distro.ibiblio.org/puppylinux/Packages-puppy-slacko-official|puppy-slacko
+              http://distro.ibiblio.org/quirky/Packages-puppy-noarch-official|puppy-noarch
+              http://distro.ibiblio.org/quirky/Packages-puppy-common-official|puppy-common
+              http://distro.ibiblio.org/quirky/Packages-puppy-quirky-official|puppy-quirky
+              http://distro.ibiblio.org/quirky/Packages-puppy-wary5-official|puppy-wary5
+              http://distro.ibiblio.org/puppylinux/Packages-puppy-4-official|puppy-4
+              http://distro.ibiblio.org/puppylinux/Packages-puppy-3-official|puppy-3
+              http://distro.ibiblio.org/puppylinux/Packages-puppy-2-official|puppy-2"
+
+# package download mirrors
+MIRRORS="http://distro.ibiblio.org/puppylinux/pet_packages-slacko|puppy-slacko
+         http://distro.ibiblio.org/quirky/pet_packages-noarch|puppy-noarch
+         http://distro.ibiblio.org/quirky/pet_packages-common|puppy-common
+         http://distro.ibiblio.org/quirky/pet_packages-quirky|puppy-quirky
+         http://distro.ibiblio.org/quirky/pet_packages-wary5|puppy-wary5
+         http://distro.ibiblio.org/puppylinux/pet_packages-4|puppy-4
+         http://distro.ibiblio.org/puppylinux/pet_packages-3|puppy-3
+         http://distro.ibiblio.org/puppylinux/pet_packages-2|puppy-2
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-slacko|puppy-slacko
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-noarch|puppy-noarch
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-common|puppy-common
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-quirky|puppy-quirky
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-wary5|puppy-wary5
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-4|puppy-4
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-3|puppy-3
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-2|puppy-2"
+
+# puppy_get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+puppy_get_architecture_aliases() {
+	# Puppy package lists do not have an architecture field - it's up to the
+	# user to decide which repositories to use - each contains packages for a
+	# specific architecture; this field will be ignored - in order to switch
+	# to another architecture, the repositories list has to be changed
+	echo "$1 $PUPPY_PACKAGE_ARCH"
+}
+
+# puppy_download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+puppy_download_package_list() {
+	download_file "$1" "$2"
+}
+
+# puppy_convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+puppy_convert_package_list() {
+	awk -v distro="$(get_current_distro)" \
+	    -v distro_version="$(get_current_distro_version)" \
+	    -v repo="$2" \
+	    -v arch="$PUPPY_PACKAGE_ARCH" \
+	    -F \| '
+		{
+			printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+				   $2,    # name
+				   $3,    # version
+				   $4,    # revision, mostly empty
+				   $arch, # architecture
+				   $8,    # path
+				   $10,   # description
+				   # Puppy package lists specify a distribution, but sometimes
+				   # it is the one the package was built against, not the Puppy
+				   # derivative name
+				   distro,
+				   distro_version,
+				   repo)
+		}' "$1"
+}
+
+# puppy_extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+puppy_extract_package() {
+	# create a temporary file
+	temp_file="$(mktemp -u)"
+
+	# a PET package is a tarball with an appended MD5 hash - strip it
+	head -c -$MD5_SIZE "$1" > $temp_file
+	if [ 0 -ne $? ]
+	then
+		[ -f $temp_file ] && rm -f $temp_file
+		return 1
+	fi
+
+	# extract the tarball
+	extract_tarball "$temp_file" "$2"
+	exit_code=$?
+
+	# delete the temporary file
+	rm -f $temp_file
+	[ 0 -ne $? ] && return 1
+
+	# if the extraction failed, report an error
+	[ 0 -ne $exit_code ] && return 1
+
+	# switch to the parent directory
+	cd "$2/"*
+
+	# remove unneeded files
+	for i in $PET_UNNEEDED_FILES
+	do
+		rm -f $i
+		[ 0 -ne $? ] && return 1
+	done
+
+	# move the package contents out of the parent directory
+	mv * ..
+	[ 0 -ne $? ] && return 1
+
+	# remove the parent directory
+	parent_directory="$(pwd)"
+	cd "$2"
+	rmdir "$parent_directory"
+	[ 0 -ne $? ] && return 1
+
+	# if no post-installation script exists, end here
+	[ ! -f $PET_POST_INSTALL_FILE_NAME ] && return 0
+
+	# rename the post-installation script; it works the same way as a roar-ng II
+	# one
+	mv $PET_POST_INSTALL_FILE_NAME $POST_INSTALL_SCRIPT_FILE_NAME
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
