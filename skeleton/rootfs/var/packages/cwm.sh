@@ -73,11 +73,6 @@ build() {
 	sed -i s/'#include <unistd.h>'/'&\n#include <signal.h>'/ xevents.c kbfunc.c
   	[ 0 -ne $? ] && return 1
 
-	# replace the Shift key with Super, so key bindings of GTK+ or Qt do not
-	# conflict with cwm
-	sed -i s/'ShiftMask'/'Mod4Mask'/ conf.c
-	[ 0 -ne $? ] && return 1
-
 	# build the package
 	bison parse.y
 	[ 0 -ne $? ] && return 1
