@@ -2,7 +2,7 @@
 
 PKG_NAME="rxvt-unicode"
 PKG_VER="9.15"
-PKG_REV="1"
+PKG_REV="2"
 PKG_DESC="Terminal emulator"
 PKG_CAT="Utility"
 PKG_DEPS="+xorg_base"
@@ -72,17 +72,6 @@ build() {
 package() {
 	# install the package
 	make DESTDIR=$INSTALL_DIR install
-	[ 0 -ne $? ] && return 1
-
-	# remove urxvtc and urxvtd
-	rm -f $INSTALL_DIR/$BIN_DIR/urxvtc \
-	      $INSTALL_DIR/$BIN_DIR/urxvtd \
-	      $INSTALL_DIR/$MAN_DIR/man1/urxvtc.1 \
-	      $INSTALL_DIR/$MAN_DIR/man1/urxvtd.1
-	[ 0 -ne $? ] && return 1
-
-	# create a backwards-compatibility symlink
-	ln -s urxvt $INSTALL_DIR/$BIN_DIR/rxvt
 	[ 0 -ne $? ] && return 1
 
 	return 0

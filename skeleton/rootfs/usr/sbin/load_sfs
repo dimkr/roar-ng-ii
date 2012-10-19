@@ -14,17 +14,20 @@ then
 	exit 1
 fi
 
+# include roar-ng, for print_error()
+. /usr/bin/roar-ng
+
 # mount the Squashfs image
 mount -t squashfs -o ro,loop "$1" "$2"
 if [ 0 -ne $? ]
 then
-	echo "Error: failed to mount the SFS extension."
+	print_error "failed to mount the SFS extension"
 fi
 
 # add the extension to the layered file system as a read-only layer
 mount -t aufs -o "remount,append=$2=ro" aufs /
 if [ 0 -ne $? ]
 then
-	echo "Error: failed to append the SFS extension to the layered file system."
+	print_error "failed to append the SFS extension to the layered file system"
 	exit 1
 fi

@@ -2,11 +2,7 @@
 
 # /etc/init.d/dropbear: a Dropbear init script
 
-# the pidfile path
-PIDFILE_PATH="/run/dropbear/dropbear.pid"
-
 case "$1" in
-
 	start)
 		echo -n "Starting Dropbear ..."
 
@@ -15,22 +11,18 @@ case "$1" in
 		do
 			[ -f /etc/dropbear/dropbear_${i}_host_key ] && continue
 			dropbearkey -t $i -f /etc/dropbear/dropbear_${i}_host_key
-			if [ $? -ne 0 ]
-			then
-				echo "Error: failed to generate the $(echo $i | tr \[:lower:\] \[:upper:\]) key."
-				exit 1
-			fi
 			chown ssh:ssh /etc/dropbear/dropbear_${i}_host_key
 			chmod 600 /etc/dropbear/dropbear_${i}_host_key
 		done
 
-		# create a directory for the pidfile
-		[ ! -d /run/dropbear ] && mkdir /run/dropbear
-		chown ssh:ssh /run/dropbear
-		chmod 755 /run/dropbear
-
 		# include the configuration file
 		. /etc/init.conf.d/dropbear
+
+		# create a directory for the pidfile
+		pidfile_directory="$(dirname "$PIDFILE_PATH")"
+		[ ! -d "$pidfile_directory" ] && mkdir "$pidfile_directory"
+		chown ssh:ssh "$pidfile_directory"
+		chmod 755 "$pidfile_directory"
 
 		# start the server
 		su -c "dropbear -P $PIDFILE_PATH $ADDITIONAL_OPTS" ssh
@@ -40,9 +32,15 @@ case "$1" in
 
 	stop)
 		echo -n "Stopping Dropbear ..."
-		kill $(cat $PIDFILE_PATH)
+
+		# include the configuration file
+		. /etc/init.conf.d/dropbear
+
+		# stop Dropbear
+		kill $(cat "$PIDFILE_PATH")
 		success=$?
-		rm -f $PIDFILE_PATH
+		rm -f "$PIDFILE_PATH"
+
 		echo " done"
 		exit $success
 		;;
@@ -56,5 +54,4 @@ case "$1" in
 		echo "dropbear {start|stop|restart}"
 		exit 1
 		;;
-
 esac

@@ -68,7 +68,7 @@ INSTALL_DIR="$(mktemp -u -d)"
 build
 if [ 0 -ne $? ]
 then
-	echo "Error: failed to build the package."
+	print_error "failed to build the package"
 	exit 1
 fi
 
@@ -76,7 +76,7 @@ fi
 package
 if [ 0 -ne $? ]
 then
-	echo "Error: failed to install the package."
+	print_error "failed to install the package"
 	exit 1
 fi
 
@@ -86,7 +86,7 @@ cd "$BASE_DIR"
 strippkg $INSTALL_DIR
 if [ 0 -ne $? ]
 then
-	echo "Error: failed to optimize the package."
+	print_error "failed to optimize the package"
 	exit 1
 fi
 
@@ -96,7 +96,7 @@ make_tarball_and_delete $INSTALL_DIR \
                         0
 if [ 0 -ne $? ]
 then
-	echo "Error: failed to create the package."
+	print_error "failed to create the package"
 	exit 1
 fi
 

@@ -317,6 +317,14 @@ make_tarball_and_delete() {
 	return 0
 }
 
+# print_error()
+# purpose: prints an error to the standard error output
+# input  : an error message
+# output : -
+print_error() {
+	echo "Error: $1." 1>&2
+}
+
 ###################################
 # distribution switching routines #
 ###################################
@@ -681,6 +689,8 @@ find_package() {
 			return
 		done
 	done
+
+	print_error "failed to locate the package \"$1\""
 }
 
 ###############################
@@ -696,7 +706,11 @@ verify_configuration() {
 	do
 		# set the current distribution
 		set_current_distro $distro
-		[ 0 -ne $? ]  && return 1
+		if [ 0 -ne $? ]
+		then
+			print_error "an invalid distribution was specified: $distro"
+			return 1
+		fi
 	done
 
 	return 0
@@ -755,7 +769,7 @@ _download_package() {
 	package_entry="$(find_package $1)"
 	if [ -z "$package_entry" ]
 	then
-		echo "Error: failed to locate $1."
+		print_error "failed to locate $1"
 		return 1
 	fi
 
@@ -771,7 +785,7 @@ _download_package() {
 	              "$VAR_PREFIX/package/$package_file_name"
 	if [ 0 -ne $? ]
 	then
-		echo "Error: failed to download $package_file_name."
+		print_error "failed to download $package_file_name"
 		return 1
 	fi
 
@@ -884,7 +898,7 @@ extract_packages() {
 			                "$VAR_PREFIX/extracted_package/$name"
 			if [ 0 -ne $? ]
 			then
-				echo "Error: failed to extract $file_name."
+				print_error "failed to extract $file_name"
 				return 1
 			fi
 		done
@@ -962,7 +976,7 @@ _build_initramfs() {
 	_build_module "initramfs" "$1" ""
 	if [ 0 -ne $? ]
 	then
-		echo "Error: failed to build the initramfs."
+		print_error "failed to build the initramfs"
 		return 1
 	fi
 
@@ -970,7 +984,7 @@ _build_initramfs() {
 	install -D -m 4755 "$BUSYBOX_PATH" "$1/bin/busybox"
 	if [ 0 -ne $? ]
 	then
-		echo "Error: failed to build the initramfs."
+		print_error "failed to build the initramfs"
 		return 1
 	fi
 
@@ -981,7 +995,7 @@ _build_initramfs() {
 	cd "$BASE_DIR"
 	if [ 0 -ne $? ]
 	then
-		echo "Error: failed to create the initramfs."
+		print_error "failed to create the initramfs"
 		return 1
 	fi
 
@@ -990,7 +1004,7 @@ _build_initramfs() {
 	advdef -z4 "$2"
 	if [ 0 -ne $? ]
 	then
-		echo "Error: failed to recompress the initramfs."
+		print_error "failed to recompress the initramfs"
 		return 1
 	fi
 
@@ -1011,7 +1025,7 @@ _build_rootfs() {
 	_build_module "rootfs" "$1" "$(get_meta_package_names)"
 	if [ 0 -ne $? ]
 	then
-		echo "Error: failed to build the root file system."
+		print_error "failed to build the root file system"
 		return 1
 	fi
 
@@ -1038,7 +1052,7 @@ _build_rootfs() {
 	mksquashfs "$1" "$2" $MKSQUASHFS_OPTIONS
 	if [ 0 -ne $? ]
 	then
-		echo "Error: failed to create the root file system image."
+		print_error "failed to create the root file system image"
 		return 1
 	fi
 
@@ -1086,7 +1100,7 @@ build_bootable_media_image() {
 	build_media_$1 "$VAR_PREFIX/media" "$2"
 	if [ 0 -ne $? ]
 	then
-		echo "Error: failed to create the bootable media image."
+		print_error "failed to create the bootable media image"
 		return 1
 	fi
 
@@ -1252,7 +1266,7 @@ roar_ng_main() {
 			_set_up_chroot "$VAR_PREFIX/rootfs"
 			if [ 0 -ne $? ]
 			then
-				echo "Error: failed to set up a chroot environment."
+				print_error "failed to set up a chroot environment"
 				exit 1
 			fi
 
@@ -1264,13 +1278,13 @@ roar_ng_main() {
 			_clean_up_chroot "$VAR_PREFIX/rootfs"
 			if [ 0 -ne $? ]
 			then
-				echo "Error: failed to clean up the chroot environment."
+				print_error "failed to clean up the chroot environment"
 				exit 1
 			fi
 
 			if [ 0 -ne $exit_code ]
 			then
-				echo "Error: failed to build $2."
+				print_error "failed to build $2"
 				exit 1
 			else
 				exit 0
@@ -1283,7 +1297,7 @@ roar_ng_main() {
 				[ -d "$VAR_PREFIX/$i" ] && rm -rf "$VAR_PREFIX/$i"
 				if [ 0 -ne $? ]
 				then
-					echo "Error: failed to remove $VAR_PREFIX/$i."
+					print_error "failed to remove $VAR_PREFIX/$i"
 					exit 1
 				fi
 			done

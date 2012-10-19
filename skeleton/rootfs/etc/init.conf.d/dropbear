@@ -2,3 +2,6 @@
 
 # additional options to pass to Dropbear
 ADDITIONAL_OPTS="-p 9888 -w"
+
+# the pidfile path
+PIDFILE_PATH="/run/dropbear/dropbear.pid"

@@ -18,6 +18,9 @@ then
 	exit 1
 fi
 
+# include roar-ng, for print_error()
+. /usr/bin/roar-ng
+
 success=1
 
 # remove the package files
@@ -44,7 +47,7 @@ done
 
 if [ 1 -ne $success ]
 then
-	echo "Error: failed to remove the package files."
+	print_error "failed to remove the package files"
 	exit 1
 fi
 echo " done"
@@ -65,7 +68,7 @@ echo -n "Unregistering the package ..."
 rm -f "$PKG_DATA_DIR/$1"
 if [ 0 -ne $? ]
 then
-	echo "Error: failed to unregister the package."
+	print_error "failed to unregister the package"
 	exit 1
 fi
 echo " done"
