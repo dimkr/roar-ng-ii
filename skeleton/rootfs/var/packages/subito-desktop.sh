@@ -5,7 +5,7 @@ PKG_VER="git$(date +%d%m%Y)"
 PKG_REV="1"
 PKG_DESC="The Subito GNU/Linux desktop"
 PKG_CAT="Desktop"
-PKG_DEPS="+xorg_base,+cwm,+rxvt-unicode,+stalonetray,+grun,+xbindkeys"
+PKG_DEPS="+xorg_base,+rxvt-unicode,+cwm"
 PKG_ARCH="noarch"
 
 # the package source files
