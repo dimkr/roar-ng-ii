@@ -37,7 +37,7 @@ Distributions currently supported by roar-ng II are:
   - Slackware (http://www.slackware.com/)
   - Puppy Linux (http://www.puppylinux.org/) and derivatives:
       - Slacko
-      - Wary (http://bkhome.org/wary/)
+      - Wary (http://www.bkhome.org/wary/)
 
 All processor archietcures and all versions of these distributions are supported
 in parallel.

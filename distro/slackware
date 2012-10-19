@@ -88,7 +88,8 @@ slackware_convert_package_list() {
 	    		       description,
 	    		       distro,
 	    		       distro_version,
-	    		       repo)
+	    		       repo);
+	    		package_name = "";
 	    		file_name = ""
 	    	}
 	    }
