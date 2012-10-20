@@ -61,5 +61,13 @@ package() {
 	install -D -m 644 README $INSTALL_DIR/$DOC_DIR/$PKG_NAME/README
 	[ 0 -ne $? ] && return 1
 
+	# install the license and the list of authors
+	install -D -m 644 COPYING $INSTALL_DIR/$DOC_DIR/$PKG_NAME/COPYING
+	[ 0 -ne $? ] && return 1
+	install -D -m 644 AUTHORS $INSTALL_DIR/$DOC_DIR/$PKG_NAME/AUTHORS
+	[ 0 -ne $? ] && return 1
+	install -D -m 644 THANKS $INSTALL_DIR/$DOC_DIR/$PKG_NAME/THANKS
+	[ 0 -ne $? ] && return 1
+
 	return 0
 }

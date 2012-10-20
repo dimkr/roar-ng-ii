@@ -9,19 +9,42 @@
 # Overview #
 ############
 
-roar-ng II is the next generation of roar-ng, a GNU/Linux distribution building
-system. It is able to build versatile distributions, able to act both as
-traditional desktop ones and "live" systems.
+roar-ng II is a framework for the construction of GNU/Linux distributions. Any
+distribution built by:
+  - Can run "live", without leaving any traces behind.
+  - Can run from pretty much any media (optical media, flash drives, hard
+    drives, memory cards and more).
+  - Is easy to develop, maintain amd customize.
 
-It is designed to be generic, extensible and efficient. It is the result of
-a complete redesign of roar-ng and thrives to be more flexible and smarter:
- - It supports multiple distributions, architectures and multiple versions of
-   the same distribution in parallel.
- - Support for distributions is provided by a smart plug-in system.
- - roar-ng II itself can be installed as a regular package and "propagate" into
-   the distributions built by it, to make them truly self-hosting.
- - It is able to build packages from source, within distributions built by it,
-   in a clean way.
+roar-ng II provides the means for handling the binary packages of various
+distributions; all you have to do in order to build a distribution is to specify
+the list of packages to include in it; roar-ng II will take care of the rest.
+
+roar-ng II makes it simple and quick to develop your very own GNU/Linux
+distribution. Therefore, it saves your precious time and money.
+
+################
+# How it Works #
+################
+
+roar-ng II has powerful, extensible design: support for each distribution is
+provided by a plug-in. Many distributions are supported, in all processor
+architectures.
+
+Thanks to this design, the process of building a distribution is quite simple:
+  - roar-ng II lists the packages available for each distribution.
+  - Each package specified in the package list are downloaded from the
+    repositories of a given distribution.
+  - All packages are extracted.
+  - An image of the distribution is built.
+
+In addition, distributions built by roar-ng II ship with an automated package
+building framework, which can be used directly through roar-ng II to
+cross-compile packages for distributions built by it.
+
+###########################
+# Supported Distributions #
+###########################
 
 Distributions currently supported by roar-ng II are:
   - Debian (http://www.debian.org/) and derivatives:
@@ -39,100 +62,66 @@ Distributions currently supported by roar-ng II are:
       - Slacko
       - Wary (http://www.bkhome.org/wary/)
 
-All processor archietcures and all versions of these distributions are supported
-in parallel.
-
-################
-# Dependencies #
-################
-
-roar-ng II does not have any exotic dependencies: it relies on traditional tools
-found in most GNU/Linux distributions, such as awk, sed, wget and gzip
-(http://www.gzip.org/).
-
-The only dependency of roar-ng II which may be problematic is squashfs-tools
-(http://squashfs.sourceforge.net/), which must be at least version of 4.1.
-
-In addition to run-time dependencies, distributions built using roar-ng II must
-include the following packages:
-  - The Linux kernel (http://www.kernel.org/), with:
-      - Aufs (http://aufs.sourceforge.net/) and Squashfs
-        (http://squashfs.sourceforge.net), built-in.
-      - Drivers for all media types and file systems the distribution should be
-        be able to boot from, built-in.
-    Bear in mind that roar-ng II is tested against a specific version of the
-    kernel; its configuration is located at /usr/src/linux.
-  - udev.
-  - BusyBox (http://www.busybox.net/), with init.
-
-#########################
-# Optional Dependencies #
-#########################
-
-In addition to the minimum requirements, roar-ng II is able to take advantage
-of extra, third-party tools:
-  - aria2 (http://aria2.sourceforge.net/), for parallel package download. If it
-    is unavailable, all package downloads are performed through a single mirror.
-  - AdvanceCOMP (http://advancemame.sourceforge.net/), for better compression of
-    the initramfs. Without it, it will be a bit bigger.
-  - exploderpm, part of src2pkg (http://www.src2pkg.net/), for extraction of RPM
-    packages originating in openSUSE and Mageia. It is needed due to limitations
-    in many implementations of rpm2cpio: it is a very lightweight and
-    architecture-independent solution for RPM package extraction.
+This means roar-ng II is able to build distributions using packages which
+originate in any version of these distributions, for any processor architecture.
 
 #########
 # Usage #
 #########
 
-roar-ng is an all-in-one script which exposes all roar-ng II's functionality. It
-recevies the following command-line arguments:
-  - check    : performs sanity checks of the configuration.
-  - setup    : downloads and processes the package lists of all used
-               repositories.
-  - download : downloads all binary packages.
-  - extract  : extracts the downloaded binary packages.
-  - build    : builds a bootable image of the distribution; receives two
-               additional command-line arguments: the bootable media type and
-               the output file path. Intermediate directories are kept, for use
-               with "package".
+A typical roar-ng II session consists of four steps:
+  - roar-ng setup   : downloads and processes the package lists of all
+                      repositories of distributions specified in the package
+                      list.
+  - roar-ng download: downloads all packages specified in the package list.
+  - roar-ng extract : extractes the downloaded packages.
+  - roar-ng build   : builds a bootable image of the distribution; receives two
+                      additional command-line arguments: the bootable media type
+                      and the output file path.
+
+In addition, roar-ng II exposes some functionality through additional execution
+modes:
+  - check    : performs sanity checks of the package list.
   - package  : builds a binary package from source, within the distribution;
                must run after "build". In this mode, roar-ng II needs sufficient
                permissions to run mount and chroot.
   - cleanup  : cleans up after "build" by removing intermediate directories.
+               Must be used between executions of roar-ng II with "build".
 
-In a typical session, roar-ng II is executed with "setup", "download", "extract"
-and "build".
+##########################
+# Subito GNU/Linux-libre #
+##########################
 
-######################
-# Design Philosophy  #
-######################
+Subito GNU/Linux-libre is the flaship distribution built by roar-ng II; the
+stock configuration supplied with roar-ng II will always build the latest
+version of Subito GNU/Linux-libre.
 
-  - Code should be short, clear, well-documented and optionally, reusable.
-  - Code should be written with long-term maintainance in mind. If the cost of
-    maintaining it is high, it cannot be become an integral part of roar-ng II.
-  - A new feature should be added in the cleanest and most generic way. For
-    example, instead of adding support for booting from one exotic file system,
-    providing a generic compatibility layer for it and other, similar file
-    systems, is preferred.
-  - If a feature isn't useful enough and harms roar-ng II's design or
-    simplicity, it should be dropped.
+Subito GNU/Linux-libre is a GNU/Linux-libre distribution for the x86_64
+architecture, aimed at advanced users and optimized for console applications,
+keyboard control and low consumption of resources.
+
+To build Subito GNU/Linux-libre, simply run roar-ng II:
+  roar-ng setup
+  roar-ng download
+  roar-ng extract
+  roar-ng build isolinux output.iso
 
 ################
-# Boot Process #
+# Contributing #
 ################
 
-The boot process of distributions built using roar-ng II is very simple and
-straightforward:
-  - The kernel is loaded by the boot loader and unpacks the initramfs.
-  - The init script mounts the root partition, according to the "root" boot
-    code.
-  - The root file system, an image under the partition (rootfs.sfs), is mounted.
-  - A layered file system is mounted: it consists of the root file system image
-    (which is read-only) and either the root partition or a tmpfs file system
-    (which is writeable).
-  - The layered file system becomes the root file system (e.g /).
-  - Another init script is executed: it configures the operating system and
-    starts vital services.
+Contributions to roar-ng II are welcome, as long as they match its coding style
+and design philosophy.
 
-Typically, under low-end x86 hardware, the whole process consumes between 5 and
-8 seconds when booting from a slow USB 2.0 flash drive.
+Although roar-ng II will always be free software, bear in mind that by
+contributing, you agree that the contributed material may be re-licensed without
+notice.
+
+#####################
+# Legal Information #
+#####################
+
+roar-ng II is licensed under a 2-clause BSD license, see COPYING for the license
+text. For a list of its authors and contributors, see AUTHORS and THANKS.
+
+The ASCII art logo at the top was made using FIGlet (http://www.figlet.org/).
