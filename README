@@ -14,7 +14,7 @@ distribution built by:
   - Can run "live", without leaving any traces behind.
   - Can run from pretty much any media (optical media, flash drives, hard
     drives, memory cards and more).
-  - Is easy to develop, maintain amd customize.
+  - Is easy to develop, maintain and customize.
 
 roar-ng II provides the means for handling the binary packages of various
 distributions; all you have to do in order to build a distribution is to specify
@@ -74,7 +74,7 @@ A typical roar-ng II session consists of four steps:
                       repositories of distributions specified in the package
                       list.
   - roar-ng download: downloads all packages specified in the package list.
-  - roar-ng extract : extractes the downloaded packages.
+  - roar-ng extract : extracts the downloaded packages.
   - roar-ng build   : builds a bootable image of the distribution; receives two
                       additional command-line arguments: the bootable media type
                       and the output file path.
@@ -92,7 +92,7 @@ modes:
 # Subito GNU/Linux-libre #
 ##########################
 
-Subito GNU/Linux-libre is the flaship distribution built by roar-ng II; the
+Subito GNU/Linux-libre is the flagship distribution built by roar-ng II; the
 stock configuration supplied with roar-ng II will always build the latest
 version of Subito GNU/Linux-libre.
 
