@@ -14,29 +14,20 @@ PET_POST_INSTALL_FILE_NAME="pinstall.sh"
 REPOSITORIES="http://distro.ibiblio.org/puppylinux/Packages-puppy-slacko-official|puppy-slacko
               http://distro.ibiblio.org/quirky/Packages-puppy-noarch-official|puppy-noarch
               http://distro.ibiblio.org/quirky/Packages-puppy-common-official|puppy-common
-              http://distro.ibiblio.org/quirky/Packages-puppy-quirky-official|puppy-quirky
               http://distro.ibiblio.org/quirky/Packages-puppy-wary5-official|puppy-wary5
-              http://distro.ibiblio.org/puppylinux/Packages-puppy-4-official|puppy-4
-              http://distro.ibiblio.org/puppylinux/Packages-puppy-3-official|puppy-3
-              http://distro.ibiblio.org/puppylinux/Packages-puppy-2-official|puppy-2"
+              http://distro.ibiblio.org/puppylinux/Packages-puppy-4-official|puppy-4"
 
 # package download mirrors
 MIRRORS="http://distro.ibiblio.org/puppylinux/pet_packages-slacko|puppy-slacko
          http://distro.ibiblio.org/quirky/pet_packages-noarch|puppy-noarch
          http://distro.ibiblio.org/quirky/pet_packages-common|puppy-common
-         http://distro.ibiblio.org/quirky/pet_packages-quirky|puppy-quirky
          http://distro.ibiblio.org/quirky/pet_packages-wary5|puppy-wary5
          http://distro.ibiblio.org/puppylinux/pet_packages-4|puppy-4
-         http://distro.ibiblio.org/puppylinux/pet_packages-3|puppy-3
-         http://distro.ibiblio.org/puppylinux/pet_packages-2|puppy-2
          http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-slacko|puppy-slacko
          http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-noarch|puppy-noarch
          http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-common|puppy-common
-         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-quirky|puppy-quirky
          http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-wary5|puppy-wary5
-         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-4|puppy-4
-         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-3|puppy-3
-         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-2|puppy-2"
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-4|puppy-4"
 
 # puppy_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames
