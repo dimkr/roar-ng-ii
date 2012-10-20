@@ -498,13 +498,14 @@ get_package_entries() {
 	    -v arch="$2" \
 	    -v repo="$3" \
 	    -v distro_version="$(get_current_distro_version)" \
-	    -F \| '{
-	            	if (name == $1 &&
-	            	    arch == $4 &&
-	            	    distro_version == $8 &&
-	            	    repo == $9)
-	            		print
-	           }' "$(_get_package_database_path)"
+	    -F \|
+	    '{
+	        	if (name == $1 &&
+	        	    arch == $4 &&
+	        	    distro_version == $8 &&
+	        	    repo == $9)
+	        		print
+	    }' "$(_get_package_database_path)"
 }
 
 ##########################
@@ -1294,7 +1295,9 @@ roar_ng_main() {
 		cleanup)
 			for i in initramfs rootfs media
 			do
-				[ -d "$VAR_PREFIX/$i" ] && rm -rf "$VAR_PREFIX/$i"
+				[ ! -d "$VAR_PREFIX/$i" ] && continue
+				echo "$i"
+				rm -rf "$VAR_PREFIX/$i"
 				if [ 0 -ne $? ]
 				then
 					print_error "failed to remove $VAR_PREFIX/$i"
