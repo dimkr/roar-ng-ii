@@ -498,7 +498,7 @@ get_package_entries() {
 	    -v arch="$2" \
 	    -v repo="$3" \
 	    -v distro_version="$(get_current_distro_version)" \
-	    -F \|
+	    -F \| \
 	    '{
 	        	if (name == $1 &&
 	        	    arch == $4 &&
