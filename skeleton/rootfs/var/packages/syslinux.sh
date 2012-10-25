@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="syslinux"
-PKG_VER="4.05"
+PKG_VER="4.06"
 PKG_REV="2"
 PKG_DESC="Lightweight boot loaders"
 PKG_CAT="BuildingBlock"
@@ -11,14 +11,6 @@ PKG_DEPS=""
 PKG_SRC="http://www.kernel.org/pub/linux/utils/boot/syslinux/$PKG_NAME-$PKG_VER.tar.xz"
 
 download() {
-	[ -f handle-ctors-dtors-via-init_array-and-fini_array.patch ] && return 0
-
-	# download a required patch: the boot loader fails when built with GCC 4.7
-	download_file \
-	https://projects.archlinux.org/svntogit/packages.git/plain/trunk/handle-ctors-dtors-via-init_array-and-fini_array.patch?h=packages/syslinux \
-	handle-ctors-dtors-via-init_array-and-fini_array.patch
-	[ 0 -ne $? ] && return 1
-
 	return 0
 }
 
@@ -28,10 +20,6 @@ build() {
 	[ 0 -ne $? ] && return 1
 
 	cd $PKG_NAME-$PKG_VER
-
-	# patch the sources
-	patch -p1 < ../handle-ctors-dtors-via-init_array-and-fini_array.patch
-	[ 0 -ne $? ] && return 1
 
 	# do not build the DOS and Windows tools - it will fail
 	sed -i s/'dos win32 win64 dosutil'// Makefile

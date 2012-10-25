@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="vifm"
-PKG_VER="0.7.3a"
+PKG_VER="0.7.4a"
 PKG_REV="1"
 PKG_DESC="File manager with vi-like key bindings"
 PKG_CAT="System"
@@ -24,10 +24,10 @@ build() {
 	# configure the package
 	./configure $AUTOTOOLS_BASE_OPTS \
 	            --disable-extended-keys \
-	            --disable-compatibility-mode \
 	            --disable-desktop-files \
 	            --without-gtk \
-	            --with-libmagic
+	            --with-libmagic \
+	            --without-X11
 	[ 0 -ne $? ] && return 1
 
 	# build the package

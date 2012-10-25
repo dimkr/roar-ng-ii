@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="slock"
-PKG_VER="1.0"
+PKG_VER="1.1"
 PKG_REV="1"
 PKG_DESC="A simple X server locking application"
 PKG_CAT="Desktop"
