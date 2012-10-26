@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="bitlbee"
-PKG_VER="3.0.5"
+PKG_VER="3.0.6"
 PKG_REV="1"
 PKG_DESC="An IRC to other networks gateway"
 PKG_CAT="Internet"
@@ -22,7 +22,8 @@ build() {
 	cd $PKG_NAME-$PKG_VER
 
 	# set the pkgconfig files directory
-	sed -i s~"pcdir='\$prefix/lib/pkgconfig'"~"pcdir='/$LIB_DIR/pkgconfig'"~ \
+	sed -i \
+	    s~"pcdir='\$prefix/lib/pkgconfig'"~"pcdir='/$LIB_DIR/pkgconfig'"~ \
 	    configure
 	[ 0 -ne $? ] && return 1
 
@@ -43,6 +44,7 @@ build() {
 	            --purple=0 \
 	            --debug=0 \
 	            --strip=0 \
+	            --pie=0 \
 	            --gcov=0 \
 	            --plugins=1 \
 	            --otr=0 \
