@@ -2,7 +2,7 @@
 
 PKG_NAME="syslinux"
 PKG_VER="4.06"
-PKG_REV="2"
+PKG_REV="1"
 PKG_DESC="Lightweight boot loaders"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
