@@ -5,7 +5,7 @@ PKG_VER="0.8.15"
 PKG_REV="2"
 PKG_DESC="IRC client"
 PKG_CAT="Internet"
-PKG_DEPS="+ncurses,+perl,+openssl,+glib2"
+PKG_DEPS="ncurses,perl,openssl,glib2"
 
 # the package source files
 PKG_SRC="http://irssi.org/files/$PKG_NAME-$PKG_VER.tar.bz2"

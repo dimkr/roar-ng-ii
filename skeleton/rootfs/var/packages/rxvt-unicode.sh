@@ -5,7 +5,7 @@ PKG_VER="9.15"
 PKG_REV="2"
 PKG_DESC="Terminal emulator"
 PKG_CAT="Utility"
-PKG_DEPS="+xorg_base"
+PKG_DEPS="xorg_base"
 
 # the package source files
 PKG_SRC="http://dist.schmorp.de/rxvt-unicode/$PKG_NAME-$PKG_VER.tar.bz2"

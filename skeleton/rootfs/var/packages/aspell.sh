@@ -5,7 +5,7 @@ PKG_VER="0.60.6.1"
 PKG_REV="1"
 PKG_DESC="Spell checker"
 PKG_CAT="BuildingBlock"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="ftp://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

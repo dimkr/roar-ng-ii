@@ -79,24 +79,8 @@ centos_convert_package_list() {
 	    	RS = "<"
 	    }
 
-	    # prints a package entry
-	    function print_entry() {
-	    	if ("" != name) {
-	    		printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-	    			   name,
-	    			   version,
-	    			   revision,
-	    			   arch,
-	    			   file_name,
-	    			   description,
-	    			   distro,
-	    			   distro_version,
-	    			   repo)
-	    	}
-	    }
-
 	    {
-	    	if ($1 ~ "^name") {
+			if ($1 ~ "^name") {
 	    		sub(/^name>/, "", $0);
 	    		name = $0
 	    	} else {
@@ -122,28 +106,55 @@ centos_convert_package_list() {
 	    							revision = value
 	    						}
 	    					}
-
 	    				}
 	    			} else {
-	    				if ("location" == $1) {
-	    					# remove the "href=\""
-	    					sub(/.*href=\"/, "", $2);
-
-	    					# remove the trailing quotes and
-	    					# everything afterwards
-	    					sub(/\".*/, "", $2);
-
-	    					file_name = $2
+	    				if ($1 ~ "^summary") {
+	    					# strip the closing tag
+	    					sub(/^summary>/,
+	    						"",
+	    						$0);
+	    					description = $0
 	    				} else {
-	    					if ($1 ~ "^summary") {
-	    						# strip the closing tag
-	    						sub(/^summary>/,
-	    							"",
-	    							$0);
-	    						description = $0
+	    					if ("location" == $1) {
+	    						# remove the "href=\""
+	    						sub(/.*href=\"/, "", $2);
+
+	    						# remove the trailing quotes and
+	    						# everything afterwards
+	    						sub(/\".*/, "", $2);
+
+	    						file_name = $2
 	    					} else {
-	    						if ("/package>" == $1) {
-	    							print_entry()
+	    						if ("rpm:requires>" == $1) {
+	    							# each dependency is a child tag
+	    							do {
+	    								getline;
+	    								if ("" == $2) {
+	    									continue
+	    								}
+	    								split($2, dependency, "\"");
+	    								dependencies = \
+	    								          (dependencies","dependency[2])
+	    							} while ("/rpm:requires>" != $1);
+
+	    							# remove the leading comma
+	    							sub(/^,/, "", dependencies);
+	    						} else {
+	    							if ("/package>" == $1) {
+	    								printf( \
+	    								      "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    								      name,
+	    								      version,
+	    								      revision,
+	    								      arch,
+	    								      file_name,
+	    								      description,
+	    								      distro,
+	    								      distro_version,
+	    								      repo,
+	    								      dependencies);
+	    								dependencies = ""
+	    							}
 	    						}
 	    					}
 	    				}

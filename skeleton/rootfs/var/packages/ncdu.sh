@@ -5,7 +5,7 @@ PKG_VER="1.9"
 PKG_REV="1"
 PKG_DESC="Disk usage analyzer"
 PKG_CAT="System"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://dev.yorhel.nl/download/$PKG_NAME-$PKG_VER.tar.gz"

@@ -5,7 +5,7 @@ PKG_VER="1.20.7"
 PKG_REV="1"
 PKG_DESC="A mouse server"
 PKG_CAT="BuildingBlock"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://www.nico.schottelius.org/software/gpm/archives/$PKG_NAME-$PKG_VER.tar.bz2"

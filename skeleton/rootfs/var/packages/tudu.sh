@@ -5,7 +5,7 @@ PKG_VER="0.8.1"
 PKG_REV="1"
 PKG_DESC="Hierarchical TODOs management application"
 PKG_CAT="Personal"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://code.meskio.net/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

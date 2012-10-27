@@ -5,7 +5,7 @@ PKG_VER="1.1"
 PKG_REV="1"
 PKG_DESC="A simple X server locking application"
 PKG_CAT="Desktop"
-PKG_DEPS="+xorg_base"
+PKG_DEPS="xorg_base"
 
 # the package source files
 PKG_SRC="http://dl.suckless.org/tools/$PKG_NAME-$PKG_VER.tar.gz"

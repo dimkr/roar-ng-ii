@@ -1,14 +1,14 @@
 # determine whether to use "slackware" or "slackware64"
 suffix=""
 case $(get_current_distro_arch) in
-	*64)
+	x86_64)
 		suffix="64"
 		;;
 esac
 
 # repositories - package list URL|repository name
-REPOSITORIES="ftp://ftp.osuosl.org/pub/slackware/slackware$suffix-$(get_current_distro_version)/patches/PACKAGES.TXT|slackware-patches
-              ftp://ftp.osuosl.org/pub/slackware/slackware$suffix-$(get_current_distro_version)/PACKAGES.TXT|slackware-main"
+REPOSITORIES="http://download.salixos.org/$(get_current_distro_arch)/slackware-$(get_current_distro_version)/patches/PACKAGES.TXT.gz|slackware-patches
+              http://download.salixos.org/$(get_current_distro_arch)/slackware-$(get_current_distro_version)/PACKAGES.TXT.gz|slackware-main"
 
 # package download mirrors
 MIRRORS="ftp://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches
@@ -36,7 +36,13 @@ slackware_get_architecture_aliases() {
 # input  : the package list URL and the destination path
 # output : -
 slackware_download_package_list() {
+	# download the package list
 	download_file "$1" "$2"
+	[ 0 -ne $? ] && return 1
+
+	# decompress the package list
+	decompress_file "$2"
+	return $?
 }
 
 # slackware_convert_package_list()
@@ -78,7 +84,7 @@ slackware_convert_package_list() {
 	    			package_name = package_name"-"name[i]
 	    		}
 	    		sub(/^-/, "", package_name)
-	    		printf("%s|%s|%s|%s|%s/%s|%s|%s|%s|%s\n",
+	    		printf("%s|%s|%s|%s|%s/%s|%s|%s|%s|%s|%s\n",
 	    		       package_name,
 	    		       version,
 	    		       revision,
@@ -88,9 +94,11 @@ slackware_convert_package_list() {
 	    		       description,
 	    		       distro,
 	    		       distro_version,
-	    		       repo);
+	    		       repo,
+	    		       dependencies);
 	    		package_name = "";
-	    		file_name = ""
+	    		file_name = "";
+	    		dependencies = ""
 	    	}
 	    }
 	    {
@@ -102,16 +110,29 @@ slackware_convert_package_list() {
 	    			# trim and strip "./"
 	    			sub(/^\.\//, "", path)
 	    		} else {
-	    			if ($1 == "PACKAGE DESCRIPTION") {
-	    				getline description;
-	    				description = trim(description);
-	    				sub(/[^:]*: +/, "", description);
-	    			} else {
+	    			if ($1 == "PACKAGE REQUIRED") {
+	    				# if there is an "or" relationship between two
+	    				# dependencies, pick the first
+	    				count = split(trim($2), dependencies_split, ",");
+	    				for (i = 1; count >= i; i++) {
+	    					sub(/\|.*/, "", dependencies_split[i]);
+	    					dependencies = (dependencies","dependencies_split[i])
+	    				}
 
-	    				# when the empty line separator is
-	    				# reached, print the current entry
-	    				if ("" == $0 && "" != file_name) {
-	    					print_entry()
+	    				# remove the leading comma
+	    				sub(/^,/, "", dependencies);
+	    			} else {
+	    				if ($1 == "PACKAGE DESCRIPTION") {
+	    					getline description;
+	    					description = trim(description);
+	    					sub(/[^:]*: +/, "", description);
+	    				} else {
+
+	    					# when the empty line separator is
+	    					# reached, print the current entry
+	    					if ("" == $0 && "" != file_name) {
+	    						print_entry()
+	    					}
 	    				}
 	    			}
 	    		}
@@ -121,7 +142,7 @@ slackware_convert_package_list() {
 	    	if ("" != file_name) {
 	    		print_entry()
 	    	}
-	}' "$1"
+	    }' "$1"
 }
 
 # slackware_extract_package()

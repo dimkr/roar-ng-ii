@@ -5,7 +5,7 @@ PKG_VER="git$(date +%d%m%Y)"
 PKG_REV="1"
 PKG_DESC="Video player forked from MPlayer"
 PKG_CAT="Multimedia"
-PKG_DEPS="+ncurses,+libav"
+PKG_DEPS="ncurses,libav"
 
 # the package source files
 PKG_SRC=""

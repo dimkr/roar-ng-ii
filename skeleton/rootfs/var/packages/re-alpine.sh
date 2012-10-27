@@ -5,7 +5,7 @@ PKG_VER="git$(date +%d%m%Y)"
 PKG_REV="1"
 PKG_DESC="E-mail client, continuation of Alpine"
 PKG_CAT="Internet"
-PKG_DEPS="+ncurses,+openssl,+cyrus-sasl2,+openldap"
+PKG_DEPS="ncurses,openssl,cyrus-sasl2,openldap"
 
 # the package source files
 PKG_SRC=""

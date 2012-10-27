@@ -7,7 +7,7 @@
 # download_package_list
 REPOSITORIES="http://mirror.anl.gov/pub/opensuse/opensuse/update/$(get_current_distro_version)|opensuse-update
               http://mirror.anl.gov/pub/opensuse/opensuse/distribution/$(get_current_distro_version)/repo/oss/suse|opensuse-distribution"
-              
+
 # package download mirrors - more at http://mirrors.opensuseproject.org/publiclist/
 MIRRORS="http://mirror.anl.gov/pub/opensuse/opensuse/update/$(get_current_distro_version)|opensuse-update
          http://mirror.anl.gov/pub/opensuse/opensuse/distribution/$(get_current_distro_version)/repo/oss/suse|opensuse-distribution
@@ -57,5 +57,5 @@ opensuse_extract_package() {
 	cd "$BASE_DIR"
 	[ 0 -ne $exit_code ] && return 1
 
-	return 0	
+	return 0
 }

@@ -5,7 +5,7 @@ PKG_VER="2.20110530.1"
 PKG_REV="1"
 PKG_DESC="An X11 automation tool"
 PKG_CAT="Utility"
-PKG_DEPS="+xorg_base"
+PKG_DEPS="xorg_base"
 
 # the package source files
 PKG_SRC="http://semicomplete.googlecode.com/files/$PKG_NAME-$PKG_VER.tar.gz"

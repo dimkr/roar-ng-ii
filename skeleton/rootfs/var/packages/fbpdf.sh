@@ -5,7 +5,7 @@ PKG_VER="git$(date +%d%m%Y)"
 PKG_REV="1"
 PKG_DESC="A small PDF viewer for the framebuffer console"
 PKG_CAT="Document"
-PKG_DEPS="+poppler"
+PKG_DEPS="poppler"
 
 # the package source files
 PKG_SRC=""

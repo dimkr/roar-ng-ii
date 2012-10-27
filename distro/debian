@@ -57,7 +57,7 @@ debian_convert_package_list() {
 	    -v repo="$2" \
 	    -F ": " '
 	    function print_entry() {
-	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
 	    	       name,
 	    	       version,
 	    	       revision,
@@ -66,7 +66,8 @@ debian_convert_package_list() {
 	    	       description,
 	    	       distro,
 	    	       distro_version,
-	    	       repo)
+	    	       repo,
+	    	       dependencies)
 	    }
 
 	    {
@@ -81,21 +82,22 @@ debian_convert_package_list() {
 	    				version = version_split[1];
 	    				revision = version_split[2]
 	    			} else {
-	    				if ("Filename" == $1) {
-	    					file_name = $2
+	    				if ("Depends" == $1) {
+	    					gsub(/(\ |\ \([^\)]*\))/, "", $2);
+	    					dependencies = $2
 	    				} else {
-	    					if ("Description" == $1) {
-	    						description = $2
+	    					if ("Filename" == $1) {
+	    						file_name = $2
 	    					} else {
-	    						if ("" == $0 &&
-	    						    "" != name) {
-	    							print_entry();
-	    							name = "";
-	    							version = "";
-	    							revision = "";
-	    							arch = "";
-	    							file_name = "";
-	    							description = ""
+	    						if ("Description" == $1) {
+	    							description = $2
+	    						} else {
+	    							if ("" == $0 &&
+	    								"" != name) {
+	    								print_entry();
+	    								name = "";
+	    								dependencies = "";
+	    							}
 	    						}
 	    					}
 	    				}

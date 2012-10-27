@@ -5,7 +5,7 @@ PKG_VER="1.0.1"
 PKG_REV="1"
 PKG_DESC="Interactive process viewer"
 PKG_CAT="System"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/htop/htop/$PKG_VER/$PKG_NAME-$PKG_VER.tar.gz"

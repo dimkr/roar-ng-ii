@@ -5,7 +5,7 @@ PKG_VER="0.8"
 PKG_REV="1"
 PKG_DESC="A console tiling window manager"
 PKG_CAT="Utility"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://www.brain-dump.org/projects/dvtm/$PKG_NAME-$PKG_VER.tar.gz"

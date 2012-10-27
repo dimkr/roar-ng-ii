@@ -5,7 +5,7 @@ PKG_VER="2012.55"
 PKG_REV="1"
 PKG_DESC="SSH2 server and client"
 PKG_CAT="Network"
-PKG_DEPS="+zlib"
+PKG_DEPS="zlib"
 
 # the package source files
 PKG_SRC="http://matt.ucc.asn.au/dropbear/releases/$PKG_NAME-$PKG_VER.tar.bz2"

@@ -5,7 +5,7 @@ PKG_VER="hg$(date +%d%m%Y)"
 PKG_REV="1"
 PKG_DESC="Improved implementation of the vi text editor"
 PKG_CAT="Document"
-PKG_DEPS="+ncurses,+gpm"
+PKG_DEPS="ncurses,gpm"
 
 # the package source files
 PKG_SRC=""

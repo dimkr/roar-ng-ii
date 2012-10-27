@@ -5,7 +5,7 @@ PKG_VER="1.15"
 PKG_REV="1"
 PKG_DESC="Recompression utilities"
 PKG_CAT="BuildingBlock"
-PKG_DEPS="+zlib"
+PKG_DEPS="zlib"
 
 # the package source files
 PKG_SRC="http://prdownloads.sourceforge.net/advancemame/$PKG_NAME-$PKG_VER.tar.gz"

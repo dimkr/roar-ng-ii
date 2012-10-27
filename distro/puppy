@@ -59,21 +59,37 @@ puppy_convert_package_list() {
 	    -v repo="$2" \
 	    -v arch="$PUPPY_PACKAGE_ARCH" \
 	    -F \| '
-		{
-			printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-				   $2,    # name
-				   $3,    # version
-				   $4,    # revision, mostly empty
-				   arch, # architecture
-				   $8,    # path
-				   $10,   # description
-				   # Puppy package lists specify a distribution, but sometimes
-				   # it is the one the package was built against, not the Puppy
-				   # derivative name
-				   distro,
-				   distro_version,
-				   repo)
-		}' "$1"
+	    {
+	    	dependencies = "";
+
+	    	# remove conflicting packages from the list of dependencies
+	    	count = split($9, dependencies_split, ",");
+	    	for (i = 1; count >= i; ++i) {
+	    		if (dependencies_split[i] ~ "^-") {
+	    			continue
+	    		}
+	    		sub(/^\+/, "", dependencies_split[i]);
+	    		dependencies = (dependencies","dependencies_split[i])
+	    	}
+
+	    	# remove the leading comma
+	    	sub(/^,/, "", dependencies);
+
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	       $2,    # name
+	    	       $3,    # version
+	    	       $4,    # revision, mostly empty
+	    	       arch, # architecture
+	    	       $8,    # path
+	    	       $10,   # description
+	    	       # Puppy package lists specify a distribution, but sometimes
+	    	       # it is the one the package was built against, not the Puppy
+	    	       # derivative name
+	    	       distro,
+	    	       distro_version,
+	    	       repo,
+	    	       dependencies)
+	    }' "$1"
 }
 
 # puppy_extract_package()

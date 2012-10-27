@@ -534,7 +534,7 @@ get_package_file_name() {
 # input  : a package entry
 # output : the package repository field
 get_package_repository() {
-	echo "${1##*|}"
+	echo "$1" | cut -f 9 -d \|
 }
 
 #########################

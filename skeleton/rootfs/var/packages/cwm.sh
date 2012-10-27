@@ -5,7 +5,7 @@ PKG_VER="cvs$(date +%d%m%Y)"
 PKG_REV="1"
 PKG_DESC="Minimalistic window manager"
 PKG_CAT="Desktop"
-PKG_DEPS="+xorg_base,+libbsd"
+PKG_DEPS="xorg_base,libbsd"
 
 # the package source files
 PKG_SRC=""

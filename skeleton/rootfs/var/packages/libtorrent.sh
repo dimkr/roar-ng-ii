@@ -5,7 +5,7 @@ PKG_VER="0.13.2"
 PKG_REV="1"
 PKG_DESC="BitTorrent library"
 PKG_CAT="Internet"
-PKG_DEPS="+openssl,+libsigc++"
+PKG_DEPS="openssl,libsigc++"
 
 # the package source files
 PKG_SRC="http://libtorrent.rakshasa.no/downloads/$PKG_NAME-$PKG_VER.tar.gz"

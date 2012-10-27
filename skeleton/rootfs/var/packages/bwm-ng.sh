@@ -5,7 +5,7 @@ PKG_VER="0.6"
 PKG_REV="1"
 PKG_DESC="Simple bandwidth monitor"
 PKG_CAT="Network"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://www.gropp.org/bwm-ng/$PKG_NAME-$PKG_VER.tar.gz"

@@ -5,7 +5,7 @@ PKG_VER="3.2"
 PKG_REV="32"
 PKG_DESC="A monolithic kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="BuildingBlock"
-PKG_DEPS="+perl,+linux-source"
+PKG_DEPS="perl,linux-source"
 
 # the package source files
 PKG_SRC=""

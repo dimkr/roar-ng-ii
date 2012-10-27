@@ -5,7 +5,7 @@ PKG_VER="1.15.2"
 PKG_REV="1"
 PKG_DESC="Multi-protoocol download tool"
 PKG_CAT="Internet"
-PKG_DEPS="+expat,+gnutls"
+PKG_DEPS="expat,gnutls"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/aria2/stable/$PKG_NAME-$PKG_VER/$PKG_NAME-$PKG_VER.tar.xz"

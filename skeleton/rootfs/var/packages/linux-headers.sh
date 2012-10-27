@@ -5,7 +5,7 @@ PKG_VER="3.2"
 PKG_REV="32"
 PKG_DESC="API headers of the Linux kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="Develop"
-PKG_DEPS="+perl,+linux-source"
+PKG_DEPS="perl,linux-source"
 PKG_ARCH="noarch"
 
 # the package source files

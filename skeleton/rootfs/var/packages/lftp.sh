@@ -5,7 +5,7 @@ PKG_VER="4.4.0"
 PKG_REV="1"
 PKG_DESC="FTP client"
 PKG_CAT="Internet"
-PKG_DEPS="+less,+ncurses,+readline,+gnutls"
+PKG_DEPS="less,ncurses,readline,gnutls"
 
 # the package source files
 PKG_SRC="http://ftp.yar.ru/pub/source/lftp/$PKG_NAME-$PKG_VER.tar.xz"

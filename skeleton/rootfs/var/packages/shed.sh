@@ -5,7 +5,7 @@ PKG_VER="1.15"
 PKG_REV="1"
 PKG_DESC="Hex editor"
 PKG_CAT="Develop"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/shed/shed/shed%20$PKG_VER/$PKG_NAME-$PKG_VER.tar.gz"

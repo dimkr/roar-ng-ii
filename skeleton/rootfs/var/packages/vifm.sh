@@ -5,7 +5,7 @@ PKG_VER="0.7.4a"
 PKG_REV="1"
 PKG_DESC="File manager with vi-like key bindings"
 PKG_CAT="System"
-PKG_DEPS="+ncurses,+file"
+PKG_DEPS="ncurses,file"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/vifm/vifm/$PKG_NAME-$PKG_VER.tar.bz2"

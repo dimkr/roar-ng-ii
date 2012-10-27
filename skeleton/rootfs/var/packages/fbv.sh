@@ -5,7 +5,7 @@ PKG_VER="1.0b"
 PKG_REV="1"
 PKG_DESC="Framebuffer image viewer"
 PKG_CAT="Graphic"
-PKG_DEPS="+libjpeg,+libpng"
+PKG_DEPS="libjpeg,libpng"
 
 # the package source files
 PKG_SRC="http://s-tech.elsat.net.pl/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

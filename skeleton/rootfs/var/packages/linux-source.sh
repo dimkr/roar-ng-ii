@@ -5,7 +5,7 @@ PKG_VER="3.2"
 PKG_REV="32"
 PKG_DESC="Sources of the Linux kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="BuildingBlock"
-PKG_DEPS="+gawk"
+PKG_DEPS="gawk"
 PKG_ARCH="noarch"
 
 # the package source files:

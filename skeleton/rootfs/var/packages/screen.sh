@@ -5,7 +5,7 @@ PKG_VER="4.0.3"
 PKG_REV="1"
 PKG_DESC="Terminal multiplexer"
 PKG_CAT="Utility"
-PKG_DEPS="+ncurses"
+PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

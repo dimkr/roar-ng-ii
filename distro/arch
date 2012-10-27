@@ -47,14 +47,46 @@ arch_download_package_list() {
 # input  : the package list path and the repository name
 # output : a package list in roar-ng's format
 arch_convert_package_list() {
-	# extract the tar archive and print all files
-	tar -xOf "$1" | \
+	# create a temporary directory
+	temp_dir="$(mktemp -d)"
+
+	# extract the tar archive
+	extract_tarball "$1" $temp_dir
+	[ 0 -ne $? ] && return 1
+
+	# for each package, pass its description and dependencies to standard
+	# output; this is required to force their order (since tar -O might change
+	# it)
+	for package in $temp_dir/*
+	do
+		cat $package/desc $package/depends
+	done | \
 	awk -v distro="$(get_current_distro)" \
 	    -v distro_version="$(get_current_distro_version)" \
 	    -v repo="$2" '
+
+	    function print_entry() {
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	       name,
+	    	       version,
+	    	       revision,
+	    	       architecture,
+	    	       file_name,
+	    	       description,
+	    	       distro,
+	    	       distro_version,
+	    	       repo,
+	    	       dependencies);
+	    }
+
 	    {
 	    	if ("%FILENAME%" == $1) {
-	    		getline file_name
+	    		# print the previous packages entry
+	    		if ("" != file_name) {
+	    			print_entry();
+	    		}
+	    		dependencies = "";
+	    		getline file_name;
 	    	} else {
 	    		if ("%NAME%" == $1) {
 	    			getline name
@@ -70,22 +102,38 @@ arch_convert_package_list() {
 	    				} else {
 	    					if ("%ARCH%" == $1) {
 	    						getline architecture;
-	    						printf("%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-	    							   name,
-	    							   version,
-	    							   revision,
-	    							   architecture,
-	    							   file_name,
-	    							   description,
-	    							   distro,
-	    							   distro_version,
-	    							   repo)
+	    					} else {
+	    						if ("%DEPENDS%" == $1) {
+	    							getline dependency;
+	    							do {
+	    								sub(/[<>=].*/, "", dependency);
+	    								dependencies = \
+	    								            (dependencies","dependency);
+	    								getline dependency;
+	    							} while ("" != dependency);
+
+	    							# remove the leading comma
+	    							sub(/^,/, "", dependencies);
+
+	    			    			print_entry();
+	    			    			file_name = ""
+	    						}
 	    					}
 	    				}
 	    			}
 	    		}
 	    	}
+	    }
+
+	    END {
+	    	print_entry()
 	    }'
+
+	# clean up
+	rm -rf $temp_dir
+	[ 0 -ne $? ] && return 1
+
+	return 0
 }
 
 # arch_extract_package()
