@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="gpm"
-PKG_VER="1.20.6"
+PKG_VER="1.20.7"
 PKG_REV="1"
 PKG_DESC="A mouse server"
 PKG_CAT="BuildingBlock"
@@ -21,8 +21,12 @@ build() {
 
 	cd $PKG_NAME-$PKG_VER
 
+	# generate the configure script
+	./autogen.sh
+	[ 0 -ne $? ] && return 1
+
 	# configure the package
-	./configure $AUTOTOOLS_BASE_OPTS
+	./configure $AUTOTOOLS_BASE_OPTS --with-curses
 	[ 0 -ne $? ] && return 1
 
 	# build the package
