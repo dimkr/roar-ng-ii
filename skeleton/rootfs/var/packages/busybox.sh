@@ -2,7 +2,7 @@
 
 PKG_NAME="busybox"
 PKG_VER="1.20.2"
-PKG_REV="1"
+PKG_REV="2"
 PKG_DESC="A tiny implementation of many Unix utilities"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
