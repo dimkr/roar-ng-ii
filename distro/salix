@@ -1,0 +1,40 @@
+# inherit from the Slackware support plug-in
+. ./slackware
+
+# repositories - package list URL|repository name
+REPOSITORIES="http://download.salixos.org/$(get_current_distro_arch)/$(get_current_distro_version)/PACKAGES.TXT.gz|salix-main"
+
+# package download mirrors
+MIRRORS="http://download.salixos.org/$(get_current_distro_arch)/$(get_current_distro_version)|salix-main"
+
+# salix_get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+salix_get_architecture_aliases() {
+	slackware_get_architecture_aliases "$1"
+}
+
+# salix_download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+salix_download_package_list() {
+	slackware_download_package_list "$1" "$2"
+}
+
+# salix_convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+salix_convert_package_list() {
+	slackware_convert_package_list "$1" "$2"
+}
+
+# salix_extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+salix_extract_package() {
+	slackware_extract_package "$1" "$2"
+}
