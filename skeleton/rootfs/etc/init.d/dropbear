@@ -11,7 +11,7 @@ case "$1" in
 		do
 			[ -f /etc/dropbear/dropbear_${i}_host_key ] && continue
 			dropbearkey -t $i -f /etc/dropbear/dropbear_${i}_host_key
-			chown ssh:ssh /etc/dropbear/dropbear_${i}_host_key
+			chown nobody:nobody /etc/dropbear/dropbear_${i}_host_key
 			chmod 600 /etc/dropbear/dropbear_${i}_host_key
 		done
 
@@ -21,11 +21,11 @@ case "$1" in
 		# create a directory for the pidfile
 		pidfile_directory="$(dirname "$PIDFILE_PATH")"
 		[ ! -d "$pidfile_directory" ] && mkdir "$pidfile_directory"
-		chown ssh:ssh "$pidfile_directory"
+		chown nobody:nobody "$pidfile_directory"
 		chmod 755 "$pidfile_directory"
 
 		# start the server
-		su -c "dropbear -P $PIDFILE_PATH $ADDITIONAL_OPTS" ssh
+		su -c "dropbear -P $PIDFILE_PATH $ADDITIONAL_OPTS" nobody 
 		echo " done"
 		exit $?
 		;;
