@@ -50,13 +50,16 @@ Distributions currently supported by roar-ng II are:
   - Debian (http://www.debian.org/) and derivatives:
       - Ubuntu (http://www.ubuntu.com/)
       - Linux Mint (http://www.linuxmint.com/)
+      - Trisquel GNU/Linux (http://www.trisquel.info/)
       - Raspbian (http://www.raspbian.org/)
   - RPM-based distributions:
       - Mageia (http://www.mageia.org/)
       - Fedora (http://fedoraproject.org/)
       - CentOS (https://www.centos.org/)
       - openSUSE (http://www.opensuse.org/)
-  - Arch Linux (http://www.archlinux.org/)
+  - Arch Linux (http://www.archlinux.org/) and derivatives:
+      - Parabola GNU/Linux (https://www.parabolagnulinux.org/)
+      - ConnochaetOS (http://www.connochaetos.org/)
   - Slackware (http://www.slackware.com/)
   - Puppy Linux (http://www.puppylinux.org/) and derivatives:
       - Slacko

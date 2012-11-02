@@ -1,0 +1,59 @@
+# inherit from the Arch Linux support plug-in
+. ./arch
+
+# repositories - package list URL|repository name
+REPOSITORIES="http://repo.parabolagnulinux.org/core/os/$(get_current_distro_arch)/core.db.tar.gz|parabola-core
+              http://repo.parabolagnulinux.org/libre/os/$(get_current_distro_arch)/libre.db.tar.gz|parabola-libre
+              http://repo.parabolagnulinux.org/extra/os/$(get_current_distro_arch)/extra.db.tar.gz|parabola-extra
+              http://repo.parabolagnulinux.org/community/os/$(get_current_distro_arch)/community.db.tar.gz|parabola-community"
+
+# package download mirrors - more at http://www.archlinux.org/mirrors/status/
+MIRRORS="http://repo.parabolagnulinux.org/core/os/$(get_current_distro_arch)|parabola-core
+         http://repo.parabolagnulinux.org/libre/os/$(get_current_distro_arch)|parabola-libre
+         http://repo.parabolagnulinux.org/extra/os/$(get_current_distro_arch)|parabola-extra
+         http://repo.parabolagnulinux.org/community/os/$(get_current_distro_arch)|parabola-community"
+
+# parabola_get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+parabola_get_architecture_aliases() {
+	case "$1" in
+		x86_64|amd64)
+			echo "x86_64 any"
+			;;
+		i586)
+			echo "i586 any"
+			;;
+		x86|i?86)
+			echo "i686 any"
+			;;
+		mips*)
+			echo "mips64el any"
+			;;
+	esac
+}
+
+# parabola_download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+parabola_download_package_list() {
+	arch_download_package_list "$1" "$2"
+}
+
+# parabola_convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+parabola_convert_package_list() {
+	arch_convert_package_list "$1" "$2"
+}
+
+# parabola_extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+parabola_extract_package() {
+	arch_extract_package "$1" "$2"
+}

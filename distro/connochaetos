@@ -1,0 +1,46 @@
+# inherit from the Arch Linux support plug-in
+. ./arch
+
+# repositories - package list URL|repository name
+REPOSITORIES="http://www.connochaetos.org/os/$(get_current_distro_arch)/connos/connos.db.tar.gz|connochaetos-connos
+              http://www.connochaetos.org/os/$(get_current_distro_arch)/connos-extra/connos-extra.db.tar.gz|connochaetos-connos_extra"
+
+# package download mirrors
+MIRRORS="http://www.connochaetos.org/os/$(get_current_distro_arch)/connos|connochaetos-connos
+         http://www.connochaetos.org/os/$(get_current_distro_arch)/connos-extra|connochaetos-connos_extra"
+
+# connochaetos_get_architecture_aliases()
+# purpose: translates an architecture name to the distribution's nicknames
+# input  : an architecture name
+# output : the distribution's names for the architecture, ordered by accuracy
+connochaetos_get_architecture_aliases() {
+	case "$1" in
+		x86|i?86)
+			echo "i586 any"
+			;;
+	esac
+}
+
+# connochaetos_download_package_list()
+# purpose: downloads the distribution's package list
+# input  : the package list URL and the destination path
+# output : -
+connochaetos_download_package_list() {
+	arch_download_package_list "$1" "$2"
+}
+
+# connochaetos_convert_package_list()
+# purpose: converts a repository's package list to roar-ng's common format
+# input  : the package list path and the repository name
+# output : a package list in roar-ng's format
+connochaetos_convert_package_list() {
+	arch_convert_package_list "$1" "$2"
+}
+
+# connochaetos_extract_package()
+# purpose: extracts a package of the distribution into a directory
+# input  : a package path and the destination directory
+# output : -
+connochaetos_extract_package() {
+	arch_extract_package "$1" "$2"
+}
