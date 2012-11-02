@@ -11,7 +11,7 @@ PKG_DEPS=""
 PKG_SRC="http://busybox.net/downloads/$PKG_NAME-$PKG_VER.tar.bz2"
 
 # the required bug-fix patches
-PATCHES="kernel_ver"
+PATCHES="kernel_ver pkg-config-selinux sys-resource"
 
 # the kernel modules directory
 MODULES_DIR="/lib/modules"
