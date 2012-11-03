@@ -819,7 +819,7 @@ download_packages() {
 		# download the packages
 		for package in $packages
 		do
-			echo "$package"
+			echo "$package ($distribution)"
 			_download_package $package
 			[ 0 -ne $? ] && return 1
 		done
