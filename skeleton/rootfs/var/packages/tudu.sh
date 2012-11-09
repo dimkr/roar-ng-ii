@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="tudu"
-PKG_VER="0.8.1"
+PKG_VER="0.8.2"
 PKG_REV="1"
 PKG_DESC="Hierarchical TODOs management application"
 PKG_CAT="Personal"
