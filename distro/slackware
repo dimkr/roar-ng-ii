@@ -115,7 +115,7 @@ slackware_convert_package_list() {
 	    				# dependencies, pick the first
 	    				count = split(trim($2), dependencies_split, ",");
 	    				for (i = 1; count >= i; i++) {
-	    					sub(/\|.*/, "", dependencies_split[i]);
+	    					sub(/[ \|].*/, "", dependencies_split[i]);
 	    					dependencies = (dependencies","dependencies_split[i])
 	    				}
 
