@@ -19,16 +19,16 @@ MIRRORS="http://mirror.csclub.uwaterloo.ca/debian|debian-main,debian-contrib,deb
 debian_get_architecture_aliases() {
 	case "$1" in
 		x86_64|amd64)
-			echo "amd64 noarch"
+			echo "amd64 all"
 			;;
 		x86|i?86)
-			echo "i386 noarch"
+			echo "i386 all"
 			;;
 		arm7|armv7)
-			echo "armhf noarch"
+			echo "armhf all"
 			;;
 		arm*)
-			echo "armel noarch"
+			echo "armel all"
 			;;
 	esac
 }
