@@ -807,11 +807,6 @@ download_packages() {
 		packages="$(get_meta_package_packages "$entry")"
 		distribution="$(get_meta_package_distro "$entry")"
 
-		# if the meta-package was already extracted, end here - all packages
-		# were downloaded already, of course; this saves the long process of
-		# locating their package entries
-		[ -d "$VAR_PREFIX/extracted_package/$name" ] && continue
-
 		# set the current distribution
 		set_current_distro $distribution
 		[ 0 -ne $? ] && return 1

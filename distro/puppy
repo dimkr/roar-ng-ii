@@ -11,19 +11,22 @@ PET_UNNEEDED_FILES="pet.specs puninstall.sh"
 PET_POST_INSTALL_FILE_NAME="pinstall.sh"
 
 # repositories - package list URL|repository name
-REPOSITORIES="http://distro.ibiblio.org/puppylinux/Packages-puppy-$(get_current_distro_version)-official|puppy-$(get_current_distro_version)
+REPOSITORIES="http://distro.ibiblio.org/puppylinux/Packages-puppy-slacko14-official|puppy-slacko14
+              http://distro.ibiblio.org/puppylinux/Packages-puppy-slacko-official|puppy-slacko
               http://distro.ibiblio.org/quirky/Packages-puppy-noarch-official|puppy-noarch
               http://distro.ibiblio.org/quirky/Packages-puppy-common-official|puppy-common
               http://distro.ibiblio.org/quirky/Packages-puppy-wary5-official|puppy-wary5
               http://distro.ibiblio.org/puppylinux/Packages-puppy-4-official|puppy-4"
 
 # package download mirrors
-MIRRORS="http://distro.ibiblio.org/puppylinux/pet_packages-$(get_current_distro_version)|puppy-$(get_current_distro_version)
+MIRRORS="http://distro.ibiblio.org/puppylinux/pet_packages-slacko14|puppy-slacko14
+         http://distro.ibiblio.org/puppylinux/pet_packages-slacko|puppy-slacko
          http://distro.ibiblio.org/quirky/pet_packages-noarch|puppy-noarch
          http://distro.ibiblio.org/quirky/pet_packages-common|puppy-common
          http://distro.ibiblio.org/quirky/pet_packages-wary5|puppy-wary5
          http://distro.ibiblio.org/puppylinux/pet_packages-4|puppy-4
-         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-$(get_current_distro_version)|puppy-$(get_current_distro_version)
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-slacko14|puppy-slacko14
+         http://ftp.nluug.nl/ftp/pub/os/Linux/distr/puppylinux/pet_packages-slacko|puppy-slacko
          http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-noarch|puppy-noarch
          http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-common|puppy-common
          http://ftp.nluug.nl/ftp/pub/os/Linux/distr/quirky/pet_packages-wary5|puppy-wary5
@@ -130,13 +133,13 @@ puppy_extract_package() {
 	done
 
 	# move the package contents out of the parent directory
-	mv * ..
+	cp -a * ..
 	[ 0 -ne $? ] && return 1
 
 	# remove the parent directory
 	parent_directory="$(pwd)"
 	cd "$2"
-	rmdir "$parent_directory"
+	rm -rf "$parent_directory"
 	[ 0 -ne $? ] && return 1
 
 	# if no post-installation script exists, end here
