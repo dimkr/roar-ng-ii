@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="cmus"
-PKG_VER="2.4.3"
+PKG_VER="2.5.0"
 PKG_REV="1"
 PKG_DESC="Console music player"
 PKG_CAT="Multimedia"
