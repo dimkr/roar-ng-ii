@@ -1,6 +1,9 @@
 # a dummy package architecture field
 PUPPY_PACKAGE_ARCH="any"
 
+# the extension of PET package file names
+PET_EXTENSION=".pet"
+
 # the size of a MD5 hash, in bytes
 MD5_SIZE=32
 
@@ -122,32 +125,26 @@ puppy_extract_package() {
 	# if the extraction failed, report an error
 	[ 0 -ne $exit_code ] && return 1
 
-	# switch to the parent directory
-	cd "$2/"*
+	# strip the parent directory
+	parent_directory="$(basename "$1" $PET_EXTENSION)"
+	cp -a "$2/$parent_directory"/* "$2"
+	[ 0 -ne $? ] && return 1
+	rm -rf "$2/$parent_directory"
+	[ 0 -ne $? ] && return 1
 
 	# remove unneeded files
 	for i in $PET_UNNEEDED_FILES
 	do
-		rm -f $i
+		rm -f "$2/$i"
 		[ 0 -ne $? ] && return 1
 	done
 
-	# move the package contents out of the parent directory
-	cp -a * ..
-	[ 0 -ne $? ] && return 1
-
-	# remove the parent directory
-	parent_directory="$(pwd)"
-	cd "$2"
-	rm -rf "$parent_directory"
-	[ 0 -ne $? ] && return 1
-
 	# if no post-installation script exists, end here
-	[ ! -f $PET_POST_INSTALL_FILE_NAME ] && return 0
+	[ ! -f "$2/$PET_POST_INSTALL_FILE_NAME" ] && return 0
 
 	# rename the post-installation script; it works the same way as a roar-ng II
 	# one
-	mv $PET_POST_INSTALL_FILE_NAME $POST_INSTALL_SCRIPT_FILE_NAME
+	mv "$2/$PET_POST_INSTALL_FILE_NAME" "$2/$POST_INSTALL_SCRIPT_FILE_NAME"
 	[ 0 -ne $? ] && return 1
 
 	return 0
