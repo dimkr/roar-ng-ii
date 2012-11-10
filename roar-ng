@@ -1009,8 +1009,8 @@ _build_initramfs() {
 
 # _build_rootfs()
 # purpose: builds the root file system Squashfs image
-# input  : the extracted root file system contents directory and the destination
-#          path
+# input  : the extracted root file system contents directory, the destination
+#          path and the kernel image path
 # output : -
 _build_rootfs() {
 	# copy roar-ng's configuration to the root file system
@@ -1042,6 +1042,10 @@ _build_rootfs() {
 	cp -a "$1/etc/skel" "$1/root"
 	chown -R 0:0 "$1/root"
 	chmod 600 "$1/root"
+	[ 0 -ne $? ] && return 1
+
+	# remove the kernel image from the root file system
+	mv -f "$1/$KERNEL_IMAGE_PATH" "$3"
 	[ 0 -ne $? ] && return 1
 
 	# create a Squashfs image
@@ -1079,17 +1083,14 @@ build_bootable_media_image() {
 
 	# build the root file system image
 	_build_rootfs "$VAR_PREFIX/rootfs" \
-	              "$VAR_PREFIX/media/boot/$ROOT_FS_FILE_NAME"
+	              "$VAR_PREFIX/media/boot/$ROOT_FS_FILE_NAME" \
+	              "$VAR_PREFIX/media/$KERNEL_IMAGE_PATH"
 	[ 0 -ne $? ] && return 1
 
 	# build the initramfs
 	_build_initramfs "$VAR_PREFIX/initramfs" \
 	                 "$VAR_PREFIX/media/boot/$INITRAMFS_FILE_NAME"
 	[ 0 -ne $? ] && return 1
-
-	# move the kernel image from the root file system to the media itself
-	mv -f "$VAR_PREFIX/rootfs/$KERNEL_IMAGE_PATH" \
-	      "$VAR_PREFIX/media/$KERNEL_IMAGE_PATH"
 
 	# build a bootable media image
 	. "$INSTALL_PREFIX/media/$1"
