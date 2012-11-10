@@ -4,6 +4,12 @@ PUPPY_PACKAGE_ARCH="any"
 # the extension of PET package file names
 PET_EXTENSION=".pet"
 
+# the extensions for icon files placed under the package directory
+ICON_EXTENSIONS=".xpm .png"
+
+# the destination directory for icons moved from the package directory
+ICONS_DIR="usr/share/pixmaps"
+
 # the size of a MD5 hash, in bytes
 MD5_SIZE=32
 
@@ -137,6 +143,22 @@ puppy_extract_package() {
 	do
 		rm -f "$2/$i"
 		[ 0 -ne $? ] && return 1
+	done
+
+	# move icons placed under the package directory to the icons directory
+	for extension in $ICON_EXTENSIONS
+	do
+		for icon in "$2"/*$extension
+		do
+			[ "$2/*$extension" = "$icon" ] && break
+			if [ ! -d "$2/$ICONS_DIR" ]
+			then
+				mkdir -p "$2/$ICONS_DIR"
+				[ 0 -ne $? ] && return 1
+			fi
+			mv "$icon" "$2/$ICONS_DIR"
+			[ 0 -ne $? ] && return 1
+		done
 	done
 
 	# if no post-installation script exists, end here
