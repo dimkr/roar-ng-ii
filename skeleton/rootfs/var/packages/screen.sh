@@ -2,13 +2,14 @@
 
 PKG_NAME="screen"
 PKG_VER="4.0.3"
-PKG_REV="1"
+PKG_REV="2"
 PKG_DESC="Terminal multiplexer"
 PKG_CAT="Utility"
 PKG_DEPS="ncurses"
 
 # the package source files
-PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"
+PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz
+         http://www.dimakrasner.com/subito/3/source/screen/screen-4.0.3-longer-TERM.patch"
 
 download() {
 	return 0
@@ -20,6 +21,11 @@ build() {
 	[ 0 -ne $? ] && return 1
 
 	cd $PKG_NAME-$PKG_VER
+
+	# patch the sources to allow longer values for TERM; this is required for
+	# rxvt-unicode's terminal type (rxvt-unicode-256color)
+	patch -p1 < ../screen-4.0.3-longer-TERM.patch
+	[ 0 -ne $? ] && return 1
 
 	# generate a new configure script
 	autoconf
