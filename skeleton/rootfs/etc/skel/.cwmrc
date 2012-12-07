@@ -12,6 +12,7 @@ bind CS-Escape "urxvtc -title htop -e htop"
 bind M-F2 exec
 bind 4-r exec
 bind 4-l lock
+bind 4-s "frost -m"
 bind CM-d "urxvtc -title dvtm -e dvtm"
 bind CM-s "urxvtc -title Screen -e screen"
 
