@@ -133,29 +133,43 @@ download_file() {
 		destination="$2"
 	fi
 
-	# turn relative paths into absolute ones
-	destination="$(realpath "$destination")"
-
 	# if the destination exists already, do nothing and assume it's the right
 	# file
 	[ -f "$destination" ] && return 0
+
+	# make sure it's possible to create the output file
+	touch "$destination"
+	[ 0 -ne $? ] && return 1
+
+	# turn relative paths into absolute ones
+	destination="$(realpath "$destination")"
 
 	# if aria2 is not present, use Wget
 	if [ -z "$(which aria2c)" ]
 	then
 		wget --no-check-certificate -O "$destination" "$first_url"
-		[ 0 -ne $? ] && return 1
+		if [ 0 -ne $? ]
+		then
+			rm -f "$destination"
+			return 1
+		fi
 	else
 		# otherwise, use aria2
 		aria2c -d / \
 			   -o "$destination" \
 			   --file-allocation none \
 			   --max-connection-per-server 4 \
+			   --max-concurrent-downloads 4 \
 			   --min-split-size 1M \
 			   --split 4 \
 			   --check-certificate=false \
+			   --allow-overwrite=true
 			   $1
-		[ 0 -ne $? ] && return 1
+		if [ 0 -ne $? ]
+		then
+			rm -f "$destination"
+			return 1
+		fi
 	fi
 
 	return 0
@@ -264,6 +278,9 @@ execute_and_delete_script() {
 #          indicates whether the parent directory should be kept (1 by default)
 # output : -
 make_tarball() {
+	# make sure the directory exists
+	[ ! -d "$1" ] && return 1
+
 	# make the directory path absolute
 	directory="$(realpath "$1")"
 
@@ -287,12 +304,13 @@ make_tarball() {
 		contents="*"
 	fi
 
-	# make the output file path absolute
-	destination="$(realpath "$2")"
+	# make sure it's possible to create the output file
+	touch "$2"
+	[ 0 -ne $? ] && return 1
 
 	# create a compressed tarball from the directory
 	cd "$parent"
-	tar -c $contents | xz -e --best > "$destination"
+	tar -c $contents | xz -e --best > "$(realpath "$2")"
 	exit_code=$?
 	cd "$BASE_DIR"
 	[ 0 -ne $exit_code ] && return 1
