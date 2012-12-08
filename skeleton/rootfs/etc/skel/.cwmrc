@@ -18,7 +18,7 @@ bind CM-s "urxvtc -title Screen -e screen"
 
 # application menu
 command Vifm "urxvtc -title Vifm -e vifm"
-command Links "urxvtc -title Links -e links"
+command ELinks "urxvtc -title ELinks -e elinks"
 command re-alpine "urxvtc -title re-alpine -e alpine"
 command Snownews "urxvtc -title Snownews -e snownews"
 command Irssi "urxvtc -title Irssi -e irssi"
