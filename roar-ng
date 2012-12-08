@@ -163,7 +163,7 @@ download_file() {
 			   --min-split-size 1M \
 			   --split 4 \
 			   --check-certificate=false \
-			   --allow-overwrite=true
+			   --allow-overwrite=true \
 			   $1
 		if [ 0 -ne $? ]
 		then
