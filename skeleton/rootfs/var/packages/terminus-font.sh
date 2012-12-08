@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="terminus-font"
-PKG_VER="4.36"
+PKG_VER="4.38"
 PKG_REV="1"
 PKG_DESC="A monospace, bitmap font"
 PKG_CAT="Desktop"
