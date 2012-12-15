@@ -23,6 +23,8 @@ build() {
 	cd $PKG_NAME-$PKG_VER
 
 	# configure the package
+	chmod 755 configure
+	[ 0 -ne $? ] && return 1
 	./configure --prefix=/$BASE_INSTALL_PREFIX \
 	            --x11dir=/$SHARE_DIR/fonts/misc \
 	            --psfdir=/usr/share/kbd/consolefonts
