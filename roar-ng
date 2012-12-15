@@ -203,6 +203,9 @@ decompress_file() {
 		application/x-xz)
 			tool="xz"
 			;;
+		application/octet-stream)
+			tool="lzma"
+			;;
 		*)
 			tool=""
 	esac
