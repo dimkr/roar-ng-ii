@@ -110,3 +110,11 @@ then
 	locale-gen > /dev/null 2>&1
 	echo " done"
 fi
+
+# update the CA certificates
+if [ ! -f /etc/ssl/certs/ca-certificates.crt ]
+then
+	echo -n "Updating CA certificates ..."
+	update-ca-certificates > /dev/null 2>&1
+	echo " done"
+fi
