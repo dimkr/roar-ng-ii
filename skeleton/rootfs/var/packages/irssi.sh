@@ -33,6 +33,13 @@ build() {
 	            --with-perl=module
 	[ 0 -ne $? ] && return 1
 
+	# change the compiler flags the Perl support is built with
+	for i in $(find src/perl -name Makefile.PL)
+	do
+		sed -i s~"'LIBS' => '',"~"&\n              'CFLAGS' => '$CFLAGS',\n              'LDDLFLAGS' => '-shared $LDFLAGS',"~ $i
+		[ 0 -ne $? ] && return 1
+	done
+
 	# build the package
 	make -j $BUILD_THREADS
 	[ 0 -ne $? ] && return 1
