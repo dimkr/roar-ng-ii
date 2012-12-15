@@ -4,7 +4,7 @@ PKG_NAME="aspell"
 PKG_VER="0.60.6.1"
 PKG_REV="1"
 PKG_DESC="Spell checker"
-PKG_CAT="BuildingBlock"
+PKG_CAT="Document"
 PKG_DEPS="ncurses"
 
 # the package source files

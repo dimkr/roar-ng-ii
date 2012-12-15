@@ -4,7 +4,7 @@ PKG_NAME="advancecomp"
 PKG_VER="1.15"
 PKG_REV="1"
 PKG_DESC="Recompression utilities"
-PKG_CAT="BuildingBlock"
+PKG_CAT="Utility"
 PKG_DEPS="zlib"
 
 # the package source files

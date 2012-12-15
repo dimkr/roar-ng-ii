@@ -4,7 +4,7 @@ PKG_NAME="gpm"
 PKG_VER="1.20.7"
 PKG_REV="1"
 PKG_DESC="A mouse server"
-PKG_CAT="BuildingBlock"
+PKG_CAT="System"
 PKG_DEPS="ncurses"
 
 # the package source files

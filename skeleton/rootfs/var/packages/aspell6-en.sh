@@ -4,7 +4,7 @@ PKG_NAME="aspell6-en"
 PKG_VER="7.1-0"
 PKG_REV="1"
 PKG_DESC="English dictionary for Aspell"
-PKG_CAT="BuildingBlock"
+PKG_CAT="Document"
 PKG_DEPS="aspell"
 
 # the package source files
