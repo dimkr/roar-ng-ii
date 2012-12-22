@@ -12,6 +12,7 @@ tape:x:10:
 tty:x:11:
 video:x:12:
 scanner:x:13:
+users:x:14:
+mail:x:15:
 messagebus:x:503:messagebus
 nobody:x:504:nobody
-users:x:14:

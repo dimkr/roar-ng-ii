@@ -121,6 +121,9 @@ SOURCE_DIR="$BASE_INSTALL_PREFIX/src"
 # kernel image
 BOOT_DIR="boot"
 
+# the directory for mail
+MAIL_DIR="$VAR_DIR/spool/mail"
+
 ###########
 # generic #
 ###########

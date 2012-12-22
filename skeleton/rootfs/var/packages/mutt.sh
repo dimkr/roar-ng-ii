@@ -5,7 +5,7 @@ PKG_VER="1.5.21"
 PKG_REV="1"
 PKG_DESC="E-mail client"
 PKG_CAT="Internet"
-PKG_DEPS="gdbm,ncurses,gnutls,cyrus-sasl2,gpgme,msmtp"
+PKG_DEPS="gdbm,ncurses,gnutls,cyrus-sasl2,gpgme"
 
 # the package source files
 PKG_SRC="ftp://ftp.mutt.org/mutt/devel/$PKG_NAME-$PKG_VER.tar.gz"
@@ -40,7 +40,7 @@ build() {
 	            --enable-full-doc \
 	            --with-curses \
 	            --with-regex \
-	            --with-mailpath=$HOME/Mail \
+	            --with-mailpath=/$MAIL_DIR \
 	            --with-docdir=/$DOC_DIR/$PKG_NAME \
 	            --without-gss \
 	            --without-ssl \
