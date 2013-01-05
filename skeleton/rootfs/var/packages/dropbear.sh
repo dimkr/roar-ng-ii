@@ -43,6 +43,12 @@ build() {
 	sed -i s~/etc/dropbear~"/$CONF_DIR/dropbear"~g options.h
 	[ 0 -ne $? ] && return 1
 
+	# change Dropbear's banner, so it doesn't contain the SSH server name and
+	# version
+	sed -i s~'^#define LOCAL_IDENT .*'~'#define LOCAL_IDENT "SSH-2.0"'~ \
+	       sysoptions.h
+	[ 0 -ne $? ] && return 1
+
 	# build the package
 	make -j $BUILD_THREADS PROGRAMS="dropbear $PROGRAMS" MULTI=1
 	[ 0 -ne $? ] && return 1
