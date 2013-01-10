@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="bitlbee"
-PKG_VER="3.0.6"
+PKG_VER="3.2"
 PKG_REV="1"
 PKG_DESC="An IRC to other networks gateway"
 PKG_CAT="Internet"

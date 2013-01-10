@@ -1,8 +1,8 @@
 #!/bin/sh
 
 PKG_NAME="rxvt-unicode"
-PKG_VER="9.15"
-PKG_REV="2"
+PKG_VER="9.16"
+PKG_REV="1"
 PKG_DESC="Terminal emulator"
 PKG_CAT="Utility"
 PKG_DEPS="xorg_base"
@@ -29,7 +29,6 @@ build() {
 	            --disable-combining \
 	            --enable-xft \
 	            --disable-font-styles \
-	            --disable-afterimage \
 	            --disable-pixbuf \
 	            --disable-transparency \
 	            --disable-fading \

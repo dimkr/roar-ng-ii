@@ -7,7 +7,7 @@
 # or:    buildpkg build    BUILD_SCRIPT (to build a package)
 
 # the command-line usage message
-USAGE="buildpkg [download|build] SCRIPT
+USAGE="buildpkg {download|build} SCRIPT
 
 Build a binary package, according to a build script."
 

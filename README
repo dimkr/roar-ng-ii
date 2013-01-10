@@ -64,6 +64,7 @@ Distributions currently supported by roar-ng II are:
       - Salix OS (http://www.salixos.org)
   - Puppy Linux (http://www.puppylinux.org/) and derivatives:
       - Slacko
+      - Precise Puppy
       - Wary (http://www.bkhome.org/wary/)
 
 This means roar-ng II is able to build distributions using packages which
