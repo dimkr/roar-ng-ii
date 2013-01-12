@@ -5,7 +5,7 @@ PKG_VER="git$(date +%d%m%Y)"
 PKG_REV="2"
 PKG_DESC="Video player forked from MPlayer"
 PKG_CAT="Multimedia"
-PKG_DEPS="ncurses,alsa-lib,libpng,libjpeg,libgif,libmng,libvorbis,libtheora,libspeex,xvidcore,libmad,directfb,xorg_base,libav"
+PKG_DEPS="ncurses,alsa-lib,libpng,libjpeg,libgif,libvorbis,libtheora,libspeex,xvidcore,libmad,libcaca,libav"
 
 # the package source files
 PKG_SRC=""
@@ -31,6 +31,13 @@ build() {
 
 	cd $PKG_NAME-$PKG_VER
 
+	if [ -n "$(which X)" ]
+	then
+		x11="enable"
+	else
+		x11="disable"
+	fi
+
 	# configure the package
 	./configure --prefix=/$BASE_INSTALL_PREFIX \
 	            --bindir=/$BIN_DIR \
@@ -48,8 +55,7 @@ build() {
 	            --disable-joystick \
 	            --disable-apple-remote \
 	            --disable-apple-ir \
-	            --enable-vm \
-	            --enable-xf86keysym \
+	            --$x11-xf86keysym \
 	            --disable-radio \
 	            --disable-radio-capture \
 	            --disable-radio-v4l2 \
@@ -88,7 +94,7 @@ build() {
 	            --disable-libavresample \
 	            --enable-gif \
 	            --enable-png \
-	            --enable-mng \
+	            --disable-mng \
 	            --enable-jpeg \
 	            --disable-libcdio \
 	            --disable-win32dll \
@@ -112,21 +118,21 @@ build() {
 	            --disable-libdca \
 	            --disable-liba52 \
 	            --disable-musepack \
-	            --enable-gl \
+	            --$x11-gl \
 	            --disable-sdl \
-	            --disable-caca \
+	            --enable-caca \
 	            --disable-direct3d \
 	            --disable-directx \
 	            --enable-v4l2 \
 	            --enable-dvb \
 	            --disable-xv \
-	            --enable-vdpau \
-	            --enable-vm \
-	            --enable-xinerama \
-	            --enable-x11 \
+	            --disable-vdpau \
+	            --$x11-vm \
+	            --$x11-xinerama \
+	            --$x11-x11 \
 	            --disable-xshape \
 	            --disable-xss \
-	            --enable-directfb \
+	            --disable-directfb \
 	            --disable-tga \
 	            --disable-pnm \
 	            --disable-md5sum \
