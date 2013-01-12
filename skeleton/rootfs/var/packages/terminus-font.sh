@@ -2,7 +2,7 @@
 
 PKG_NAME="terminus-font"
 PKG_VER="4.38"
-PKG_REV="1"
+PKG_REV="2"
 PKG_DESC="A monospace, bitmap font"
 PKG_CAT="Desktop"
 PKG_DEPS=""
@@ -29,6 +29,13 @@ build() {
 	            --x11dir=/$SHARE_DIR/fonts/misc \
 	            --psfdir=/usr/share/kbd/consolefonts
 	[ 0 -ne $? ] && return 1
+	
+	# if no X server is present, do not build X11 fonts
+	if [ -z "$(which bdftopcf)" ]
+	then
+		sed -i s~'^PCF =.*'~'PCF ='~ Makefile
+		[ 0 -ne $? ] && return 1
+	fi
 
 	# build the package
 	make -j $BUILD_THREADS

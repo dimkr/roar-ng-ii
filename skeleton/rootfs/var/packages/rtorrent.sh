@@ -5,7 +5,7 @@ PKG_VER="0.9.2"
 PKG_REV="1"
 PKG_DESC="BitTorrent client"
 PKG_CAT="Internet"
-PKG_DEPS="zlib,ncurses,openssl,cyrus-sasl2,openldap,libtorrent"
+PKG_DEPS="zlib,ncurses,openssl,curl,cyrus-sasl2,openldap,libtorrent"
 
 # the package source files
 PKG_SRC="http://libtorrent.rakshasa.no/downloads/$PKG_NAME-$PKG_VER.tar.gz"
