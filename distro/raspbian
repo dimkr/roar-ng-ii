@@ -16,7 +16,7 @@ MIRRORS="http://archive.raspbian.org/raspbian|raspbian-main,raspbian-contrib,ras
 raspbian_get_architecture_aliases() {
 	case "$1" in
 		arm*)
-			echo "armhf noarch"
+			echo "armhf all"
 			;;
 	esac
 }
