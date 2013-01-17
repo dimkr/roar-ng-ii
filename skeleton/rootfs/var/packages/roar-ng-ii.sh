@@ -34,6 +34,10 @@ build() {
 
 	cd $PKG_NAME-$PKG_VER
 
+	# remove .gitignore files
+	find . -name .gitignore -delete
+	[ 0 -ne $? ] && return 1
+
 	return 0
 }
 
