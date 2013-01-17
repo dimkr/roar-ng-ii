@@ -2,7 +2,7 @@
 
 PKG_NAME="linux"
 PKG_VER="3.2"
-PKG_REV="36"
+PKG_REV="37"
 PKG_DESC="A monolithic kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="BuildingBlock"
 PKG_DEPS="perl,linux-source"
