@@ -27,7 +27,7 @@ build() {
 	[ 0 -ne $? ] && return 1
 	./configure --prefix=/$BASE_INSTALL_PREFIX \
 	            --x11dir=/$SHARE_DIR/fonts/misc \
-	            --psfdir=/usr/share/kbd/consolefonts
+	            --psfdir=/usr/share/consolefonts
 	[ 0 -ne $? ] && return 1
 	
 	# if no X server is present, do not build X11 fonts
