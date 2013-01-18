@@ -33,7 +33,7 @@ DISPLAY message.txt
 
 LABEL $DISTRO_NICKNAME
 	LINUX /$KERNEL_IMAGE_PATH
-	APPEND root=sr0 sleep=5
+	APPEND sleep=5
 	INITRD /boot/initrd.gz
 EOF
 	[ 0 -ne $? ] && return 1
@@ -45,6 +45,10 @@ EOF
 	        -c boot.cat \
 	        -no-emul-boot -boot-load-size 4 -boot-info-table \
 	        "$1"
+	[ 0 -ne $? ] && return 1
+
+	# make the image "hybrid", so it can be used with non-optical media
+	isohybrid "$2"
 	[ 0 -ne $? ] && return 1
 
 	return 0
