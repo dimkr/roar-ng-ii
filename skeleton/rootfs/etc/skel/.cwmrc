@@ -17,7 +17,7 @@ bind CM-d "urxvtc -title dvtm -e dvtm"
 bind CM-s "urxvtc -title Screen -e screen"
 
 # application menu
-command Vifm "urxvtc -title Vifm -e vifm"
+command Ytree "urxvtc -title Ytree -e ytree"
 command ELinks "urxvtc -title ELinks -e elinks"
 command Mutt "urxvtc -title Mutt -e mutt"
 command Snownews "urxvtc -title Snownews -e snownews"
