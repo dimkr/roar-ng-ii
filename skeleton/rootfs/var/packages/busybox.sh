@@ -2,7 +2,7 @@
 
 PKG_NAME="busybox"
 PKG_VER="1.20.2"
-PKG_REV="2"
+PKG_REV="3"
 PKG_DESC="A tiny implementation of many Unix utilities"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
@@ -11,7 +11,7 @@ PKG_DEPS=""
 PKG_SRC="http://busybox.net/downloads/$PKG_NAME-$PKG_VER.tar.bz2"
 
 # the required bug-fix patches
-PATCHES="kernel_ver pkg-config-selinux sys-resource"
+PATCHES="kernel_ver ntpd pkg-config-selinux sys-resource"
 
 # the kernel modules directory
 MODULES_DIR="/lib/modules"
