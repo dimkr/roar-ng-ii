@@ -77,6 +77,10 @@ ROOT_FS_FILE_NAME="rootfs.sfs"
 # the package post-installation script name
 POST_INSTALL_SCRIPT_FILE_NAME="post_install.sh"
 
+# directories only allowed to be populated by file system skeletons and not
+# packages
+SKELETON_DIRECTORIES="etc/init.d etc/rc.d"
+
 ####################
 # package building #
 ####################
@@ -442,6 +446,17 @@ convert_package_list() {
 # output : -
 extract_package() {
 	$(get_current_distro)_extract_package "$1" "$2"
+	[ 0 -ne $? ] && return 1
+
+	# remove directories which originate in the file system skeleton
+	for directory in $SKELETON_DIRECTORIES
+	do	
+		[ ! -e "$2/$directory" ] && continue
+		rm -rf "$2/$directory"
+		[ 0 -ne $? ] && return 1
+	done
+
+	return 0
 }
 
 ##############################################
