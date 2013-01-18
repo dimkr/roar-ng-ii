@@ -66,11 +66,11 @@ package() {
 	[ 0 -ne $? ] && return 1
 
 	# install the license and the list of authors
-	install -D -m 644 COPYING $INSTALL_DIR/$DOC_DIR/$PKG_NAME/COPYING
+	install -D -m 644 COPYING $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/COPYING
 	[ 0 -ne $? ] && return 1
-	install -D -m 644 AUTHORS $INSTALL_DIR/$DOC_DIR/$PKG_NAME/AUTHORS
+	install -D -m 644 AUTHORS $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/AUTHORS
 	[ 0 -ne $? ] && return 1
-	install -D -m 644 THANKS $INSTALL_DIR/$DOC_DIR/$PKG_NAME/THANKS
+	install -D -m 644 THANKS $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/THANKS
 	[ 0 -ne $? ] && return 1
 
 	return 0
