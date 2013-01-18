@@ -450,7 +450,7 @@ extract_package() {
 
 	# remove directories which originate in the file system skeleton
 	for directory in $SKELETON_DIRECTORIES
-	do	
+	do
 		[ ! -e "$2/$directory" ] && continue
 		rm -rf "$2/$directory"
 		[ 0 -ne $? ] && return 1
@@ -1049,10 +1049,6 @@ _build_initramfs() {
 #          path and the kernel image path
 # output : -
 _build_rootfs() {
-	# copy roar-ng's configuration to the root file system
-	install -D -m 644 "$CONFIGURATION_PATH" "$1/$CONFIGURATION_INSTALL_PATH"
-	[ 0 -ne $? ] && return 1
-
 	# copy the root file system packages and skeleton
 	_build_module "rootfs" "$1" "$(get_meta_package_names)"
 	if [ 0 -ne $? ]
@@ -1060,6 +1056,10 @@ _build_rootfs() {
 		print_error "failed to build the root file system"
 		return 1
 	fi
+
+	# copy roar-ng's configuration to the root file system
+	install -D -m 644 "$CONFIGURATION_PATH" "$1/$CONFIGURATION_INSTALL_PATH"
+	[ 0 -ne $? ] && return 1
 
 	# create /etc/hostname
 	echo -n "$DISTRO_NICKNAME" > "$1/etc/hostname"
