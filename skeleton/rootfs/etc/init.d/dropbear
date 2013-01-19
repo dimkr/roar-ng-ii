@@ -25,7 +25,7 @@ case "$1" in
 		chmod 755 "$pidfile_directory"
 
 		# start the server
-		su -c "dropbear -P $PIDFILE_PATH $ADDITIONAL_OPTS" nobody 
+		dropbear -P $PIDFILE_PATH $ADDITIONAL_OPTS
 		echo " done"
 		exit $?
 		;;
