@@ -79,7 +79,7 @@ POST_INSTALL_SCRIPT_FILE_NAME="post_install.sh"
 
 # directories only allowed to be populated by file system skeletons and not
 # packages
-SKELETON_DIRECTORIES="etc/init.d etc/rc.d"
+SKELETON_DIRECTORIES="etc/init.d etc/rc.d usr/share/lintian"
 
 ####################
 # package building #
