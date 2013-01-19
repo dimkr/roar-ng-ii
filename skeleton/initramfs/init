@@ -49,7 +49,8 @@ show_error()
 # find_root()
 # purpose: locates and mounts the root partition
 # input  : the root partition's mount point and the full path to the root file
-#          system image
+#          system image and a boolean which indicates whether the root partition
+#          should be mounted read-write
 # output : -
 find_root() {
 	is_found=0
@@ -69,8 +70,16 @@ find_root() {
 		# will be unmounted and ignored
 		if [ -f "$2" ]
 		then
+			# if the file system should be mounted read-only, end here
+			if [ 0 -eq $3 ]
+			then
+				is_found=1
+				break
+			fi
+
+			# if the file system should be writeable, re-mount it
 			/bin/busybox mount -o remount,rw "$device" "$1" > /dev/null 2>&1
-			if [ 0 -eq $? ]
+			if [ 0 -ne $? ]
 			then
 				is_found=1
 				break
@@ -180,7 +189,7 @@ if [ -z "$root" ]
 then
 	# if no root partition was specified explicitly, locate it by mounting all
 	# partitions, one by one
-	find_root "$root_partition_mount_point" "$root_fs_path"
+	find_root "$root_partition_mount_point" "$root_fs_path" $is_persistent
 	[ 0 -ne $? ] && show_error "failed to locate and mount the root partition"
 else
 	# otherwise, use the one specified via the "root" boot code
