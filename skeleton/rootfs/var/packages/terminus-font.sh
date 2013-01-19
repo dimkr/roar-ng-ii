@@ -56,13 +56,16 @@ package() {
 	[ 0 -ne $? ] && return 1
 
 	# add the post-installation script
-	echo "#!/bin/sh
+	if [ -n "$(which mkfontscale)" ] && [ -n "$(which mkfontdir)" ]
+	then
+		echo "#!/bin/sh
 
 mkfontscale ./$SHARE_DIR/fonts/misc
 mkfontdir ./$SHARE_DIR/fonts/misc" > $INSTALL_DIR/post_install.sh
-	[ 0 -ne $? ] && return 1
-	chmod 755 $INSTALL_DIR/post_install.sh
-	[ 0 -ne $? ] && return 1
+		[ 0 -ne $? ] && return 1
+		chmod 755 $INSTALL_DIR/post_install.sh
+		[ 0 -ne $? ] && return 1
+	fi
 
 	return 0
 }
