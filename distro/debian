@@ -83,7 +83,13 @@ debian_convert_package_list() {
 	    				revision = version_split[2]
 	    			} else {
 	    				if ("Depends" == $1) {
-	    					gsub(/(\ |\ \([^\)]*\))/, "", $2);
+							# remove dependency versions
+	    					gsub(/ \([^\)]*\)/, "", $2);
+	    					# if there is an "or" relationship between
+	    					# dependencies, leave only the first option
+	    					gsub(/\|[^,]*/, "", $2);
+	    					# strip spaces
+	    					gsub(/ /, "", $2);
 	    					dependencies = $2
 	    				} else {
 	    					if ("Filename" == $1) {
