@@ -1087,6 +1087,7 @@ _build_rootfs() {
 	do
 		sed -e s~DISTRO_NAME~"$DISTRO_NAME"~g \
 		    -e s~DISTRO_VERSION~"$DISTRO_VERSION"~g \
+		    -e s~DISTRO_HOMEPAGE~"$DISTRO_HOMEPAGE"~g \
 		    -i "$1/etc/$i"
 	done
 
