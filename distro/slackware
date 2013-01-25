@@ -85,7 +85,7 @@ slackware_convert_package_list() {
 	    		}
 	    		sub(/^-/, "", package_name)
 	    		printf("%s|%s|%s|%s|%s/%s|%s|%s|%s|%s|%s\n",
-	    		       package_name,
+	    		       package_name, # in Slackware, each package has one name
 	    		       version,
 	    		       revision,
 	    		       arch,

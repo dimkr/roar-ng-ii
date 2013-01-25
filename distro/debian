@@ -2,15 +2,18 @@
 FILES_TARBALL_NAME="data.tar"
 
 # repositories - package list URL|repository name
-REPOSITORIES="http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|debian-main
+REPOSITORIES="http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)-updates/main/binary-$(get_current_distro_arch)/Packages.bz2|debian-updates_main
+              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)-updates/contrib/binary-$(get_current_distro_arch)/Packages.bz2|debian-updates_contrib
+              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)-updates/non-free/binary-$(get_current_distro_arch)/Packages.bz2|debian-updates_non_free
+              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|debian-main
               http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/contrib/binary-$(get_current_distro_arch)/Packages.bz2|debian-contrib
               http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/non-free/binary-$(get_current_distro_arch)/Packages.bz2|debian-non_free"
 
 # package download mirrors - more at http://www.debian.org/mirror/list
-MIRRORS="http://mirror.csclub.uwaterloo.ca/debian|debian-main,debian-contrib,debian-nonfree
-         http://http.us.debian.org/debian|debian-main,debian-contrib,debian-nonfree
-         http://debian.lcs.mit.edu/debian|debian-main,debian-contrib,debian-nonfree
-         http://ftp.iinet.net.au/debian/debian|debian-main,debian-contrib,debian-nonfree"
+MIRRORS="http://mirror.csclub.uwaterloo.ca/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
+         http://http.us.debian.org/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
+         http://debian.lcs.mit.edu/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
+         http://ftp.iinet.net.au/debian/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree"
 
 # debian_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames
@@ -58,7 +61,7 @@ debian_convert_package_list() {
 	    -F ": " '
 	    function print_entry() {
 	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-	    	       name,
+	    	       names,
 	    	       version,
 	    	       revision,
 	    	       arch,
@@ -67,12 +70,12 @@ debian_convert_package_list() {
 	    	       distro,
 	    	       distro_version,
 	    	       repo,
-	    	       dependencies)
+	    	       dependencies);
 	    }
 
 	    {
 	    	if ("Package" == $1) {
-	    		name = $2
+	    		names = $2
 	    	} else {
 	    		if ("Architecture" == $1) {
 	    			arch = $2
@@ -82,27 +85,35 @@ debian_convert_package_list() {
 	    				version = version_split[1];
 	    				revision = version_split[2]
 	    			} else {
-	    				if ("Depends" == $1) {
-							# remove dependency versions
-	    					gsub(/ \([^\)]*\)/, "", $2);
-	    					# if there is an "or" relationship between
-	    					# dependencies, leave only the first option
-	    					gsub(/\|[^,]*/, "", $2);
-	    					# strip spaces
+	    				if ("Provides" == $1) {
 	    					gsub(/ /, "", $2);
-	    					dependencies = $2
+	    					names = names","$2
 	    				} else {
-	    					if ("Filename" == $1) {
-	    						file_name = $2
-	    					} else {
-	    						if ("Description" == $1) {
-	    							description = $2
+	    					if (("Depends" == $1) || ("Pre-Depends" == $1)) {
+	    						# remove dependency versions
+	    						gsub(/ \([^\)]*\)/, "", $2);
+	    						# if there is an "or" relationship between
+	    						# dependencies, leave only the first option
+	    						gsub(/\|[^,]*/, "", $2);
+	    						# strip spaces
+	    						gsub(/ /, "", $2);
+	    						if ("" == dependencies) {
+	    							dependencies = $2
 	    						} else {
-	    							if ("" == $0 &&
-	    								"" != name) {
-	    								print_entry();
-	    								name = "";
-	    								dependencies = "";
+	    							dependencies = dependencies","$2
+	    						}
+	    					} else {
+	    						if ("Filename" == $1) {
+	    							file_name = $2
+	    						} else {
+	    							if ("Description" == $1) {
+	    								description = $2
+	    							} else {
+	    								if (("" == $0) && ("" != names)) {
+	    									print_entry();
+	    									names = "";
+	    									dependencies = ""
+	    								}
 	    							}
 	    						}
 	    					}
@@ -113,7 +124,7 @@ debian_convert_package_list() {
 	    }
 
 	    END {
-	    	if ("" != name) {
+	    	if ("" != names) {
 	    		print_entry()
 	    	}
 	    }' "$1"

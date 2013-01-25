@@ -60,6 +60,7 @@ arch_convert_package_list() {
 	for package in $temp_dir/*
 	do
 		cat $package/desc $package/depends
+		echo PACKAGE_END
 	done | \
 	awk -v distro="$(get_current_distro)" \
 	    -v distro_version="$(get_current_distro_version)" \
@@ -67,7 +68,7 @@ arch_convert_package_list() {
 
 	    function print_entry() {
 	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-	    	       name,
+	    	       names,
 	    	       version,
 	    	       revision,
 	    	       architecture,
@@ -89,7 +90,7 @@ arch_convert_package_list() {
 	    		getline file_name;
 	    	} else {
 	    		if ("%NAME%" == $1) {
-	    			getline name
+	    			getline names
 	    		} else {
 	    			if ("%VERSION%" == $1) {
 	    				getline line;
@@ -114,9 +115,20 @@ arch_convert_package_list() {
 
 	    							# remove the leading comma
 	    							sub(/^,/, "", dependencies);
-
-	    			    			print_entry();
-	    			    			file_name = ""
+	    						} else {
+	    							if ("%PROVIDES%" == $1) {
+	    								getline name;
+	    								do {
+	    									sub(/[<>=].*/, "", name);
+	    									names = names","name;
+	    									getline name;
+	    								} while ("" != name);
+	    							} else {
+	    								if ("PACKAGE_END" == $1) {
+	    									print_entry();
+	    									file_name = ""
+	    								}
+	    							}
 	    						}
 	    					}
 	    				}

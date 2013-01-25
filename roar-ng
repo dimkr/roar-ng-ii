@@ -536,11 +536,28 @@ get_package_entries() {
 	    -v distro_version="$(get_current_distro_version)" \
 	    -F \| \
 	    '{
-	        	if (name == $1 &&
-	        	    arch == $4 &&
-	        	    distro_version == $8 &&
-	        	    repo == $9)
-	        		print
+	    	# check whether the package architecture, distribution version
+	    	# and repository match
+	    	if (($4 != arch) ||
+	    	    ($8 != distro_version) ||
+	    	    ($9 != repo))
+	    		next
+
+	    	# if the package has only one, check whether it is the one we were
+	    	# looking for
+	    	if ($1 == name) {
+	    		print
+	    		next
+	    	}
+
+	    	# otherwise, check all names
+	    	count = split($1, package_names, ",");
+	    	for (i = 0; count >= i; ++i) {
+	    		if (package_names[i] != name)
+	    			continue
+	    		print
+	    		next
+	    	}
 	    }' "$(_get_package_database_path)"
 }
 

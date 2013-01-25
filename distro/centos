@@ -80,9 +80,10 @@ centos_convert_package_list() {
 	    }
 
 	    {
-			if ($1 ~ "^name") {
+	    	if ($1 ~ "^name") {
 	    		sub(/^name>/, "", $0);
-	    		name = $0
+	    		name = $0;
+	    		names = name
 	    	} else {
 	    		if ($1 ~ "^arch") {
 	    			sub(/^arch>/, "", $0);
@@ -110,9 +111,7 @@ centos_convert_package_list() {
 	    			} else {
 	    				if ($1 ~ "^summary") {
 	    					# strip the closing tag
-	    					sub(/^summary>/,
-	    						"",
-	    						$0);
+	    					sub(/^summary>/, "", $0);
 	    					description = $0
 	    				} else {
 	    					if ("location" == $1) {
@@ -125,35 +124,52 @@ centos_convert_package_list() {
 
 	    						file_name = $2
 	    					} else {
-	    						if ("rpm:requires>" == $1) {
-	    							# each dependency is a child tag
+	    						if ("rpm:provides>" == $1) {
+	    							# each alternate name is a child tag
 	    							do {
 	    								getline;
 	    								if ("" == $2) {
 	    									continue
 	    								}
-	    								split($2, dependency, "\"");
-	    								dependencies = \
-	    								          (dependencies","dependency[2])
-	    							} while ("/rpm:requires>" != $1);
+	    								split($2, entry_split, "\"");
 
-	    							# remove the leading comma
-	    							sub(/^,/, "", dependencies);
+	    								# if the alternate name is not the
+	    								# package name, add it to the list
+	    								if (name != entry_split[2]) {
+	    									names = names","entry_split[2]
+	    								}
+	    							} while ("/rpm:provides>" != $1);
 	    						} else {
-	    							if ("/package>" == $1) {
-	    								printf( \
-	    								      "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-	    								      name,
-	    								      version,
-	    								      revision,
-	    								      arch,
-	    								      file_name,
-	    								      description,
-	    								      distro,
-	    								      distro_version,
-	    								      repo,
-	    								      dependencies);
-	    								dependencies = ""
+	    							if ("rpm:requires>" == $1) {
+	    								# each dependency is a child tag
+	    								do {
+	    									getline;
+	    									if ("" == $2) {
+	    										continue
+	    									}
+	    									split($2, dependency, "\"");
+	    									dependencies = \
+	    										  (dependencies","dependency[2])
+	    								} while ("/rpm:requires>" != $1);
+
+	    								# remove the leading comma
+	    								sub(/^,/, "", dependencies);
+	    							} else {
+	    								if ("/package>" == $1) {
+	    									printf( \
+	    									  "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    									  names,
+	    									  version,
+	    									  revision,
+	    									  arch,
+	    									  file_name,
+	    									  description,
+	    									  distro,
+	    									  distro_version,
+	    									  repo,
+	    									  dependencies);
+	    									dependencies = ""
+	    								}
 	    							}
 	    						}
 	    					}
