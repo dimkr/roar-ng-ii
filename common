@@ -46,6 +46,9 @@ PACKAGE_CONTENTS_BLACKLIST="etc/init.d etc/rc.d usr/share/lintian"
 # the package templates hacks script file name
 PACKAGE_TEMPLATE_HACKS_FILE_NAME="hacks.sh"
 
+# the mksquashfs flags
+MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 512K -no-exports"
+
 ##################
 # initialization #
 ##################
@@ -651,4 +654,32 @@ download_package() {
 
 	# download the package
 	download_file "$download_links" "$2"
+}
+
+##########################
+# SFS extension creation #
+##########################
+
+# make_sfs()
+# purpose: creates a SFS extension
+# input  : the extracted contents directory and the destination path
+# output : -
+make_sfs() {
+	# make sure the input is a directory
+	if [ ! -d "$1" ]
+	then
+		print_error "$1 is not a directory"
+		return 1
+	fi
+
+	# make sure the output file does not exist already
+	if [ -e "$2" ]
+	then
+		print_error "the output file ($2) already exists"
+		return 1
+	fi
+
+	# run mksquashfs
+	echo "Creating ${package_path##*/}"
+	mksquashfs "$1" "$2" $MKSQUASHFS_OPTIONS
 }

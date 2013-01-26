@@ -1,0 +1,22 @@
+#!/bin/dash
+
+# /usr/bin/create_sfs: a SFS extension creation tool
+# dependencies: dash, roar-ng II and squashfs-tools
+
+# the command-line usage message
+USAGE="create_sfs DIR DEST
+
+Create a SFS extension."
+
+# include roar-ng's common functions file
+. /usr/share/roar-ng/common
+
+# check the command-line arguments
+if [ 2 -ne $# ]
+then
+	echo "$USAGE"
+	exit 1
+fi
+
+# create the SFS extension
+make_sfs "$1" "$2"

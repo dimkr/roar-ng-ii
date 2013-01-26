@@ -59,9 +59,6 @@ BUILD_RESULT_PREFIX="usr/src"
 # options #
 ###########
 
-# the mksquashfs flags used
-MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 512K -no-exports"
-
 # the gzip flags used to compress the initramfs
 GZIP_OPTIONS="--best"
 
@@ -452,7 +449,7 @@ _build_rootfs() {
 	[ 0 -ne $? ] && return 1
 
 	# create a Squashfs image
-	mksquashfs "$1" "$2" $MKSQUASHFS_OPTIONS
+	make_sfs "$1" "$2"
 	if [ 0 -ne $? ]
 	then
 		print_error "failed to create the root file system image"
