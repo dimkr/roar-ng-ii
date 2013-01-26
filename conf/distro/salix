@@ -1,0 +1,5 @@
+# repositories - package list URL|repository name
+REPOSITORIES="http://download.salixos.org/$(get_current_distro_arch)/$(get_current_distro_version)/PACKAGES.TXT.gz|salix-main"
+
+# package download mirrors
+MIRRORS="http://download.salixos.org/$(get_current_distro_arch)/$(get_current_distro_version)|salix-main"

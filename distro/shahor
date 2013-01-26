@@ -1,11 +1,8 @@
 # inherit from the Subito GNU/Linux-libre support plug-in
 . ./subito
 
-# repositories - package list URL|repository name
-REPOSITORIES="http://shahor.dimakrasner.com/$(get_current_distro_version)/packages.txt|shahor-main"
-
-# package download mirrors
-MIRRORS="http://shahor.dimakrasner.com/$(get_current_distro_version)|shahor-main"
+# include the configuration file
+. $CONF_DIR/distro/shahor
 
 # shahor_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

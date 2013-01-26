@@ -1,27 +1,8 @@
 # inherit from the openSUSE support plug-in
 . ./opensuse
 
-# repositories - package list URL|repository name
-REPOSITORIES="http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_core_updates.cz|mageia-core_updates
-              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_core_release.cz|mageia-core
-              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_tainted_updates.cz|mageia-tainted_updates
-              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_tainted_release.cz|mageia-tainted
-              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_nonfree_updates.cz|mageia-nonfree_updates
-              http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/media_info/synthesis.hdlist_nonfree_release.cz|mageia-nonfree"
-
-# package download mirrors
-MIRRORS="http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/core/updates|mageia-core_updates
-         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/core/release|mageia-core
-         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/tainted/updates|mageia-tainted_updates
-         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/tainted/release|mageia-tainted
-         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/nonfree/updates|mageia-nonfree_updates
-         http://mirrors.kernel.org/mageia/distrib/$(get_current_distro_version)/$(get_current_distro_arch)/media/nonfree/release|mageia-nonfree
-         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/core/updates|mageia-core_updates
-         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/core/release|mageia-core
-         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/tainted/updates|mageia-tainted_updates
-         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/tainted/release|mageia-tainted
-         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/nonfree/updates|mageia-nonfree_updates
-         http://mageia.mirror.garr.it/$(get_current_distro_version)/$(get_current_distro_arch)/media/nonfree/release|mageia-nonfree"
+# include the configuration file
+. $CONF_DIR/distro/mageia
 
 # mageia_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

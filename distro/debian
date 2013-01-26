@@ -1,19 +1,8 @@
+# include the configuration file
+. $CONF_DIR/distro/debian
+
 # the name of the tar archive containing files, within DEB packages
 FILES_TARBALL_NAME="data.tar"
-
-# repositories - package list URL|repository name
-REPOSITORIES="http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)-updates/main/binary-$(get_current_distro_arch)/Packages.bz2|debian-updates_main
-              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)-updates/contrib/binary-$(get_current_distro_arch)/Packages.bz2|debian-updates_contrib
-              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)-updates/non-free/binary-$(get_current_distro_arch)/Packages.bz2|debian-updates_non_free
-              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|debian-main
-              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/contrib/binary-$(get_current_distro_arch)/Packages.bz2|debian-contrib
-              http://mirror.csclub.uwaterloo.ca/debian/dists/$(get_current_distro_version)/non-free/binary-$(get_current_distro_arch)/Packages.bz2|debian-non_free"
-
-# package download mirrors - more at http://www.debian.org/mirror/list
-MIRRORS="http://mirror.csclub.uwaterloo.ca/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
-         http://http.us.debian.org/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
-         http://debian.lcs.mit.edu/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
-         http://ftp.iinet.net.au/debian/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree"
 
 # debian_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

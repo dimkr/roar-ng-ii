@@ -1,0 +1,11 @@
+# repositories - package list URL|repository name
+REPOSITORIES="http://repo.parabolagnulinux.org/core/os/$(get_current_distro_arch)/core.db.tar.gz|parabola-core
+              http://repo.parabolagnulinux.org/libre/os/$(get_current_distro_arch)/libre.db.tar.gz|parabola-libre
+              http://repo.parabolagnulinux.org/extra/os/$(get_current_distro_arch)/extra.db.tar.gz|parabola-extra
+              http://repo.parabolagnulinux.org/community/os/$(get_current_distro_arch)/community.db.tar.gz|parabola-community"
+
+# package download mirrors - more at http://www.archlinux.org/mirrors/status/
+MIRRORS="http://repo.parabolagnulinux.org/core/os/$(get_current_distro_arch)|parabola-core
+         http://repo.parabolagnulinux.org/libre/os/$(get_current_distro_arch)|parabola-libre
+         http://repo.parabolagnulinux.org/extra/os/$(get_current_distro_arch)|parabola-extra
+         http://repo.parabolagnulinux.org/community/os/$(get_current_distro_arch)|parabola-community"

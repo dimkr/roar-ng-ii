@@ -6,15 +6,8 @@ case $(get_current_distro_arch) in
 		;;
 esac
 
-# repositories - package list URL|repository name
-REPOSITORIES="http://download.salixos.org/$(get_current_distro_arch)/slackware-$(get_current_distro_version)/patches/PACKAGES.TXT.gz|slackware-patches
-              http://download.salixos.org/$(get_current_distro_arch)/slackware-$(get_current_distro_version)/PACKAGES.TXT.gz|slackware-main"
-
-# package download mirrors
-MIRRORS="ftp://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches
-         ftp://ftp.fu-berlin.de/unix/linux/mirrors/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches
-         http://ftp.gwdg.de/pub/linux/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches
-         http://slackware.mirrors.tds.net/pub/slackware/slackware$suffix-$(get_current_distro_version)|slackware-main,slackware-patches"
+# include the configuration file
+. $CONF_DIR/distro/slackware
 
 # slackware_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

@@ -1,0 +1,5 @@
+# repositories - package list URL|repository name
+REPOSITORIES="http://www.dimakrasner.com/subito/$(get_current_distro_version)/packages.txt|subito-main"
+
+# package download mirrors
+MIRRORS="http://www.dimakrasner.com/subito/$(get_current_distro_version)|subito-main"

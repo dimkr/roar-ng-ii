@@ -1,16 +1,8 @@
 # inherit from the Ubuntu support plug-in
 . ./ubuntu
 
-# repositories - package list URL|repository name
-REPOSITORIES="http://es.archive.trisquel.info/trisquel/dists/$(get_current_distro_version)-updates/main/binary-$(get_current_distro_arch)/Packages.bz2|trisquel-updates_main
-              http://es.archive.trisquel.info/trisquel/dists/$(get_current_distro_version)-security/main/binary-$(get_current_distro_arch)/Packages.bz2|trisquel-security
-              http://es.archive.trisquel.info/trisquel/dists/$(get_current_distro_version)-backports/main/binary-$(get_current_distro_arch)/Packages.bz2|trisquel-backports
-              http://es.archive.trisquel.info/trisquel/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|trisquel-main"
-
-# package download mirrors - more at http://trisquel.info/en/wiki/packages-repository
-MIRRORS="http://es.archive.trisquel.info/trisquel|trisquel-updates_main,trisquel-security,trisquel-backports,trisquel-main
-         http://us.archive.trisquel.info/trisquel|trisquel-updates_main,trisquel-security,trisquel-backports,trisquel-main
-         http://mirror.fsf.org/trisquel|trisquel-updates_main,trisquel-security,trisquel-backports,trisquel-main"
+# include the configuration file
+. $CONF_DIR/distro/trisquel
 
 # trisquel_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

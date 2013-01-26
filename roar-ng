@@ -5,21 +5,23 @@
 ##############################
 
 # the roar-ng configuration file path, when roar-ng is installed as a package
-CONFIGURATION_INSTALL_PATH="etc/roar-ng.conf"
+CONFIGURATION_INSTALL_PATH="etc/roar-ng/roar-ng.conf"
 
 # determine where roar-ng runs from - if the configuration file exists in its
 # normal location, roar-ng is installed
-if [ -f "/$CONFIGURATION_INSTALL_PATH" ] && [ ! -f roar-ng.conf ]
+if [ -f "/$CONFIGURATION_INSTALL_PATH" ] && [ ! -f conf/roar-ng.conf ]
 then
 	INSTALL_PREFIX="/usr/share/roar-ng"
 	VAR_PREFIX="/var/roar-ng"
+	CONF_DIR="/etc/roar-ng"
 	CONFIGURATION_PATH="/$CONFIGURATION_INSTALL_PATH"
 else
 	# otherwise, if it doesn't exist, assume roar-ng runs from the sources
 	# directory
 	INSTALL_PREFIX="$(pwd)"
 	VAR_PREFIX="$INSTALL_PREFIX/sandbox"
-	CONFIGURATION_PATH="$INSTALL_PREFIX/roar-ng.conf"
+	CONF_DIR="$INSTALL_PREFIX/conf"
+	CONFIGURATION_PATH="$CONF_DIR/roar-ng.conf"
 fi
 
 ##################

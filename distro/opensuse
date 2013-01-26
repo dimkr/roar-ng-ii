@@ -1,18 +1,8 @@
 # inherit from the CentOS support plug-in - the package list format is the same
 . ./centos
 
-# repositories - package list URL|repository name; repositories are specified
-# via their base path; this directory contains repodata/repomd.xml, with
-# contains the variable name of the actual package list; see
-# download_package_list
-REPOSITORIES="http://mirror.anl.gov/pub/opensuse/opensuse/update/$(get_current_distro_version)|opensuse-update
-              http://mirror.anl.gov/pub/opensuse/opensuse/distribution/$(get_current_distro_version)/repo/oss/suse|opensuse-distribution"
-
-# package download mirrors - more at http://mirrors.opensuseproject.org/publiclist/
-MIRRORS="http://mirror.anl.gov/pub/opensuse/opensuse/update/$(get_current_distro_version)|opensuse-update
-         http://mirror.anl.gov/pub/opensuse/opensuse/distribution/$(get_current_distro_version)/repo/oss/suse|opensuse-distribution
-         http://opensuse.mirror.garr.it/mirrors/opensuse/update/$(get_current_distro_version)|opensuse-update
-         http://opensuse.mirror.garr.it/mirrors/opensuse/distribution/$(get_current_distro_version)/repo/oss/suse|opensuse-distribution"
+# include the configuration file
+. $CONF_DIR/distro/opensuse
 
 # opensuse_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

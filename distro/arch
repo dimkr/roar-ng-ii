@@ -1,18 +1,5 @@
-# repositories - package list URL|repository name
-REPOSITORIES="ftp://ftp.archlinux.org/core/os/$(get_current_distro_arch)/core.db.tar.gz|arch-core
-              ftp://ftp.archlinux.org/extra/os/$(get_current_distro_arch)/extra.db.tar.gz|arch-extra
-              ftp://ftp.archlinux.org/community/os/$(get_current_distro_arch)/community.db.tar.gz|arch-community"
-
-# package download mirrors - more at http://www.archlinux.org/mirrors/status/
-MIRRORS="http://mirrors.kernel.org/archlinux/core/os/$(get_current_distro_arch)|arch-core
-         http://mirrors.kernel.org/archlinux/extra/os/$(get_current_distro_arch)|arch-extra
-         http://mirrors.kernel.org/archlinux/community/os/$(get_current_distro_arch)|arch-community
-         ftp://mirror.lividpenguin.com/pub/archlinux/core/os/$(get_current_distro_arch)|arch-core
-         ftp://mirror.lividpenguin.com/pub/archlinux/extra/os/$(get_current_distro_arch)|arch-extra
-         ftp://mirror.lividpenguin.com/pub/archlinux/community/os/$(get_current_distro_arch)|arch-community
-         ftp://ftp.archlinux.org/core/os/$(get_current_distro_arch)|arch-core
-         ftp://ftp.archlinux.org/extra/os/$(get_current_distro_arch)|arch-extra
-         ftp://ftp.archlinux.org/community/os/$(get_current_distro_arch)|arch-community"
+# include the configuration file
+. $CONF_DIR/distro/arch
 
 # arch_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

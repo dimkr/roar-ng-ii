@@ -1,14 +1,8 @@
 # inherit from the Ubuntu support plug-in
 . ./ubuntu
 
-# repositories - package list URL|repository name
-REPOSITORIES="http://linux-mint.froonix.org/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.gz|mint-main
-              http://linux-mint.froonix.org/dists/$(get_current_distro_version)/upstream/binary-$(get_current_distro_arch)/Packages.gz|mint-upstream
-              http://linux-mint.froonix.org/dists/$(get_current_distro_version)/import/binary-$(get_current_distro_arch)/Packages.gz|mint-import"
-
-# package download mirrors
-MIRRORS="http://linux-mint.froonix.org|mint-main,mint-upstream,mint-import
-         ftp://ftp.is.co.za/mirrors/linuxmint.com/packages|mint-main,mint-upstream,mint-import"
+# include the configuration file
+. $CONF_DIR/distro/mint
 
 # mint_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

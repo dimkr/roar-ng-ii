@@ -51,7 +51,7 @@ package() {
 	[ 0 -ne $? ] && return 1
 
 	# install the configuration
-	install -D -m 644 roar-ng.conf $INSTALL_DIR/$CONF_DIR/roar-ng.conf
+	install -D -m 644 roar-ng.conf $INSTALL_DIR/$CONF_DIR/roar-ng/roar-ng.conf
 	[ 0 -ne $? ] && return 1
 
 	# install plug-ins, skeletons and support files

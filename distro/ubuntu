@@ -1,22 +1,8 @@
 # inherit from the Debian support plug-in
 . ./debian
 
-# repositories - package list URL|repository name
-REPOSITORIES="http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/main/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_main
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/universe/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_universe
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/multiverse/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_multiverse
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/restricted/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_restricted
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-main
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)/universe/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-universe
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)/multiverse/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-multiverse
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)/restricted/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-restricted"
-
-# package download mirrors - more at https://launchpad.net/ubuntu/+archivemirrors
-MIRRORS="http://ubuntu.mirror.tudos.de/ubuntu|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted
-         http://mirror.aarnet.edu.au/pub/ubuntu/archive|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted
-         http://mirror.csclub.uwaterloo.ca/ubuntu|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted
-         http://ubuntu.c3sl.ufpr.br/ubuntu|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted
-         http://ftp.halifax.rwth-aachen.de/ubuntu|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted"
+# include the configuration file
+. $CONF_DIR/distro/ubuntu
 
 # ubuntu_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames

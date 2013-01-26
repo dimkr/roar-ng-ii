@@ -1,11 +1,8 @@
 # inherit from the Slackware support plug-in
 . ./slackware
 
-# repositories - package list URL|repository name
-REPOSITORIES="http://download.salixos.org/$(get_current_distro_arch)/$(get_current_distro_version)/PACKAGES.TXT.gz|salix-main"
-
-# package download mirrors
-MIRRORS="http://download.salixos.org/$(get_current_distro_arch)/$(get_current_distro_version)|salix-main"
+# include the configuration file
+. $CONF_DIR/distro/salix
 
 # salix_get_architecture_aliases()
 # purpose: translates an architecture name to the distribution's nicknames
