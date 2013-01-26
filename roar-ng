@@ -419,6 +419,10 @@ _build_rootfs() {
 	_install_roar_ng "$1"
 	[ 0 -ne $? ] && return 1
 
+	# create distro.list, containing the list of distributions used by
+	# roar-ng II
+	get_used_distros > "$1/etc/roar-ng/distro.list"
+
 	# create /etc/hostname
 	echo -n "$DISTRO_NICKNAME" > "$1/etc/hostname"
 
@@ -502,6 +506,10 @@ build_bootable_media_image() {
 
 	return 0
 }
+
+####################
+# package building #
+####################
 
 # _set_up_chroot()
 # purpose: sets up a chroot environment within a built distribution

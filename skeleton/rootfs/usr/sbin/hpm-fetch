@@ -1,0 +1,65 @@
+#!/bin/dash
+
+# /usr/bin/hpm-fetch: a package fetching script
+# dependencies: dash and roar-ng II
+
+# the command-line usage message
+USAGE="hpm-fetch NAME [distro version architecture]
+
+Fetch a package."
+
+# include roar-ng's common functions file
+. /usr/share/roar-ng/common
+
+# check the command-line arguments
+case $# in
+	# if the distribution was not specified, pick the first distribution in
+	# distro.list
+	1)
+		distro="$(head -n 1 /etc/roar-ng/distro.list)"
+		;;
+
+	# otherwise, use the specified distribution
+	4)
+		distro="$2 $3 $4"
+		;;
+
+	*)
+		echo "$USAGE"
+		exit 1
+esac
+
+# set the current distribution
+set_current_distro $distro
+if [ 0 -ne $? ]
+then
+	print_error "an invalid distribution was specified"
+	exit 1
+fi
+
+# find the package entry
+echo -n "Searching the package database ..."
+package_entry="$(find_package $1)"
+echo " done"
+
+# if the package was not found, end here
+if [ -z "$package_entry" ]
+then
+	print_error "could not find the \"$1\" package"
+	exit 1
+fi
+
+# get the package file name
+file_name="$(get_package_path "$package_entry")"
+file_name="${file_name##*/}"
+
+# check whether the package exists already
+if [ -e "$file_name" ]
+then
+	print_error "the output file already exists"
+	exit 1
+fi
+
+# download the package
+echo "Downloading $file_name"
+download_package "$package_entry" "./$file_name"

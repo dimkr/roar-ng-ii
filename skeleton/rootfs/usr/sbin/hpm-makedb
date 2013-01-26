@@ -1,0 +1,22 @@
+#!/bin/dash
+
+# /usr/bin/hpm-makedb: a package database update script
+# dependencies: dash and roar-ng II
+
+# the command-line usage message
+USAGE="hpm-makedb
+
+Update the package database, according to /etc/roar-ng/distro.list."
+
+# include roar-ng's common functions file
+. /usr/share/roar-ng/common
+
+# check the command-line arguments
+if [ 0 -ne $# ]
+then
+	echo "$USAGE"
+	exit 1
+fi
+
+# update the package database
+update_package_database < /etc/roar-ng/distro.list
