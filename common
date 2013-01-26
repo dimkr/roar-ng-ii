@@ -480,7 +480,7 @@ extract_package_group() {
 	# extract all packages
 	while read file_name
 	do
-		echo "Extracting ${file_name##*/})"
+		echo "Extracting ${file_name##*/}"
 		$(get_current_distro)_extract_package "$file_name" "$2" > /dev/null 2>&1
 		[ 0 -ne $? ] && return 1
 	done

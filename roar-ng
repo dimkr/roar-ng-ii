@@ -207,6 +207,13 @@ extract_packages() {
 		packages="$(get_package_group_members "$entry")"
 		distribution="$(get_package_group_distro "$entry")"
 
+		# if the package group was already extracted, skip it
+		if [ -d "$VAR_PREFIX/extracted_package/$name" ]
+		then
+			echo "$name was already extracted, skipping"
+			continue
+		fi
+
 		# set the current distribution
 		set_current_distro $distribution
 		[ 0 -ne $? ] && return 1
@@ -242,6 +249,7 @@ extract_packages() {
 		# upon failure, remove the destination directory
 		if [ 0 -ne $result ]
 		then
+			print_error "failed to extract the packages in \"$name\""
 			rm -rf "$VAR_PREFIX/extracted_package/$name"
 			return 1
 		fi
@@ -296,10 +304,6 @@ _build_module() {
 		[ 0 -ne $? ] && return 1
 	done
 
-	# remove .gitignore files
-	find "$2" -name .gitignore -type f -delete
-	[ 0 -ne $? ] && return 1
-
 	# if at least one post-installation script exists, run it
 	[ ! -f "$post_install" ] && return 0
 	execute_and_delete_script "$post_install"
@@ -318,6 +322,10 @@ _build_initramfs() {
 		print_error "failed to build the initramfs"
 		return 1
 	fi
+
+	# remove .gitignore files
+	find "$1" -name .gitignore -type f -delete
+	[ 0 -ne $? ] && return 1
 
 	# add BusyBox to the initramfs
 	install -D -m 4755 "$BUSYBOX_PATH" "$1/bin/busybox"
@@ -375,9 +383,7 @@ _install_roar_ng() {
 	done
 
 	# install the configuration
-	mkdir $"1/etc"
-	[ 0 -ne $? ] && return 1
-	cp -ar conf "$1/$etc/roar-ng"
+	cp -ar conf "$1/etc/roar-ng"
 	[ 0 -ne $? ] && return 1
 
 	# install the README
@@ -435,6 +441,10 @@ _build_rootfs() {
 
 	# remove the kernel image from the root file system
 	mv -f "$1/$KERNEL_IMAGE_PATH" "$3"
+	[ 0 -ne $? ] && return 1
+
+	# remove .gitignore files
+	find "$1" -name .gitignore -type f -delete
 	[ 0 -ne $? ] && return 1
 
 	# create a Squashfs image
