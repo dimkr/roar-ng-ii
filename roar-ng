@@ -561,6 +561,44 @@ get_package_entries() {
 	    }' "$(_get_package_database_path)"
 }
 
+# sort_package_entries()
+# purpose: sorts the package entries found for a given package
+# input  : the package name
+# output : the package entries, prioritized by accuracy
+sort_package_entries() {
+	# sort the package entries alphabetically: theoretically, if multiple
+	# versions of the same package were found, the most recent one will be last
+	sort |
+	awk -v name="$1" \
+	    -F \| \
+	    '{
+	    	# keep only the last (e.g most recent) entry of each package
+	    	do {
+	    		last_entry[$1] = $0
+	    	} while (true);
+	    }
+
+	    END {
+	    	# if the package name we were looking for is the package name, make
+	    	# sure it is printed last
+	    	entries = "";
+	    	for (package in last_entry) {
+	    		count = split(package, package_names, ",");
+	    		if (name == package_names[1]) {
+	    			entries = last_entry[package]"\n"entries
+	    		} else {
+	    			entries = entries"\n"last_entry[package]
+	    		}
+	    	}
+
+	    	# remove the leading line break
+	    	sub(/^\n/, "", entries);
+
+	    	# print the entries
+	    	print entries
+	    }'
+}
+
 ##########################
 # package entry routines #
 ##########################
@@ -739,7 +777,9 @@ find_package() {
 			                              $architecture \
 			                              $repository)"
 			[ -z "$result" ] && continue
-			echo "$result" | tail -n 1
+			# if matches were found, prioritize them and return the top-priority
+			# package entry
+			echo "$result" | sort_package_entries | tail -n 1
 			return
 		done
 	done
