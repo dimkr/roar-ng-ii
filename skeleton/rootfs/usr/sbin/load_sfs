@@ -14,8 +14,8 @@ then
 	exit 1
 fi
 
-# include roar-ng, for print_error()
-. /usr/bin/roar-ng
+# include roar-ng's common functions file
+. /usr/share/roar-ng/common
 
 # mount the Squashfs image
 mount -t squashfs -o ro,loop "$1" "$2"

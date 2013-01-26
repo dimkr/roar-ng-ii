@@ -22,7 +22,7 @@ centos_get_architecture_aliases() {
 			echo "i686 noarch"
 			;;
 		x86|i?86)
-			echo "i386 noarch"
+			echo "i386 noarch i686"
 			;;
 	esac
 }

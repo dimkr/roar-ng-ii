@@ -15,8 +15,8 @@ then
 	exit 1
 fi
 
-# include roar-ng, for execute_and_delete_script() and print_error()
-. /usr/bin/roar-ng
+# include roar-ng's common functions file
+. /usr/share/roar-ng/common
 
 # include the configuration file
 . /etc/hpmrc
@@ -54,16 +54,17 @@ fi
 echo " done"
 
 # run the post-install script
-if [ -f /post_install.sh ]
+if [ -f /$POST_INSTALL_SCRIPT_FILE_NAME ]
 then
-	execute_and_delete_script /post_install.sh
+	execute_and_delete_script /$POST_INSTALL_SCRIPT_FILE_NAME
 	[ 0 -ne $? ] && exit 1
 fi
 
 # if there is a post-removal script, keep it, so hpm-remove can run it once the
 # package is removed
 [ -f /post_uninstall.sh ] && \
-                      mv /post_uninstall.sh "$PKG_DATA_DIR/$2-post_uninstall.sh"
+                      mv /$POST_REMOVAL_SCRIPT_FILE_NAME \
+                      "$PKG_DATA_DIR/$2-$POST_REMOVAL_SCRIPT_FILE_NAME"
 
 # list the package contents
 echo -n "Registering the package ..."

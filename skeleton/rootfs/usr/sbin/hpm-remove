@@ -18,8 +18,8 @@ then
 	exit 1
 fi
 
-# include roar-ng, for print_error()
-. /usr/bin/roar-ng
+# include roar-ng's common functions file
+. /usr/share/roar-ng/common
 
 success=1
 

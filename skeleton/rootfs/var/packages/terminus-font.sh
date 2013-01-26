@@ -29,7 +29,7 @@ build() {
 	            --x11dir=/$SHARE_DIR/fonts/misc \
 	            --psfdir=/usr/share/consolefonts
 	[ 0 -ne $? ] && return 1
-	
+
 	# if no X server is present, do not build X11 fonts
 	if [ -z "$(which bdftopcf)" ]
 	then
@@ -61,9 +61,9 @@ package() {
 		echo "#!/bin/sh
 
 mkfontscale ./$SHARE_DIR/fonts/misc
-mkfontdir ./$SHARE_DIR/fonts/misc" > $INSTALL_DIR/post_install.sh
+mkfontdir ./$SHARE_DIR/fonts/misc" > $INSTALL_DIR/$POST_INSTALL_SCRIPT_FILE_NAME
 		[ 0 -ne $? ] && return 1
-		chmod 755 $INSTALL_DIR/post_install.sh
+		chmod 755 $INSTALL_DIR/$POST_INSTALL_SCRIPT_FILE_NAME
 		[ 0 -ne $? ] && return 1
 	fi
 

@@ -86,7 +86,6 @@ A typical roar-ng II session consists of four steps:
 
 In addition, roar-ng II exposes some functionality through additional execution
 modes:
-  - check    : performs sanity checks of the package list.
   - package  : builds a binary package from source, within the distribution;
                must run after "build". In this mode, roar-ng II needs sufficient
                permissions to run mount and chroot.

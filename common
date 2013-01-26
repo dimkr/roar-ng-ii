@@ -1,0 +1,656 @@
+#!/bin/dash
+
+# /usr/share/roar-ng/common: common utility functions used by various parts
+#                            of roar-ng II
+
+##############################
+# installation path handling #
+##############################
+
+# the roar-ng configuration file path, when roar-ng is installed as a package
+CONFIGURATION_INSTALL_PATH="etc/roar-ng/roar-ng.conf"
+
+# determine where roar-ng runs from - if the configuration file exists in its
+# normal location, roar-ng is installed
+if [ -f "/$CONFIGURATION_INSTALL_PATH" ] && [ ! -f conf/roar-ng.conf ]
+then
+	INSTALL_PREFIX="/usr/share/roar-ng"
+	VAR_PREFIX="/var/roar-ng"
+	CONF_DIR="/etc/roar-ng"
+	CONFIGURATION_PATH="/$CONFIGURATION_INSTALL_PATH"
+else
+	# otherwise, if it doesn't exist, assume roar-ng runs from the sources
+	# directory
+	INSTALL_PREFIX="$(pwd)"
+	VAR_PREFIX="$INSTALL_PREFIX/sandbox"
+	CONF_DIR="$INSTALL_PREFIX/conf"
+	CONFIGURATION_PATH="$CONF_DIR/roar-ng.conf"
+fi
+
+# the current directory
+BASE_DIR="$(pwd)"
+
+# the package database path
+PACKAGE_DB_PATH="$VAR_PREFIX/packages.txt"
+
+# the package database cache path
+PACKAGE_DB_CACHE_PATH="$VAR_PREFIX/packages.txt.cache"
+
+# the package post-installation script name
+POST_INSTALL_SCRIPT_FILE_NAME="post_install.sh"
+
+# the package post-removal script name
+POST_REMOVAL_SCRIPT_FILE_NAME="post_uninstall.sh"
+
+# directories and files which must not be present inside packages
+PACKAGE_CONTENTS_BLACKLIST="etc/init.d etc/rc.d usr/share/lintian"
+
+# the package templates hacks script file name
+PACKAGE_TEMPLATE_HACKS_FILE_NAME="hacks.sh"
+
+##################
+# initialization #
+##################
+
+# create the variable data directory
+[ ! -d "$VAR_PREFIX" ] && mkdir "$VAR_PREFIX"
+
+# include the roar-ng configuration file
+. "$CONFIGURATION_PATH"
+
+###########
+# globals #
+###########
+
+# the current distribution
+current_distro=""
+current_distro_version=""
+current_distro_arch=""
+
+#####################
+# utility functions #
+#####################
+
+# download_file()
+# purpose: downloads a file to a given path
+# input  : a list of download URLs and the destination path (optional)
+# output : -
+download_file() {
+	# filter the first URL
+	first_url="$(echo $1 | cut -f 1 -d \ )"
+
+	# if no destination was specified, filter the base file name
+	if [ -z "$2" ]
+	then
+		destination="${first_url##*/}"
+	else
+		destination="$2"
+	fi
+
+	# if the destination exists already, do nothing and assume it's the right
+	# file
+	[ -f "$destination" ] && return 0
+
+	# make sure it's possible to create the output file
+	touch "$destination"
+	[ 0 -ne $? ] && return 1
+
+	# turn relative paths into absolute ones
+	destination="$(realpath "$destination")"
+
+	# if aria2 is not present, use Wget
+	if [ -z "$(which aria2c)" ]
+	then
+		wget --no-check-certificate -O "$destination" "$first_url"
+		if [ 0 -ne $? ]
+		then
+			rm -f "$destination"
+			return 1
+		fi
+	else
+		# otherwise, use aria2
+		aria2c -d / \
+			   -o "$destination" \
+			   --file-allocation none \
+			   --max-connection-per-server 4 \
+			   --max-concurrent-downloads 4 \
+			   --min-split-size 1M \
+			   --split 4 \
+			   --check-certificate=false \
+			   --allow-overwrite=true \
+			   $1
+		if [ 0 -ne $? ]
+		then
+			rm -f "$destination"
+			return 1
+		fi
+	fi
+
+	return 0
+}
+
+# decompress_file()
+# purpose: decompresses compressed files
+# input  : a compressed file and an optional output file path
+# output : -
+decompress_file() {
+	# get the archive's MIME type
+	file_type="$(file -bi "$1")"
+	file_type="${file_type%%;*}"
+
+	# choose the destination path
+	if [ -z "$2" ]
+	then
+		destination="$1"
+	else
+		destination="$2"
+	fi
+
+	# choose the decompression tool
+	case "$file_type" in
+		application/x-gzip)
+			tool="gzip"
+			;;
+		application/x-bzip2)
+			tool="bzip2"
+			;;
+		application/x-xz)
+			tool="xz"
+			;;
+		application/octet-stream)
+			tool="lzma"
+			;;
+		*)
+			tool=""
+	esac
+
+	# if the file is unrecognized, do nothing
+	[ -z "$tool" ] && return 0
+
+	# otherwise, create a temporary file
+	decompressed_file="$(mktemp -u)"
+
+	# decompress the file
+	$tool -c -d "$1" > $decompressed_file
+	if [ 0 -ne $? ]
+	then
+		rm -f $decompressed_file
+		return 1
+	fi
+
+	# move the decompressed file to the destination path
+	mv -f $decompressed_file "$destination"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# extract_tarball()
+# purpose: extracts a tar archive
+# input  : the archive path and a destination directory (optional)
+# output : -
+extract_tarball() {
+	# check whether the tar archive is compressed - if yes, decompress it
+	decompress_file "$1"
+	[ 0 -ne $? ] && return 1
+
+	# if no destination path was given, extract to the current directory
+	if [ -z "$2" ]
+	then
+		destination="."
+	else
+		destination="$2"
+	fi
+
+	# extract the archive
+	tar -xf "$1" -C "$destination"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# execute_and_delete_script()
+# purpose: executes a script in its directory and deletes it
+# input  : the script path
+# output : -
+execute_and_delete_script() {
+	# make the script executable
+	chmod 755 "$1"
+
+	# switch to the script's directory and run it
+	cd "$(dirname "$1")"
+	"$1"
+	cd "$BASE_DIR"
+
+	# delete the script
+	rm -f "$1"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# make_tarball()
+# purpose: creates a compressed tarball from a directory
+# input  : a directory path, the tarball path and an optional boolean which
+#          indicates whether the parent directory should be kept (1 by default)
+# output : -
+make_tarball() {
+	# make sure the directory exists
+	[ ! -d "$1" ] && return 1
+
+	# make the directory path absolute
+	directory="$(realpath "$1")"
+
+	# determine whether the parent directory should be included; the default is
+	# yes
+	if [ -z "$3" ]
+	then
+		keep_parent=1
+	else
+		keep_parent="$3"
+	fi
+
+	# choose the parent directory for the tarball contents and the actual
+	# contents
+	if [ 1 -eq $keep_parent ]
+	then
+		parent="${directory%/*}"
+		contents="${directory##*/}"
+	else
+		parent="$directory"
+		contents="*"
+	fi
+
+	# make sure it's possible to create the output file
+	touch "$2"
+	[ 0 -ne $? ] && return 1
+
+	# create a compressed tarball from the directory
+	cd "$parent"
+	tar -c $contents | xz -e --best > "$(realpath "$2")"
+	exit_code=$?
+	cd "$BASE_DIR"
+	[ 0 -ne $exit_code ] && return 1
+
+	return 0
+}
+
+# make_tarball_and_delete()
+# purpose: creates a compressed tarball from a directory and recursively deletes
+#          it
+# input  : see the documentation for make_tarball()
+# output : -
+make_tarball_and_delete() {
+	# create the tarball
+	make_tarball "$1" "$2" "$3"
+	[ 0 -ne $exit_code ] && return 1
+
+	# delete the directory
+	rm -rf "$1"
+	[ 0 -ne $exit_code ] && return 1
+
+	return 0
+}
+
+# print_error()
+# purpose: prints an error to the standard error output
+# input  : an error message
+# output : -
+print_error() {
+	echo "Error: $1." 1>&2
+}
+
+###################################
+# distribution switching routines #
+###################################
+
+# get_current_distro()
+# purpose: returns the current distribution's name
+# input  : -
+# output : the current distribution's name
+get_current_distro() {
+	echo "$current_distro"
+}
+
+# get_current_distro_version()
+# purpose: returns the current distribution's version
+# input  : -
+# output : the current distribution's version
+get_current_distro_version() {
+	echo "$current_distro_version"
+}
+
+# get_current_distro_arch()
+# purpose: returns the current distribution's architecture
+# input  : -
+# output : the current distribution's architecture
+get_current_distro_arch() {
+	echo "$current_distro_arch"
+}
+
+# _load_distro_support_plug_in()
+# purpose: loads a distribution support plug-in
+# input  : the distribution name
+# output : -
+_load_distro_support_plug_in() {
+	cd "$INSTALL_PREFIX/distro"
+	[ ! -f "./$1" ] && return 1
+	. "./$1"
+	cd "$BASE_DIR"
+
+	return 0
+}
+
+# set_current_distro()
+# purpose: changes the current distribution
+# input  : the distribution name, version and architecture
+# output : -
+set_current_distro() {
+	# if this is the same distribution as the current one, do nothing
+	[ "$1" = "$current_distro" ] && return 0
+
+	# set the current distribution name and version
+	current_distro="$1"
+	current_distro_version="$2"
+
+	# load the distribution support plug-in
+	_load_distro_support_plug_in "$current_distro"
+	[ 0 -ne $? ] && return 1
+
+	# set the distribution architecture to the most accurate alias
+	current_distro_arch="$($(get_current_distro)_get_architecture_aliases $3)"
+	[ -z "$current_distro_arch" ] && return 1
+	current_distro_arch="${current_distro_arch%% *}"
+
+	# reload the distribution's plugin, since it may rely on the set parameters
+	# (e.g the architecture, in package list URLs)
+	_load_distro_support_plug_in "$current_distro"
+
+	return 0
+}
+
+#######################
+# repository handling #
+#######################
+
+# get_repository_package_list()
+# purpose: downloads a repository's package list and converts it to the common
+#          format
+# input  : the repository name and an output file
+# output : the list of packages in the repository
+get_repository_package_list() {
+	# create a temporary file
+	package_list="$(mktemp -u)"
+
+	# get the repository package list URL
+	package_list_url=""
+	for repository in $REPOSITORIES
+	do
+		[ "${repository##*|}" != "$1" ] && continue
+		package_list_url="${repository%%|*}"
+		break
+	done
+	[ -z "$package_list_url" ] && return 1
+
+	# download the package list
+	echo "Downloading the package list of $1"
+	$(get_current_distro)_download_package_list "$package_list_url" \
+	                                            "$package_list"
+	[ 0 -ne $? ] && return 1
+
+	# convert the package list to the common format
+	echo "Processing the package list of $1"
+	$(get_current_distro)_convert_package_list "$package_list" $1 >> "$2"
+
+	# clean up
+	rm -f "$package_list"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+# get_distro_package_list()
+# purpose: returns the list of all packages of a distribution
+# input  : the package database path
+# output : the list of packages in the distribution repositories
+get_distro_package_list() {
+	for repository in $REPOSITORIES
+	do
+		get_repository_package_list "${repository##*|}" "$1"
+		[ 0 -ne $? ] && return 1
+	done
+	return 0
+}
+
+#############################
+# package database handling #
+#############################
+
+# add_distros_to_package_database()
+# purpose: downloads and processes the package lists of all repositories, for a
+#          given list of distributions
+# input  : -
+# output : -
+update_package_database() {
+	# create an empty package database
+	echo -n "" > "$PACKAGE_DB_PATH"
+	[ 0 -ne $? ] && return 1
+
+	# delete the package search cache
+	if [ -e "$PACKAGE_DB_CACHE_PATH" ]
+	then
+		rm -f "$PACKAGE_DB_CACHE_PATH"
+		[ 0 -ne $? ] && return 1
+	fi
+
+	while read distro
+	do
+		# set the current distribution
+		set_current_distro $distro
+		[ 0 -ne $? ] && return 1
+
+		# process the distribution's repositories
+		get_distro_package_list "$PACKAGE_DB_PATH"
+		[ 0 -ne $? ] && return 1
+	done
+
+	# sort the package database, so the most recent packages are in the bottom
+	sorted_database="$(mktemp -u)"
+	sort "$PACKAGE_DB_PATH" > $sorted_database
+	[ 0 -ne $? ] && return 1
+	mv -f $sorted_database "$PACKAGE_DB_PATH"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
+######################
+# package extraction #
+######################
+
+# extract_package_group()
+# purpose: extracts a group of packages
+# input  : the package group name and the destination path
+# output : -
+extract_package_group() {
+	# create the output directory
+	mkdir -p "$2"
+	[ 0 -ne $? ] && return 1
+
+	# extract all packages
+	while read file_name
+	do
+		echo "Extracting ${file_name##*/})"
+		$(get_current_distro)_extract_package "$file_name" "$2" > /dev/null 2>&1
+		[ 0 -ne $? ] && return 1
+	done
+
+	# remove directories and files which must not be present in the package
+	for path in $PACKAGE_CONTENTS_BLACKLIST
+	do
+		[ ! -e "$2/$path" ] && continue
+		rm -rf "$2/$path"
+		[ 0 -ne $? ] && return 1
+	done
+
+	# apply the package template, if there is any
+	[ ! -e "$INSTALL_PREFIX/package-templates/$1" ] && return 0
+
+	# copy the package template into the extracted package directory
+	cp -ar "$INSTALL_PREFIX/package-templates/$1"/* "$2"
+	[ 0 -ne $? ] && return 1
+
+	# if a hacks script exists, run it
+	[ ! -f "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME" ] && return 0
+	execute_and_delete_script "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME"
+	return $?
+}
+
+##################
+# package search #
+##################
+
+# _get_package_entry()
+# purpose: locates package entries by name, architecture and repository
+# input  : the package database to search, the package name, architecture and
+#          repository
+# output : matching package entries
+_get_package_entry() {
+	awk -v name="$2" \
+	    -v arch="$3" \
+	    -v repo="$4" \
+	    -v distro_version="$(get_current_distro_version)" \
+	    -F \| \
+	    '{
+	    	# check whether the package architecture, distribution version
+	    	# and repository match
+	    	if (($4 != arch) ||
+	    	    ($8 != distro_version) ||
+	    	    ($9 != repo)) {
+	    		next
+	    	}
+
+	    	#if ("bash,bash(x86-32),config(bash)" == $1) {
+	    	#print $0
+	    	#}
+
+	    	# check the package names
+	    	count = split($1, package_names, ",");
+	    	for (i = 1; count >= i; ++i) {
+	    		if (name != package_names[i]) {
+	    			continue
+	    		}
+	    		last_entry[package_names[1]] = $0;
+	    		break
+	    	}
+	    }
+
+	    END {
+	    	# if there is an exact match (e.g the package was found in the first
+	    	# name of a package entry), end here
+	    	if (name in last_entry) {
+	    		print last_entry[name];
+	    		exit
+	    	} else {
+	    		# otherwise, return the first result, since there is no way to
+	    		# guess which entry is the most appropriate
+	    		for (package in last_entry) {
+	    			print last_entry[package];
+	    			break
+	    		}
+	    	}
+	    }' "$1"
+}
+
+# find_package()
+# purpose: the interface for searching the package database; finds the most
+#          appropriate package entry
+# input  : a package name
+# output : the most appropriate entry for the package
+find_package() {
+	architectures="$($(get_current_distro)_get_architecture_aliases \
+	                                                $(get_current_distro_arch))"
+
+	# try each repository, using all matching architecture aliases
+	for database in "$PACKAGE_DB_CACHE_PATH" "$PACKAGE_DB_PATH"
+	do
+		[ ! -f "$database" ] && continue
+		for repository in $REPOSITORIES
+		do
+			for architecture in $architectures
+			do
+				result="$(_get_package_entry "$database" \
+				                             $1 \
+				                             $architecture \
+				                             ${repository##*|})"
+				[ -z "$result" ] && continue
+
+				# append the result to the search cache
+				if [ "$PACKAGE_DB_CACHE_PATH" != "$database" ]
+				then
+					echo "$result" >> "$PACKAGE_DB_CACHE_PATH"
+				fi
+
+				# output the result and quit
+				echo "$result"
+				return
+			done
+		done
+	done
+}
+
+####################
+# package download #
+####################
+
+# get_package_path()
+# purpose: returns a package's path within a repository
+# input  : a package entry
+# output : the package path field
+get_package_path() {
+	echo "$1" | cut -f 5 -d \|
+}
+
+# _get_package_repository()
+# purpose: returns a package's repository
+# input  : a package entry
+# output : the package repository field
+_get_package_repository() {
+	echo "$1" | cut -f 9 -d \|
+}
+
+# download_package()
+# purpose: downloads a given package
+# input  : a package entry and the destination path
+# output : -
+download_package() {
+	# get the package path within a repository
+	package_path="$(get_package_path "$1")"
+
+	# get the repository the package came from
+	package_repository="$(_get_package_repository "$1")"
+
+	# initialize the list of download links
+	download_links=""
+	download_links_count=0
+
+	# for each mirror of the package's repository, create a full URL
+	for mirror in $MIRRORS
+	do
+		mirror_url="${mirror%%|*}"
+		repositories="${mirror##*|}"
+
+		# if the repository is mirrored, print the mirror URL
+		for repository in $(echo $repositories | sed s/,/\ /g)
+		do
+			[ "$repository" != "$package_repository" ] && continue
+			download_links="$download_links $mirror_url/$package_path"
+			download_links_count=$((1 + download_links_count))
+		done
+	done
+
+	echo "Downloading ${package_path##*/} ($download_links_count mirrors)"
+
+	# download the package
+	download_file "$download_links" "$2"
+}
