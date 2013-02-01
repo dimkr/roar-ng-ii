@@ -9,7 +9,7 @@ PKG_DEPS="ncurses"
 
 # the package source files
 PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz
-         http://www.dimakrasner.com/subito/3/source/screen/screen-4.0.3-longer-TERM.patch"
+         http://shahor.dimakrasner.com/1/source/screen/screen-4.0.3-longer-TERM.patch"
 
 download() {
 	return 0
