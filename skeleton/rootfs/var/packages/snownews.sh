@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="RSS news reader"
 PKG_CAT="Internet"
 PKG_DEPS="zlib,ncurses,libxml2"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="https://kiza.kcore.de/media/software/snownews/$PKG_NAME-$PKG_VER.tar.gz"

@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="A program for making large letters out of text"
 PKG_CAT="Utility"
 PKG_DEPS=""
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC="ftp://ftp.figlet.org/pub/figlet/program/unix/$PKG_NAME-$PKG_VER.tar.gz"

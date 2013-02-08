@@ -92,23 +92,19 @@ modes:
   - cleanup  : cleans up after "build" by removing intermediate directories.
                Must be used between executions of roar-ng II with "build".
 
-##########################
-# Subito GNU/Linux-libre #
-##########################
+##########
+# Shahor #
+##########
 
-Subito GNU/Linux-libre is the flagship distribution built by roar-ng II; the
+Shahor is the flagship GNU/Linux-libre distribution built by roar-ng II; the
 stock configuration supplied with roar-ng II will always build the latest
-version of Subito GNU/Linux-libre.
+development version of Shahor.
 
-Subito GNU/Linux-libre is a GNU/Linux-libre distribution for the x86_64
-architecture, aimed at advanced users and optimized for console applications,
-keyboard control and low consumption of resources.
-
-To build Subito GNU/Linux-libre, simply run roar-ng II:
+To build Shahor, simply run roar-ng II:
   roar-ng setup
   roar-ng download
   roar-ng extract
-  roar-ng build isolinux output.iso
+  roar-ng build isolinux shahor.iso
 
 ################
 # Contributing #

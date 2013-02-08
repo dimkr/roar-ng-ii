@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Callback system for C++"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
+PKG_LICENSE="lgpl-2.1.txt"
 
 # the package source files
 PKG_SRC="http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.2/$PKG_NAME-$PKG_VER.tar.xz"

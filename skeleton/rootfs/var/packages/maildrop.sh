@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="An e-mail delivery agent"
 PKG_CAT="Internet"
 PKG_DEPS="gdbm,libidn,gamin"
+PKG_LICENSE="gpl-3.0.txt"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/courier/maildrop/$PKG_VER/$PKG_NAME-$PKG_VER.tar.bz2"

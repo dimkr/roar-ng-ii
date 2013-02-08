@@ -46,6 +46,15 @@ PACKAGE_CONTENTS_BLACKLIST="etc/init.d etc/rc.d usr/share/lintian"
 # the package templates hacks script file name
 PACKAGE_TEMPLATE_HACKS_FILE_NAME="hacks.sh"
 
+# the extension for packages built using buildpkg
+PACKAGE_FILE_NAME_EXTENSION="rxz"
+
+# the installed package data directory
+PACKAGE_DATA_DIR="var/hpm"
+
+# the file containing distributions supported by hpm
+HPM_DISTRO_LIST_PATH="etc/roar-ng/distro.list"
+
 # the mksquashfs flags
 MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 512K -no-exports"
 
@@ -682,4 +691,32 @@ make_sfs() {
 	# run mksquashfs
 	echo "Creating ${package_path##*/}"
 	mksquashfs "$1" "$2" $MKSQUASHFS_OPTIONS
+}
+
+######################
+# package management #
+######################
+
+# register_package()
+# purpose: registers an installed package, so it can be removed using hpm-remove
+# input  : the extracted package contents directory, the package name and
+#          an installation prefix (optional)
+# output : -
+register_package() {
+	# if there is a post-removal script, keep it, so hpm-remove can run it once
+	# the package is removed
+	if [ -f "$3/$POST_REMOVAL_SCRIPT_FILE_NAME" ]
+	then
+		mv "$3/$POST_REMOVAL_SCRIPT_FILE_NAME" \
+		   "$3/$PACKAGE_DATA_DIR/$2-$POST_REMOVAL_SCRIPT_FILE_NAME"
+		[ 0 -ne $? ] && return 1
+	fi
+
+	# list the package contents; ignore .gitignore files
+	package_contents="$(realpath "$1")"
+	find "$package_contents" -mindepth 1 ! -name .gitignore | \
+	sed s~"$package_contents"~~g > "$3/$PACKAGE_DATA_DIR/$2"
+	[ 0 -ne $? ] && return 1
+
+	return 0
 }

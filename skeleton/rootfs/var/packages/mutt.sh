@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="E-mail client"
 PKG_CAT="Internet"
 PKG_DEPS="gdbm,ncurses,gnutls,cyrus-sasl2,gpgme"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="ftp://ftp.mutt.org/mutt/devel/$PKG_NAME-$PKG_VER.tar.gz"
@@ -68,8 +69,6 @@ package() {
 
 	# remove the GPL license copy
 	rm -f $INSTALL_DIR/$DOC_DIR/$PKG_NAME/GPL
-	[ 0 -ne $? ] && return 1
-	ln -s /$LEGAL_DIR/licenses/gpl-2.0.txt $INSTALL_DIR/$DOC_DIR/$PKG_NAME/GPL
 	[ 0 -ne $? ] && return 1
 
 	return 0

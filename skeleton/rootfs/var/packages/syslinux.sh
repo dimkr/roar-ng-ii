@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Lightweight boot loaders"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://www.kernel.org/pub/linux/utils/boot/syslinux/$PKG_NAME-$PKG_VER.tar.xz"

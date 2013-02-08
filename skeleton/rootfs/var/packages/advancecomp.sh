@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Recompression utilities"
 PKG_CAT="Utility"
 PKG_DEPS="zlib"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://prdownloads.sourceforge.net/advancemame/$PKG_NAME-$PKG_VER.tar.gz"

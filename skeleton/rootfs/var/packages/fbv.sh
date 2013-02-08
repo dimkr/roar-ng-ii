@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Framebuffer image viewer"
 PKG_CAT="Graphic"
 PKG_DEPS="libjpeg,libpng"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://s-tech.elsat.net.pl/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

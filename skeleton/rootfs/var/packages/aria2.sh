@@ -1,11 +1,12 @@
 #!/bin/sh
 
 PKG_NAME="aria2"
-PKG_VER="1.16.1"
+PKG_VER="1.16.3"
 PKG_REV="1"
 PKG_DESC="Multi-protoocol download tool"
 PKG_CAT="Internet"
 PKG_DEPS="expat,gnutls"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/aria2/stable/$PKG_NAME-$PKG_VER/$PKG_NAME-$PKG_VER.tar.xz"

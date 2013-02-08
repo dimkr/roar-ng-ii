@@ -6,6 +6,8 @@ PKG_REV="1"
 PKG_DESC="Search engines frontend"
 PKG_CAT="Internet"
 PKG_DEPS="perl"
+PKG_LICENSE="custom"
+PKG_ARCH="noarch"
 
 # the package source files
 PKG_SRC="http://surfraw.alioth.debian.org/dist/$PKG_NAME-$PKG_VER.tar.gz"

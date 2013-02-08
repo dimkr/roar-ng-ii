@@ -13,10 +13,10 @@ Fetch a package."
 
 # check the command-line arguments
 case $# in
-	# if the distribution was not specified, pick the first distribution in
-	# distro.list
+	# if the distribution was not specified, pick the first distribution in the
+	# distribution list
 	1)
-		distro="$(head -n 1 /etc/roar-ng/distro.list)"
+		distro="$(head -n 1 /$HPM_DISTRO_LIST_PATH)"
 		;;
 
 	# otherwise, use the specified distribution

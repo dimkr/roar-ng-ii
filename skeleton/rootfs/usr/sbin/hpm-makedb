@@ -6,7 +6,7 @@
 # the command-line usage message
 USAGE="hpm-makedb
 
-Update the package database, according to /etc/roar-ng/distro.list."
+Update the package database, according to /$HPM_DISTRO_LIST_PATH."
 
 # include roar-ng's common functions file
 . /usr/share/roar-ng/common
@@ -19,4 +19,4 @@ then
 fi
 
 # update the package database
-update_package_database < /etc/roar-ng/distro.list
+update_package_database < /$HPM_DISTRO_LIST_PATH

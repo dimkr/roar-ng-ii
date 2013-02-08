@@ -2,10 +2,11 @@
 
 PKG_NAME="linux"
 PKG_VER="3.2"
-PKG_REV="37"
+PKG_REV="38"
 PKG_DESC="A monolithic kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="BuildingBlock"
 PKG_DEPS="perl,linux-source"
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC=""

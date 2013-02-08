@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Improved implementation of the vi text editor"
 PKG_CAT="Document"
 PKG_DEPS="ncurses,gpm"
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC=""

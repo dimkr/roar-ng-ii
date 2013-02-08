@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Spell checker"
 PKG_CAT="Document"
 PKG_DEPS="ncurses"
+PKG_LICENSE="lgpl-2.1.txt"
 
 # the package source files
 PKG_SRC="ftp://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

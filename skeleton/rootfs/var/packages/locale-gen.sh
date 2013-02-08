@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="A locale generation tool"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
+PKG_LICENSE="gpl-2.0.txt"
 PKG_ARCH="noarch"
 
 # the package source files

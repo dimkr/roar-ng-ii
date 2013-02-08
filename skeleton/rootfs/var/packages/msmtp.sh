@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="SMTP client"
 PKG_CAT="Internet"
 PKG_DEPS="ncurses,gnutls"
+PKG_LICENSE="gpl-3.0.txt"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/$PKG_NAME/$PKG_NAME/$PKG_VER/$PKG_NAME-$PKG_VER.tar.bz2"

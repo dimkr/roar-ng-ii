@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="A tool that emulates the detaching feature of GNU Screen"
 PKG_CAT="Utility"
 PKG_DEPS=""
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/dtach/dtach/$PKG_VER/$PKG_NAME-$PKG_VER.tar.gz"

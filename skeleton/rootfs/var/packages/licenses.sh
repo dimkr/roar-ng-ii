@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="The text of various free software licenses"
 PKG_CAT="Help"
 PKG_DEPS=""
+PKG_LICENSE="custom"
 PKG_ARCH="noarch"
 
 # the package source files
@@ -30,9 +31,9 @@ build() {
 
 package() {
 	# install all licenses
-	mkdir -p $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME
+	mkdir -p $INSTALL_DIR/$COMMON_LICENSES_DIR
 	[ 0 -ne $? ] && return 1
-	install -m 644 * $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME
+	install -m 644 * $INSTALL_DIR/$COMMON_LICENSES_DIR
 	[ 0 -ne $? ] && return 1
 
 	return 0

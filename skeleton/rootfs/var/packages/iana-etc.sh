@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Lists of network protocols and services provided by IANA"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
+PKG_LICENSE="custom"
 PKG_ARCH="noarch"
 
 # the package source files

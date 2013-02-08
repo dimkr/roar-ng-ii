@@ -6,6 +6,7 @@ PKG_REV="2"
 PKG_DESC="Terminal multiplexer"
 PKG_CAT="Utility"
 PKG_DEPS="ncurses"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz

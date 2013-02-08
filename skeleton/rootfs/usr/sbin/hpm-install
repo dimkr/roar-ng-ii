@@ -18,11 +18,8 @@ fi
 # include roar-ng's common functions file
 . /usr/share/roar-ng/common
 
-# include the configuration file
-. /etc/hpmrc
-
 # make sure the package is not installed already
-if [ -f "$PKG_DATA_DIR/$2" ]
+if [ -f "/$PACKAGE_DATA_DIR/$2" ]
 then
 	print_error "the package is already installed"
 	exit 1
@@ -33,7 +30,7 @@ temp_dir="$(mktemp -d)"
 
 # exctract the package to the temporary directory
 echo -n "Extracting the package ..."
-tar -xJf "$1" -C $temp_dir
+extract_tarball "$1" $temp_dir
 if [ 0 -ne $? ]
 then
 	rm -rf $temp_dir
@@ -60,15 +57,9 @@ then
 	[ 0 -ne $? ] && exit 1
 fi
 
-# if there is a post-removal script, keep it, so hpm-remove can run it once the
-# package is removed
-[ -f /post_uninstall.sh ] && \
-                      mv /$POST_REMOVAL_SCRIPT_FILE_NAME \
-                      "$PKG_DATA_DIR/$2-$POST_REMOVAL_SCRIPT_FILE_NAME"
-
-# list the package contents
+# register the installed package, so it can be removed using hpm-remove
 echo -n "Registering the package ..."
-find $temp_dir -mindepth 1 | sed s~"$temp_dir"~~g > "$PKG_DATA_DIR/$2"
+register_package $temp_dir $2
 echo " done"
 
 rm -rf $temp_dir

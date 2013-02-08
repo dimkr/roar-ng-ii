@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="A simple suspend tool"
 PKG_CAT="System"
 PKG_DEPS=""
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC=""

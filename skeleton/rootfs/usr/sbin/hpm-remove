@@ -8,24 +8,21 @@ USAGE="hpm-remove PACKAGE
 
 Remove a software package."
 
-# include the configuration file
-. /etc/hpmrc
+# include roar-ng's common functions file
+. /usr/share/roar-ng/common
 
 # check the command-line arguments
-if [ 1 -ne $# ] || [ ! -f "$PKG_DATA_DIR/$1" ]
+if [ 1 -ne $# ] || [ ! -f "/$PACKAGE_DATA_DIR/$1" ]
 then
 	echo "$USAGE"
 	exit 1
 fi
 
-# include roar-ng's common functions file
-. /usr/share/roar-ng/common
-
 success=1
 
 # remove the package files
 echo -n "Removing files ..."
-for i in $(tac "$PKG_DATA_DIR/$1")
+for i in $(tac "/$PACKAGE_DATA_DIR/$1")
 do
 	if [ -f "$i" ]
 	then
@@ -53,19 +50,19 @@ fi
 echo " done"
 
 # run the post-removal script, if there is such
-if [ -f "$PKG_DATA_DIR/$1-post_uninstall.sh" ]
+if [ -f "/$PACKAGE_DATA_DIR/$1-$POST_REMOVAL_SCRIPT_FILE_NAME" ]
 then
-	chmod +x "$PKG_DATA_DIR/$1-post_uninstall.sh"
+	chmod +x "/$PACKAGE_DATA_DIR/$1-$POST_REMOVAL_SCRIPT_FILE_NAME"
 	base_dir="$(pwd)"
 	cd /
-	"$PKG_DATA_DIR/$1-post_uninstall.sh"
+	"/$PACKAGE_DATA_DIR/$1-$POST_REMOVAL_SCRIPT_FILE_NAME"
 	cd "$base_dir"
-	rm -f "$PKG_DATA_DIR/$1-post_uninstall.sh"
+	rm -f "/$PACKAGE_DATA_DIR/$1-$POST_REMOVAL_SCRIPT_FILE_NAME"
 fi
 
 # unregister the package
 echo -n "Unregistering the package ..."
-rm -f "$PKG_DATA_DIR/$1"
+rm -f "/$PACKAGE_DATA_DIR/$1"
 if [ 0 -ne $? ]
 then
 	print_error "failed to unregister the package"

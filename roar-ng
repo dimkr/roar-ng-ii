@@ -299,6 +299,10 @@ _build_module() {
 		echo >> "$post_install"
 		rm -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME"
 		[ 0 -ne $? ] && return 1
+
+		# register the package with hpm, so it can be removed using hpm-remove
+		register_package "$path" "${path##*/}" "$2"
+		[ 0 -ne $? ] && return 1
 	done
 
 	# if at least one post-installation script exists, run it
@@ -418,7 +422,7 @@ _build_rootfs() {
 
 	# create distro.list, containing the list of distributions used by
 	# roar-ng II
-	get_used_distros > "$1/etc/roar-ng/distro.list"
+	get_used_distros > "$1/$HPM_DISTRO_LIST_PATH"
 
 	# create /etc/hostname
 	echo -n "$DISTRO_NICKNAME" > "$1/etc/hostname"
@@ -601,11 +605,15 @@ _build_package() {
 	[ 0 -ne $? ] && return 1
 
 	# copy the package to the binary packages directory
-	cp -f "$1/$BUILD_RESULT_PREFIX/$2"/*.rxz "$VAR_PREFIX/package"
+	cp -f "$1/$BUILD_RESULT_PREFIX/$2"/*.$PACKAGE_FILE_NAME_EXTENSION \
+	      "$VAR_PREFIX/package"
 	[ 0 -ne $? ] && return 1
 
 	# install the package within the chroot environment, using hpm
-	chroot "$1" /bin/sh -c "hpm-install /$BUILD_RESULT_PREFIX/$2/*.rxz $2"
+	chroot \
+	 "$1" \
+	 /bin/sh \
+	 -c "hpm-install /$BUILD_RESULT_PREFIX/$2/*.$PACKAGE_FILE_NAME_EXTENSION $2"
 	[ 0 -ne $? ] && return 1
 
 	return 0

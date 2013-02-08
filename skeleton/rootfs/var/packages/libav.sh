@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Complete audio and video conversion, recording and streaming solution forked from FFmpeg"
 PKG_CAT="Multimedia"
 PKG_DEPS="libvorbis,libogg,libtheora"
+PKG_LICENSE="gpl-3.0.txt"
 
 # the package source files
 PKG_SRC=""

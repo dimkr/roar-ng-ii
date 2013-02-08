@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Console music player"
 PKG_CAT="Multimedia"
 PKG_DEPS="ncurses,alsa-lib,libmad,libvorbis,flac,libav"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://sourceforge.net/projects/cmus/files/$PKG_NAME-v$PKG_VER.tar.bz2"

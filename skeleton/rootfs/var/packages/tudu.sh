@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Hierarchical TODOs management application"
 PKG_CAT="Personal"
 PKG_DEPS="ncurses"
+PKG_LICENSE="gpl-3.0.txt"
 
 # the package source files
 PKG_SRC="http://code.meskio.net/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

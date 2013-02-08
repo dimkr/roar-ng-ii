@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="An IRC to other networks gateway"
 PKG_CAT="Internet"
 PKG_DEPS="gnutls,glib2"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://get.bitlbee.org/src/$PKG_NAME-$PKG_VER.tar.gz"

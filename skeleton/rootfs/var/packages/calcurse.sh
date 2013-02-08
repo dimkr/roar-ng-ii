@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Calendar and scheduling application"
 PKG_CAT="Utility"
 PKG_DEPS="ncurses"
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC="http://calcurse.org/files/$PKG_NAME-$PKG_VER.tar.gz"

@@ -3,6 +3,10 @@
 # include roar-ng's common functions file
 . /usr/share/roar-ng/common
 
+#########################
+# build target handling #
+#########################
+
 # get the processor architecture
 arch="$(uname -m)"
 
@@ -121,9 +125,20 @@ BOOT_DIR="boot"
 # the directory for mail
 MAIL_DIR="$VAR_DIR/spool/mail"
 
-###########
-# generic #
-###########
+#####################
+# legal information #
+#####################
+
+# the directory for common licenses
+COMMON_LICENSES_DIR="$LEGAL_DIR/common"
+
+# the license given to package with a custom license that isn't present in the
+# common licenses directory
+CUSTOM_LICENSE="custom"
+
+#####################################
+# compiler flags and shared options #
+#####################################
 
 # the base options for autotools-based packages
 AUTOTOOLS_BASE_OPTS="--build=$BUILD_TARGET \

@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="An e-mail retrieval and forwarding tool"
 PKG_CAT="Internet"
 PKG_DEPS="openssl"
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/fetchmail/branch_6.3/$PKG_NAME-$PKG_VER.tar.xz"

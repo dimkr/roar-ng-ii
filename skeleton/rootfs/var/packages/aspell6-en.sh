@@ -6,6 +6,8 @@ PKG_REV="1"
 PKG_DESC="English dictionary for Aspell"
 PKG_CAT="Document"
 PKG_DEPS="aspell"
+PKG_LICENSE="custom"
+PKG_ARCH="noarch"
 
 # the package source files
 PKG_SRC="ftp://ftp.gnu.org/gnu/aspell/dict/en/$PKG_NAME-$PKG_VER.tar.bz2"

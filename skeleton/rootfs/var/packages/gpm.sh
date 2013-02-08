@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="A mouse server"
 PKG_CAT="System"
 PKG_DEPS="ncurses"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://www.nico.schottelius.org/software/gpm/archives/$PKG_NAME-$PKG_VER.tar.bz2"

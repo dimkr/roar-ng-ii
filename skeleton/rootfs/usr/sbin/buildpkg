@@ -11,9 +11,6 @@ USAGE="buildpkg {download|build} SCRIPT
 
 Build a binary package, according to a build script."
 
-# include the hpm configuration file, for PKG_EXTENSION
-. /etc/hpmrc
-
 # check the command-line arguments
 if [ 2 -ne $# ] || [ ! -f "$2" ]
 then
@@ -90,10 +87,32 @@ then
 	exit 1
 fi
 
+# if the package uses a generic license, create a symlink to it
+if [ "$CUSTOM_LICENSE" != "$PKG_LICENSE" ]
+then
+	if [ ! -e "$INSTALL_DIR/$LEGAL_DIR/$PKG_NAME" ]
+	then
+		mkdir -p "$INSTALL_DIR/$LEGAL_DIR/$PKG_NAME"
+		if [ 0 -ne $? ]
+		then
+			print_error "failed to create the documentation directory"
+			exit 1
+		fi
+	fi
+	ln -s "/$COMMON_LICENSES_DIR/$PKG_LICENSE" \
+	      "$INSTALL_DIR/$LEGAL_DIR/$PKG_NAME"
+	if [ 0 -ne $? ]
+	then
+		print_error "failed to create a link to the license"
+		exit 1
+	fi
+fi
+
 # create the binary package; do not include the parent directory
-make_tarball_and_delete $INSTALL_DIR \
-                        "$BASE_DIR/$PKG_NAME-$PKG_VER-$PKG_REV.$PKG_EXTENSION" \
-                        0
+make_tarball_and_delete \
+          $INSTALL_DIR \
+          "$BASE_DIR/$PKG_NAME-$PKG_VER-$PKG_REV.$PACKAGE_FILE_NAME_EXTENSION" \
+          0
 if [ 0 -ne $? ]
 then
 	print_error "failed to create the package"

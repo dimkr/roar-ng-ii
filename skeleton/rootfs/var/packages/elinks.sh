@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Tabbed text web browser"
 PKG_CAT="Internet"
 PKG_DEPS="zlib,bzip2,xz,gnutls,gpm"
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC=""

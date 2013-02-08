@@ -100,9 +100,6 @@ do
 	[ -x $i ] && $i start
 done
 
-# run the user's custom init script, if it exists
-[ -x /etc/rc.local ] && . /etc/rc.local
-
 # generate the locale archive
 if [ ! -f /usr/lib/locale/locale-archive ]
 then
@@ -118,3 +115,6 @@ then
 	update-ca-certificates > /dev/null 2>&1
 	echo " done"
 fi
+
+# run the user's custom init script, if it exists
+[ -x /etc/rc.local ] && . /etc/rc.local

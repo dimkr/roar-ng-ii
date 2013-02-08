@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="An address book designed for use with Mutt"
 PKG_CAT="Personal"
 PKG_DEPS="ncurses"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://prdownloads.sourceforge.net/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

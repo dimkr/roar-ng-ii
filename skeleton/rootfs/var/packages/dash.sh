@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="A small and fast POSIX-compliant shell"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC="http://gondor.apana.org.au/~herbert/dash/files/$PKG_NAME-$PKG_VER.tar.gz"

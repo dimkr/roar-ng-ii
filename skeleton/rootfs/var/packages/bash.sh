@@ -5,7 +5,8 @@ PKG_VER="4.2.042"
 PKG_REV="1"
 PKG_DESC="A sh-compatible shell"
 PKG_CAT="BuildingBlock"
-PKG_DEPS=""
+PKG_DEPS="ncurses"
+PKG_LICENSE="gpl-3.0.txt"
 
 # the package source files
 PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_MAJOR_VER.tar.gz"

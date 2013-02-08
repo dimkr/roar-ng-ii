@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Simple bandwidth monitor"
 PKG_CAT="Network"
 PKG_DEPS="ncurses"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://www.gropp.org/bwm-ng/$PKG_NAME-$PKG_VER.tar.gz"

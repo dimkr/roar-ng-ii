@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Tools for the Squashfs file system"
 PKG_CAT="BuildingBlock"
 PKG_DEPS="zlib,xz,lzo"
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://downloads.sourceforge.net/project/squashfs/squashfs/squashfs$PKG_VER/squashfs$PKG_VER.tar.gz"

@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Tool for creation of temporary files and directories"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC="ftp://ftp.mktemp.org/pub/mktemp/$PKG_NAME-$PKG_VER.tar.gz"

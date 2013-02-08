@@ -6,6 +6,7 @@ PKG_REV="3"
 PKG_DESC="A tiny implementation of many Unix utilities"
 PKG_CAT="BuildingBlock"
 PKG_DEPS=""
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://busybox.net/downloads/$PKG_NAME-$PKG_VER.tar.bz2"

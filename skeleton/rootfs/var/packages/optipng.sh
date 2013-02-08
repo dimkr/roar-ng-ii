@@ -6,6 +6,7 @@ PKG_REV="2"
 PKG_DESC="A PNG optimizer"
 PKG_CAT="Graphic"
 PKG_DEPS=""
+PKG_LICENSE="custom"
 
 # the package source files
 PKG_SRC="http://prdownloads.sourceforge.net/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz"

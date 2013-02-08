@@ -6,6 +6,7 @@ PKG_REV="2"
 PKG_DESC="A monospace, bitmap font"
 PKG_CAT="Desktop"
 PKG_DEPS=""
+PKG_LICENSE="custom"
 PKG_ARCH="noarch"
 
 # the package source files

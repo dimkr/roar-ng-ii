@@ -1,11 +1,12 @@
 #!/bin/sh
 
 PKG_NAME="lftp"
-PKG_VER="4.4.2"
+PKG_VER="4.4.3"
 PKG_REV="1"
 PKG_DESC="FTP client"
 PKG_CAT="Internet"
 PKG_DEPS="less,ncurses,readline,gnutls"
+PKG_LICENSE="gpl-3.0.txt"
 
 # the package source files
 PKG_SRC="http://ftp.yar.ru/pub/source/lftp/$PKG_NAME-$PKG_VER.tar.xz"

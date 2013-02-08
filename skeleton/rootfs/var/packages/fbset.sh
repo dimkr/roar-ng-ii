@@ -6,6 +6,7 @@ PKG_REV="1"
 PKG_DESC="Framebuffer console configuration tool"
 PKG_CAT="Utility"
 PKG_DEPS=""
+PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://users.telenet.be/geertu/Linux/fbdev/$PKG_NAME-$PKG_VER.tar.gz"
