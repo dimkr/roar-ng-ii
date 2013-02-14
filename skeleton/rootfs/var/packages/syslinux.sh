@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="syslinux"
-PKG_VER="4.06"
+PKG_VER="5.01"
 PKG_REV="1"
 PKG_DESC="Lightweight boot loaders"
 PKG_CAT="BuildingBlock"

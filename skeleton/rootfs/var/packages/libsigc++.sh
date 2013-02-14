@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="libsigc++"
-PKG_VER="2.2.10"
+PKG_VER="2.3.1"
 PKG_REV="1"
 PKG_DESC="Callback system for C++"
 PKG_CAT="BuildingBlock"
@@ -9,7 +9,7 @@ PKG_DEPS=""
 PKG_LICENSE="lgpl-2.1.txt"
 
 # the package source files
-PKG_SRC="http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.2/$PKG_NAME-$PKG_VER.tar.xz"
+PKG_SRC="http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.3/$PKG_NAME-$PKG_VER.tar.xz"
 
 download() {
 	return 0
