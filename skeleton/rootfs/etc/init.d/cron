@@ -1,0 +1,35 @@
+#!/bin/dash
+
+# /etc/init.d/cron: an init script for crond
+
+case "$1" in
+	start)
+		echo -n "Starting cron ..."
+		. /etc/init.conf.d/cron
+		crond $CROND_OPTIONS
+		success=$?
+		pidof crond > "$PIDFILE_PATH"
+		echo " done"
+		exit $success
+		;;
+
+	stop)
+		echo -n "Stopping cron ..."
+		. /etc/init.conf.d/cron
+		kill $(cat "$PIDFILE_PATH")
+		success=$?
+		rm -f "$PIDFILE_PATH"
+		echo " done"
+		exit $success
+		;;
+
+	restart)
+		"$0" stop
+		"$0" start
+		;;
+
+	*)
+		echo "cron {start|stop|restart}"
+		exit 1
+		;;
+esac

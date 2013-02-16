@@ -41,7 +41,9 @@ POST_INSTALL_SCRIPT_FILE_NAME="post_install.sh"
 POST_REMOVAL_SCRIPT_FILE_NAME="post_uninstall.sh"
 
 # directories and files which must not be present inside packages
-PACKAGE_CONTENTS_BLACKLIST="etc/init.d etc/rc.d usr/share/lintian"
+PACKAGE_CONTENTS_BLACKLIST="etc/init.d etc/rc.d usr/share/lintian
+                            etc/crontab etc/cron.d etc/cron.daily
+                            etc/cron.hourly etc/cron.monthly etc/cron.weekly"
 
 # the package templates hacks script file name
 PACKAGE_TEMPLATE_HACKS_FILE_NAME="hacks.sh"

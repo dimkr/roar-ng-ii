@@ -1,0 +1,13 @@
+# /etc/init.conf.d/cron: configuration file for the cron init script
+
+# the working directory of crond
+WORKING_DIRECTORY="/tmp"
+
+# the crond log path
+LOG_PATH="/var/log/crond.log"
+
+# options to pass to crond
+CROND_OPTIONS="-b -l 4 -L $LOG_PATH -c $WORKING_DIRECTORY"
+
+# the crond pidfile path
+PIDFILE_PATH="/run/crond.pid"

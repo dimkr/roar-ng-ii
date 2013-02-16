@@ -125,6 +125,9 @@ BOOT_DIR="boot"
 # the directory for mail
 MAIL_DIR="$VAR_DIR/spool/mail"
 
+# the directory for cron jobs
+CRON_DIR="$VAR_DIR/spool/cron"
+
 #####################
 # legal information #
 #####################

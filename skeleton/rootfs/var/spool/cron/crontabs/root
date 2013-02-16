@@ -1,0 +1,2 @@
+# update locate's database, every day at midnight
+0 0 * * * updatedb
