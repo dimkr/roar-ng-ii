@@ -1,6 +1,3 @@
-# inherit from the Subito GNU/Linux-libre support plug-in
-. ./subito
-
 # include the configuration file
 . $CONF_DIR/distro/shahor
 
@@ -9,7 +6,19 @@
 # input  : an architecture name
 # output : the distribution's names for the architecture, ordered by accuracy
 shahor_get_architecture_aliases() {
-	subito_get_architecture_aliases $1
+	case "$1" in
+		x86_64|amd64)
+			echo "x86_64 noarch"
+			;;
+
+		x86|i?86)
+			echo "i686 noarch"
+			;;
+
+		arm*)
+			echo "armv6 noarch"
+			;;
+	esac
 }
 
 # shahor_download_package_list()
@@ -17,7 +26,7 @@ shahor_get_architecture_aliases() {
 # input  : the package list URL and the destination path
 # output : -
 shahor_download_package_list() {
-	subito_download_package_list "$1" "$2"
+	download_file "$1" "$2"
 }
 
 # shahor_convert_package_list()
@@ -25,7 +34,7 @@ shahor_download_package_list() {
 # input  : the package list path and the repository name
 # output : a package list in roar-ng's format
 shahor_convert_package_list() {
-	subito_convert_package_list "$1" "$2"
+	cat "$1"
 }
 
 # shahor_extract_package()
@@ -33,5 +42,5 @@ shahor_convert_package_list() {
 # input  : a package path and the destination directory
 # output : -
 shahor_extract_package() {
-	subito_extract_package "$1" "$2"
+	extract_tarball "$1" "$2"
 }
