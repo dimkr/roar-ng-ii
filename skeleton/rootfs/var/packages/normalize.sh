@@ -22,6 +22,10 @@ build() {
 
 	cd $PKG_NAME-$PKG_VER
 
+	# generate a new configure script
+	autoconf
+	[ 0 -ne $? ] && return 1
+
 	# configure the package
 	./configure $AUTOTOOLS_BASE_OPTS \
 	            --disable-static \

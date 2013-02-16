@@ -542,10 +542,6 @@ _get_package_entry() {
 	    		next
 	    	}
 
-	    	#if ("bash,bash(x86-32),config(bash)" == $1) {
-	    	#print $0
-	    	#}
-
 	    	# check the package names
 	    	count = split($1, package_names, ",");
 	    	for (i = 1; count >= i; ++i) {
