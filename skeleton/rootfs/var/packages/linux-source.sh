@@ -2,7 +2,7 @@
 
 PKG_NAME="linux-source"
 PKG_VER="3.2"
-PKG_REV="38"
+PKG_REV="39"
 PKG_DESC="Sources of the Linux kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="BuildingBlock"
 PKG_DEPS="gawk"
