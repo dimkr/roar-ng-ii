@@ -74,7 +74,7 @@ echo " done"
 
 # enable all swap partitions specified in /etc/fstab
 echo -n "Setting up swap ..."
-swapon -a
+swapon -a > /dev/null 2>&1
 echo " done"
 
 # set the hostname
