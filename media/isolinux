@@ -10,6 +10,11 @@ build_media_isolinux() {
 	cp -af $(find "$VAR_PREFIX/rootfs" -type f -name isolinux.bin) "$1"
 	[ 0 -ne $? ] && return 1
 
+	# copy ldlinux.c32 to the bootable media root - it is required by the boot
+	# image
+	cp -af $(find "$VAR_PREFIX/rootfs" -type f -name ldlinux.c32) "$1"
+	[ 0 -ne $? ] && return 1
+
 	# write the boot message file
 	cat << EOF > "$1/message.txt"
 Welcome to $DISTRO_NAME!
