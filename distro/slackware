@@ -1,6 +1,6 @@
 # determine whether to use "slackware" or "slackware64"
 suffix=""
-case $(get_current_distro_arch) in
+case $distro_arch in
 	x86_64)
 		suffix="64"
 		;;
@@ -43,8 +43,8 @@ slackware_download_package_list() {
 # input  : the package list path and the repository name
 # output : a package list in roar-ng's format
 slackware_convert_package_list() {
-	awk -v distro="$(get_current_distro)" \
-	    -v distro_version="$(get_current_distro_version)" \
+	awk -v distro="$distro_name" \
+	    -v distro_version="$distro_version" \
 	    -v repo="$2" \
 	    -F ":" '
 

@@ -1,12 +1,12 @@
 # repositories - package list URL|repository name
-REPOSITORIES="http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/main/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_main
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/universe/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_universe
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/multiverse/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_multiverse
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)-updates/restricted/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-updates_restricted
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-main
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)/universe/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-universe
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)/multiverse/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-multiverse
-              http://ubuntu.mirror.tudos.de/ubuntu/dists/$(get_current_distro_version)/restricted/binary-$(get_current_distro_arch)/Packages.bz2|ubuntu-restricted"
+REPOSITORIES="http://ubuntu.mirror.tudos.de/ubuntu/dists/$distro_version-updates/main/binary-$distro_arch/Packages.bz2|ubuntu-updates_main
+              http://ubuntu.mirror.tudos.de/ubuntu/dists/$distro_version-updates/universe/binary-$distro_arch/Packages.bz2|ubuntu-updates_universe
+              http://ubuntu.mirror.tudos.de/ubuntu/dists/$distro_version-updates/multiverse/binary-$distro_arch/Packages.bz2|ubuntu-updates_multiverse
+              http://ubuntu.mirror.tudos.de/ubuntu/dists/$distro_version-updates/restricted/binary-$distro_arch/Packages.bz2|ubuntu-updates_restricted
+              http://ubuntu.mirror.tudos.de/ubuntu/dists/$distro_version/main/binary-$distro_arch/Packages.bz2|ubuntu-main
+              http://ubuntu.mirror.tudos.de/ubuntu/dists/$distro_version/universe/binary-$distro_arch/Packages.bz2|ubuntu-universe
+              http://ubuntu.mirror.tudos.de/ubuntu/dists/$distro_version/multiverse/binary-$distro_arch/Packages.bz2|ubuntu-multiverse
+              http://ubuntu.mirror.tudos.de/ubuntu/dists/$distro_version/restricted/binary-$distro_arch/Packages.bz2|ubuntu-restricted"
 
 # package download mirrors - more at https://launchpad.net/ubuntu/+archivemirrors
 MIRRORS="http://ubuntu.mirror.tudos.de/ubuntu|ubuntu-updates_main,ubuntu-updates_universe,ubuntu-updates_multiverse,ubuntu-updates_restricted,ubuntu-main,ubuntu-universe,ubuntu-multiverse,ubuntu-restricted

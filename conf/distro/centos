@@ -2,11 +2,11 @@
 # via their base path; this directory contains repodata/repomd.xml, with
 # contains the variable name of the actual package list; see
 # download_package_list
-REPOSITORIES="http://centos.arcticnetwork.ca/$(get_current_distro_version)/updates/$(get_current_distro_arch)|centos-updates
-              http://centos.arcticnetwork.ca/$(get_current_distro_version)/os/$(get_current_distro_arch)|centos-os"
+REPOSITORIES="http://centos.arcticnetwork.ca/$distro_version/updates/$distro_arch|centos-updates
+              http://centos.arcticnetwork.ca/$distro_version/os/$distro_arch|centos-os"
 
 # package download mirrors - more at http://www.centos.org/modules/tinycontent/index.php?id=30
-MIRRORS="http://centos.arcticnetwork.ca/$(get_current_distro_version)/os/$(get_current_distro_arch)|centos-os
-         http://centos.arcticnetwork.ca/$(get_current_distro_version)/updates/$(get_current_distro_arch)|centos-updates
-         http://centos.fis.uniroma2.it/$(get_current_distro_version)/os/$(get_current_distro_arch)|centos-os
-         http://centos.fis.uniroma2.it/$(get_current_distro_version)/updates/$(get_current_distro_arch)|centos-updates"
+MIRRORS="http://centos.arcticnetwork.ca/$distro_version/os/$distro_arch|centos-os
+         http://centos.arcticnetwork.ca/$distro_version/updates/$distro_arch|centos-updates
+         http://centos.fis.uniroma2.it/$distro_version/os/$distro_arch|centos-os
+         http://centos.fis.uniroma2.it/$distro_version/updates/$distro_arch|centos-updates"

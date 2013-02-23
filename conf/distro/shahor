@@ -1,5 +1,5 @@
 # repositories - package list URL|repository name
-REPOSITORIES="http://shahor.dimakrasner.com/$(get_current_distro_version)/packages.txt|shahor-main"
+REPOSITORIES="http://shahor.dimakrasner.com/$distro_version/packages.txt|shahor-main"
 
 # package download mirrors
-MIRRORS="http://shahor.dimakrasner.com/$(get_current_distro_version)|shahor-main"
+MIRRORS="http://shahor.dimakrasner.com/$distro_version|shahor-main"

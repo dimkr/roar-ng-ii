@@ -1,7 +1,7 @@
 # repositories - package list URL|repository name
-REPOSITORIES="http://archive.raspbian.org/raspbian/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|raspbian-main
-              http://archive.raspbian.org/raspbian/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|raspbian-contrib
-              http://archive.raspbian.org/raspbian/dists/$(get_current_distro_version)/main/binary-$(get_current_distro_arch)/Packages.bz2|raspbian-non_free"
+REPOSITORIES="http://archive.raspbian.org/raspbian/dists/$distro_version/main/binary-$distro_arch/Packages.bz2|raspbian-main
+              http://archive.raspbian.org/raspbian/dists/$distro_version/main/binary-$distro_arch/Packages.bz2|raspbian-contrib
+              http://archive.raspbian.org/raspbian/dists/$distro_version/main/binary-$distro_arch/Packages.bz2|raspbian-non_free"
 
 # package download mirrors
 MIRRORS="http://archive.raspbian.org/raspbian|raspbian-main,raspbian-contrib,raspbian-non_free"

@@ -34,7 +34,23 @@ shahor_download_package_list() {
 # input  : the package list path and the repository name
 # output : a package list in roar-ng's format
 shahor_convert_package_list() {
-	cat "$1"
+	awk -v repo="$2" \
+	    -F \| '
+	    {
+	    	# leave all fields untouched, except the repository
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	       $1,
+	    	       $2,
+	    	       $3,
+	    	       $4,
+	    	       $5,
+	    	       $6,
+	    	       $7,
+	    	       $8,
+	    	       repo,
+	    	       $10,
+	    	       $11)
+	    }' "$1"
 }
 
 # shahor_extract_package()

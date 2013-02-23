@@ -1,7 +1,7 @@
 # repositories - package list URL|repository name
-REPOSITORIES="http://www.connochaetos.org/os/$(get_current_distro_arch)/connos/connos.db.tar.gz|connochaetos-connos
-              http://www.connochaetos.org/os/$(get_current_distro_arch)/connos-extra/connos-extra.db.tar.gz|connochaetos-connos_extra"
+REPOSITORIES="http://www.connochaetos.org/os/$distro_arch/connos/connos.db.tar.gz|connochaetos-connos
+              http://www.connochaetos.org/os/$distro_arch/connos-extra/connos-extra.db.tar.gz|connochaetos-connos_extra"
 
 # package download mirrors
-MIRRORS="http://www.connochaetos.org/os/$(get_current_distro_arch)/connos|connochaetos-connos
-         http://www.connochaetos.org/os/$(get_current_distro_arch)/connos-extra|connochaetos-connos_extra"
+MIRRORS="http://www.connochaetos.org/os/$distro_arch/connos|connochaetos-connos
+         http://www.connochaetos.org/os/$distro_arch/connos-extra|connochaetos-connos_extra"

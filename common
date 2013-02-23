@@ -75,9 +75,9 @@ MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 512K -no-exports"
 ###########
 
 # the current distribution
-current_distro=""
-current_distro_version=""
-current_distro_arch=""
+distro_name=""
+distro_version=""
+distro_arch=""
 
 #####################
 # utility functions #
@@ -316,30 +316,6 @@ print_error() {
 # distribution switching routines #
 ###################################
 
-# get_current_distro()
-# purpose: returns the current distribution's name
-# input  : -
-# output : the current distribution's name
-get_current_distro() {
-	echo "$current_distro"
-}
-
-# get_current_distro_version()
-# purpose: returns the current distribution's version
-# input  : -
-# output : the current distribution's version
-get_current_distro_version() {
-	echo "$current_distro_version"
-}
-
-# get_current_distro_arch()
-# purpose: returns the current distribution's architecture
-# input  : -
-# output : the current distribution's architecture
-get_current_distro_arch() {
-	echo "$current_distro_arch"
-}
-
 # _load_distro_support_plug_in()
 # purpose: loads a distribution support plug-in
 # input  : the distribution name
@@ -359,24 +335,24 @@ _load_distro_support_plug_in() {
 # output : -
 set_current_distro() {
 	# if this is the same distribution as the current one, do nothing
-	[ "$1" = "$current_distro" ] && return 0
+	[ "$1" = "$distro_name" ] && return 0
 
 	# set the current distribution name and version
-	current_distro="$1"
-	current_distro_version="$2"
+	distro_name="$1"
+	distro_version="$2"
 
 	# load the distribution support plug-in
-	_load_distro_support_plug_in "$current_distro"
+	_load_distro_support_plug_in "$distro_name"
 	[ 0 -ne $? ] && return 1
 
 	# set the distribution architecture to the most accurate alias
-	current_distro_arch="$($(get_current_distro)_get_architecture_aliases $3)"
-	[ -z "$current_distro_arch" ] && return 1
-	current_distro_arch="${current_distro_arch%% *}"
+	distro_arch="$(${distro_name}_get_architecture_aliases $3)"
+	[ -z "$distro_arch" ] && return 1
+	distro_arch="${distro_arch%% *}"
 
 	# reload the distribution's plugin, since it may rely on the set parameters
 	# (e.g the architecture, in package list URLs)
-	_load_distro_support_plug_in "$current_distro"
+	_load_distro_support_plug_in "$distro_name"
 
 	return 0
 }
@@ -406,13 +382,13 @@ get_repository_package_list() {
 
 	# download the package list
 	echo "Downloading the package list of $1"
-	$(get_current_distro)_download_package_list "$package_list_url" \
-	                                            "$package_list"
+	${distro_name}_download_package_list "$package_list_url" \
+	                                        "$package_list"
 	[ 0 -ne $? ] && return 1
 
 	# convert the package list to the common format
 	echo "Processing the package list of $1"
-	$(get_current_distro)_convert_package_list "$package_list" $1 >> "$2"
+	${distro_name}_convert_package_list "$package_list" $1 >> "$2"
 
 	# clean up
 	rm -f "$package_list"
@@ -493,7 +469,7 @@ extract_package_group() {
 	while read file_name
 	do
 		echo "Extracting ${file_name##*/}"
-		$(get_current_distro)_extract_package "$file_name" "$2" > /dev/null 2>&1
+		${distro_name}_extract_package "$file_name" "$2" > /dev/null 2>&1
 		[ 0 -ne $? ] && return 1
 	done
 
@@ -532,7 +508,7 @@ _get_package_entry() {
 	awk -v name="$2" \
 	    -v arch="$3" \
 	    -v repo="$4" \
-	    -v distro_version="$(get_current_distro_version)" \
+	    -v distro_version="$distro_version" \
 	    -v ignore_alternate_names="$5" \
 	    -F \| \
 	    '{
@@ -580,8 +556,7 @@ _get_package_entry() {
 # input  : a package name
 # output : the most appropriate entry for the package
 find_package() {
-	architectures="$($(get_current_distro)_get_architecture_aliases \
-	                                                $(get_current_distro_arch))"
+	architectures="$(${distro_name}_get_architecture_aliases $distro_arch)"
 
 	# first, try to find exact matches - if a package in the cache is found via
 	# an alternate name but there is a matching package with one name in the
