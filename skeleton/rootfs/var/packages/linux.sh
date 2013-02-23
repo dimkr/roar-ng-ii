@@ -49,7 +49,7 @@ package() {
 
 	# remove all generated module dependency files - depmod is able to
 	# generate them at boot-time
-	for i in $INSTALL_DIR/lib/modules/$PKG_MAJOR_VER/modules.*
+	for i in $INSTALL_DIR/lib/modules/$PKG_VER/modules.*
 	do
 		case "$i" in
 			*/modules.builtin|*/modules.order)
@@ -65,7 +65,7 @@ package() {
 	# sources directory, make them point to /$SOURCE_DIR/$PKG_NAME
 	for i in build source
 	do
-		path="$INSTALL_DIR/lib/modules/$PKG_MAJOR_VER/$i"
+		path="$INSTALL_DIR/lib/modules/$PKG_VER/$i"
 		rm -f "$path"
 		[ 0 -ne $? ] && return 1
 		ln -s ../../../$SOURCE_DIR/$PKG_NAME "$path"
