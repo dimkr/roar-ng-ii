@@ -525,13 +525,15 @@ extract_package_group() {
 # _get_package_entry()
 # purpose: locates package entries by name, architecture and repository
 # input  : the package database to search, the package name, architecture and
-#          repository
+#          repository and a flag which indicates whether to ignore alternate
+#          package names
 # output : matching package entries
 _get_package_entry() {
 	awk -v name="$2" \
 	    -v arch="$3" \
 	    -v repo="$4" \
 	    -v distro_version="$(get_current_distro_version)" \
+	    -v ignore_alternate_names="$5" \
 	    -F \| \
 	    '{
 	    	# check whether the package architecture, distribution version
@@ -562,9 +564,11 @@ _get_package_entry() {
 	    	} else {
 	    		# otherwise, return the first result, since there is no way to
 	    		# guess which entry is the most appropriate
-	    		for (package in last_entry) {
-	    			print last_entry[package];
-	    			break
+	    		if (0 == ignore_alternate_names) {
+	    			for (package in last_entry) {
+	    				print last_entry[package];
+	    				break
+	    			}
 	    		}
 	    	}
 	    }' "$1"
@@ -579,29 +583,38 @@ find_package() {
 	architectures="$($(get_current_distro)_get_architecture_aliases \
 	                                                $(get_current_distro_arch))"
 
-	# try each repository, using all matching architecture aliases
-	for database in "$PACKAGE_DB_CACHE_PATH" "$PACKAGE_DB_PATH"
+	# first, try to find exact matches - if a package in the cache is found via
+	# an alternate name but there is a matching package with one name in the
+	# package database, this will result in false positives
+	for ignore_alternate_names in 1 0
 	do
-		[ ! -f "$database" ] && continue
-		for repository in $REPOSITORIES
+		for database in "$PACKAGE_DB_CACHE_PATH" "$PACKAGE_DB_PATH"
 		do
+			# if the database does not exist, ignore it
+			[ ! -f "$database" ] && continue
+
+			# try each repository, using all matching architecture aliases
 			for architecture in $architectures
 			do
-				result="$(_get_package_entry "$database" \
-				                             $1 \
-				                             $architecture \
-				                             ${repository##*|})"
-				[ -z "$result" ] && continue
+				for repository in $REPOSITORIES
+				do
+					result="$(_get_package_entry "$database" \
+					                             $1 \
+					                             $architecture \
+					                             ${repository##*|} \
+					                             $ignore_alternate_names)"
+					[ -z "$result" ] && continue
 
-				# append the result to the search cache
-				if [ "$PACKAGE_DB_CACHE_PATH" != "$database" ]
-				then
-					echo "$result" >> "$PACKAGE_DB_CACHE_PATH"
-				fi
+					# append the result to the search cache
+					if [ "$PACKAGE_DB_CACHE_PATH" != "$database" ]
+					then
+						echo "$result" >> "$PACKAGE_DB_CACHE_PATH"
+					fi
 
-				# output the result and quit
-				echo "$result"
-				return
+					# output the result and quit
+					echo "$result"
+					return
+				done
 			done
 		done
 	done
