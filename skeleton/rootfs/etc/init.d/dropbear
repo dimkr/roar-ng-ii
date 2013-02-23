@@ -4,16 +4,20 @@
 
 case "$1" in
 	start)
-		echo -n "Starting Dropbear ..."
 
 		# generate the keys
 		for i in rsa dss
 		do
 			[ -f /etc/dropbear/dropbear_${i}_host_key ] && continue
-			dropbearkey -t $i -f /etc/dropbear/dropbear_${i}_host_key
+			echo -n "Generating dropbear_${i}_host_key ..."
+			dropbearkey -t $i \
+			            -f /etc/dropbear/dropbear_${i}_host_key > /dev/null 2>&1
 			chown nobody:nobody /etc/dropbear/dropbear_${i}_host_key
 			chmod 600 /etc/dropbear/dropbear_${i}_host_key
+			echo " done"
 		done
+
+		echo -n "Starting Dropbear ..."
 
 		# include the configuration file
 		. /etc/init.conf.d/dropbear
