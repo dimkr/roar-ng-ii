@@ -124,7 +124,15 @@ debian_convert_package_list() {
 # input  : a package path and the destination directory
 # output : -
 debian_extract_package() {
-	# get the files archive name
+	# if dpkg-deb is present, use it to extract the package
+	if [ -n "$(which dpkg-deb)" ]
+	then
+		dpkg-deb -x "$1" "$2"
+		[ 0 -ne $? ] && return 1
+		return 0
+	fi
+
+	# otherwise, use ar and tar - first, get the files archive name
 	files_tarball="$(ar t "$1" | grep $FILES_TARBALL_NAME)"
 	[ 0 -ne $? ] && return 1
 
