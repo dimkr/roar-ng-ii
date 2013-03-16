@@ -152,7 +152,7 @@ download_packages() {
 			package_entry="$(find_package $package)"
 			if [ -z "$package_entry" ]
 			then
-				echo "Error: failed to locate \"$package\" ($distribution)".
+				print_error "failed to locate \"$package\" ($distribution)"
 				return 1
 			fi
 
@@ -222,7 +222,7 @@ extract_packages() {
 			package_entry="$(find_package $package)"
 			if [ -z "$package_entry" ]
 			then
-				print_error "failed to find \"$package\" ($distribution)".
+				print_error "failed to find \"$package\" ($distribution)"
 				rm -f $package_paths
 				return 1
 			fi

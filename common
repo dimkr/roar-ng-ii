@@ -550,6 +550,35 @@ _get_package_entry() {
 	    }' "$1"
 }
 
+# _cache_package_entry()
+# purpose: adds a package entry to the cache of previous results
+# input  : a package entry
+# output : -
+_cache_package_entry() {
+	# if the cache does not exist already, initialize it
+	if [ ! -f "$PACKAGE_DB_CACHE_PATH" ]
+	then
+		echo "$1" > "$PACKAGE_DB_CACHE_PATH"
+		return 0
+	fi
+
+	# create a temporary file
+	temp_file="$(mktemp -u)"
+
+	# sort the existing cache and remove duplicate entries
+	sort "$PACKAGE_DB_CACHE_PATH" | uniq > $temp_file
+	[ 0 -ne $? ] && return 1
+
+	# append the package entry
+	echo "$1" >> $temp_file
+
+	# override the current cache with the new one
+	mv -f $temp_file "$PACKAGE_DB_CACHE_PATH"
+	[ 0 -ne $? ] && return 1
+
+	return 0
+}
+
 # find_package()
 # purpose: the interface for searching the package database; finds the most
 #          appropriate package entry
@@ -583,7 +612,8 @@ find_package() {
 					# append the result to the search cache
 					if [ "$PACKAGE_DB_CACHE_PATH" != "$database" ]
 					then
-						echo "$result" >> "$PACKAGE_DB_CACHE_PATH"
+						_cache_package_entry "$result"
+						[ 0 -ne $? ] && return 1
 					fi
 
 					# output the result and quit
