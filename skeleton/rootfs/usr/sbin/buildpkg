@@ -87,26 +87,32 @@ then
 	exit 1
 fi
 
-# if the package uses a generic license, create a symlink to it
-if [ "$CUSTOM_LICENSE" != "$PKG_LICENSE" ]
-then
+for license in $(echo "$PKG_LICENSE" | sed s/,/\ /g)
+do
+	# if this a custom license, do nothing - it's the build script's
+	# responsibility to install it
+	[ "$CUSTOM_LICENSE" = "$license" ] && continue
+
+	# if the legal information directory does not exist, create it
 	if [ ! -e "$INSTALL_DIR/$LEGAL_DIR/$PKG_NAME" ]
 	then
 		mkdir -p "$INSTALL_DIR/$LEGAL_DIR/$PKG_NAME"
 		if [ 0 -ne $? ]
 		then
-			print_error "failed to create the documentation directory"
+			print_error "failed to create the legal information directory"
 			exit 1
 		fi
 	fi
-	ln -s "/$COMMON_LICENSES_DIR/$PKG_LICENSE" \
-	      "$INSTALL_DIR/$LEGAL_DIR/$PKG_NAME"
+
+	# if this is a generic license, create a symlink to it
+	ln -s "/$COMMON_LICENSES_DIR/$license" \
+	   "$INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/$license"
 	if [ 0 -ne $? ]
 	then
-		print_error "failed to create a link to the license"
+		print_error "failed to create a link to $license"
 		exit 1
 	fi
-fi
+done
 
 # create the binary package; do not include the parent directory
 make_tarball_and_delete \
