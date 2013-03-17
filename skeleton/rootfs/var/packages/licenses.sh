@@ -10,44 +10,46 @@ PKG_LICENSE="custom"
 PKG_ARCH="noarch"
 
 # the package source files
-PKG_SRC="http://www.gnu.org/licenses/gpl-3.0.txt
-         http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
-         http://www.gnu.org/licenses/lgpl-3.0.txt
-         http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
-         http://www.gnu.org/licenses/old-licenses/lgpl-2.0.txt
-         http://www.gnu.org/licenses/fdl-1.3.txt
-         http://www.gnu.org/licenses/old-licenses/fdl-1.2.txt
-         http://www.gnu.org/licenses/old-licenses/fdl-1.1.txt
-         http://www.debian.org/misc/bsd.license
-         http://www.apache.org/licenses/LICENSE-2.0.txt
-         http://www.mozilla.org/MPL/2.0/index.txt"
+PKG_SRC=""
 
-# files to rename
-RENAME_RULES="bsd.license,bsd.txt
-              LICENSE-2.0.txt,apache-2.0.txt
-              index.txt,mpl-2.0.txt"
+# license files to download
+LICENSES="http://www.gnu.org/licenses/gpl-3.0.txt
+          http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+          http://www.gnu.org/licenses/lgpl-3.0.txt
+          http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
+          http://www.gnu.org/licenses/old-licenses/lgpl-2.0.txt
+          http://www.gnu.org/licenses/fdl-1.2.txt
+          http://www.gnu.org/licenses/fdl-1.3.txt
+          http://www.gnu.org/licenses/old-licenses/fdl-1.2.txt
+          http://www.gnu.org/licenses/old-licenses/fdl-1.1.txt
+          http://www.debian.org/misc/bsd.license,bsd.txt
+          http://www.apache.org/licenses/LICENSE-2.0.txt,apache-2.0.txt
+          http://www.mozilla.org/MPL/2.0/index.txt,mpl-2.0.txt"
+
 
 download() {
+	[ -f $PKG_NAME-$PKG_VER.tar.xz ] && return 0
+
 	# create a directory for all files
 	mkdir $PKG_NAME-$PKG_VER
 	[ 0 -ne $? ] && return 1
 
-	# move all files to the directory; rename those which have a non-descriptive
-	# name
-	for url in $PKG_SRC
+	# download all license files
+	for license in $LICENSES
 	do
-		file_name="${url##*/}"
-		target_name="$file_name"
-		for rule in $RENAME_RULES
-		do
-			if [ "${rule%,*}" = "$file_name" ]
-			then
-				target_name="${rule#*,}"
-				break
-			fi
-		done
+		case "$license" in
+			*,*)
+				file_name="${license#*,}"
+				url="${license%,*}"
+				;;
 
-		mv "$file_name" "$PKG_NAME-$PKG_VER/$target_name"
+			*)
+				file_name="${license##*/}"
+				url="$license"
+				;;
+		esac
+
+		download_file "$url" "$PKG_NAME-$PKG_VER/$file_name"
 		[ 0 -ne $? ] && return 1
 	done
 
