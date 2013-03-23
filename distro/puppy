@@ -68,7 +68,12 @@ puppy_convert_package_list() {
 	    	# remove the leading comma
 	    	sub(/^,/, "", dependencies);
 
-	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	# size is specified in KB - remove the trailing "K" and convert it
+	    	# to bytes
+	    	sub(/K$/, "", $6);
+	    	size = 1024 * $6
+
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
 	    	       $2,    # names, there is always one
 	    	       $3,    # version
 	    	       $4,    # revision, mostly empty
@@ -81,7 +86,8 @@ puppy_convert_package_list() {
 	    	       distro,
 	    	       distro_version,
 	    	       repo,
-	    	       dependencies)
+	    	       dependencies,
+	    	       size)
 	    }' "$1"
 }
 

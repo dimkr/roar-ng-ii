@@ -54,7 +54,7 @@ arch_convert_package_list() {
 	    -v repo="$2" '
 
 	    function print_entry() {
-	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
 	    	       names,
 	    	       version,
 	    	       revision,
@@ -64,7 +64,8 @@ arch_convert_package_list() {
 	    	       distro,
 	    	       distro_version,
 	    	       repo,
-	    	       dependencies);
+	    	       dependencies,
+	    	       size);
 	    }
 
 	    {
@@ -88,32 +89,36 @@ arch_convert_package_list() {
 	    				if ("%DESC%" == $1) {
 	    					getline description
 	    				} else {
-	    					if ("%ARCH%" == $1) {
-	    						getline architecture;
+	    					if ("%CSIZE%" == $1) {
+	    						getline size
 	    					} else {
-	    						if ("%DEPENDS%" == $1) {
-	    							getline dependency;
-	    							do {
-	    								sub(/[<>=].*/, "", dependency);
-	    								dependencies = \
-	    								            (dependencies","dependency);
-	    								getline dependency;
-	    							} while ("" != dependency);
-
-	    							# remove the leading comma
-	    							sub(/^,/, "", dependencies);
+	    						if ("%ARCH%" == $1) {
+	    							getline architecture;
 	    						} else {
-	    							if ("%PROVIDES%" == $1) {
-	    								getline name;
+	    							if ("%DEPENDS%" == $1) {
+	    								getline dependency;
 	    								do {
-	    									sub(/[<>=].*/, "", name);
-	    									names = names","name;
-	    									getline name;
-	    								} while ("" != name);
+	    									sub(/[<>=].*/, "", dependency);
+	    									dependencies = \
+	    									        (dependencies","dependency);
+	    									getline dependency;
+	    								} while ("" != dependency);
+
+	    								# remove the leading comma
+	    								sub(/^,/, "", dependencies);
 	    							} else {
-	    								if ("PACKAGE_END" == $1) {
-	    									print_entry();
-	    									file_name = ""
+	    								if ("%PROVIDES%" == $1) {
+	    									getline name;
+	    									do {
+	    										sub(/[<>=].*/, "", name);
+	    										names = names","name;
+	    										getline name;
+	    									} while ("" != name);
+	    								} else {
+	    									if ("PACKAGE_END" == $1) {
+	    										print_entry();
+	    										file_name = ""
+	    									}
 	    								}
 	    							}
 	    						}

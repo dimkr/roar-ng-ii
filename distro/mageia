@@ -51,55 +51,60 @@ mageia_convert_package_list() {
 	    			if ("summary" == $2) {
 	    				description = $3
 	    			} else {
-	    				if ("info" == $2) {
-	    					# the file name is this field, with the extension
-	    					file_name = ($3".rpm");
+	    				if ("filesize" == $2) {
+	    					size = $3
+	    				} else {
+	    					if ("info" == $2) {
+	    						# the file name is this field, with the extension
+	    						file_name = ($3".rpm");
 
-	    					# split the string by "-"
-	    					count = split($3, elements, "-");
+	    						# split the string by "-"
+	    						count = split($3, elements, "-");
 
-	    					# the revision and the architecture are stuffed in
-	    					# the last element
-	    					revision_and_architecture = elements[count];
+	    						# the revision and the architecture are stuffed in
+	    						# the last element
+	    						revision_and_architecture = elements[count];
 
-	    					# the version always comes before the revision
-	    					version = elements[count - 1];
+	    						# the version always comes before the revision
+	    						version = elements[count - 1];
 
-	    					# the name is the rest
-	    					name = elements[1];
+	    						# the name is the rest
+	    						name = elements[1];
 
-	    					# strip the architecture and actual revision
-	    					count = split(revision_and_architecture,
-	    					              elements,
-	    					              ".");
-	    					revision = elements[1];
-	    					architecture = elements[count];
+	    						# strip the architecture and actual revision
+	    						count = split(revision_and_architecture,
+	    									  elements,
+	    									  ".");
+	    						revision = elements[1];
+	    						architecture = elements[count];
 
 
-	    					# create the list of names: alternate names are
-	    					# placed after the package name
-	    					names = name;
-	    					for (i = 3; alternate_names_count >= i; ++i) {
-	    						sub(/\[.*/, "", alternate_names[i]);
-	    						if (name != alternate_names[i]) {
-	    							names = (names","alternate_names[i])
+	    						# create the list of names: alternate names are
+	    						# placed after the package name
+	    						names = name;
+	    						for (i = 3; alternate_names_count >= i; ++i) {
+	    							sub(/\[.*/, "", alternate_names[i]);
+	    							if (name != alternate_names[i]) {
+	    								names = (names","alternate_names[i])
+	    							}
 	    						}
+
+	    						# print the entry
+	    						printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    							   names,
+	    							   version,
+	    							   revision,
+	    							   architecture,
+	    							   file_name,
+	    							   description,
+	    							   distro,
+	    							   distro_version,
+	    							   repo,
+	    							   dependencies,
+	    							   size);
+
+	    						dependencies = ""
 	    					}
-
-	    					# print the entry
-	    					printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
-	    					       names,
-	    					       version,
-	    					       revision,
-	    					       architecture,
-	    					       file_name,
-	    					       description,
-	    					       distro,
-	    					       distro_version,
-	    					       repo,
-	    					       dependencies);
-
-	    					dependencies = ""
 	    				}
 	    			}
 	    		}

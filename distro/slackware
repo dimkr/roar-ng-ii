@@ -77,7 +77,7 @@ slackware_convert_package_list() {
 	    			package_name = package_name"-"name[i]
 	    		}
 	    		sub(/^-/, "", package_name)
-	    		printf("%s|%s|%s|%s|%s/%s|%s|%s|%s|%s|%s\n",
+	    		printf("%s|%s|%s|%s|%s/%s|%s|%s|%s|%s|%s|%s\n",
 	    		       package_name, # in Slackware, each package has one name
 	    		       version,
 	    		       revision,
@@ -88,7 +88,8 @@ slackware_convert_package_list() {
 	    		       distro,
 	    		       distro_version,
 	    		       repo,
-	    		       dependencies);
+	    		       dependencies,
+	    		       size);
 	    		package_name = "";
 	    		file_name = "";
 	    		dependencies = ""
@@ -103,30 +104,38 @@ slackware_convert_package_list() {
 	    			# trim and strip "./"
 	    			sub(/^\.\//, "", path)
 	    		} else {
-	    			if ($1 == "PACKAGE REQUIRED") {
-	    				# if there is an "or" relationship between two
-	    				# dependencies, pick the first
-	    				count = split(trim($2), dependencies_split, ",");
-	    				for (i = 1; count >= i; i++) {
-	    					sub(/[ \|].*/, "", dependencies_split[i]);
-	    					dependencies = (dependencies","dependencies_split[i])
-	    				}
+					if ($1 == "PACKAGE SIZE (compressed)") {
+						# convert the size from KB to bytes
+						size = trim($2);
+						sub(/ K/, "", size);
+						size = 1024 * size
+					} else {
+						if ($1 == "PACKAGE REQUIRED") {
+							# if there is an "or" relationship between two
+							# dependencies, pick the first
+							count = split(trim($2), dependencies_split, ",");
+							for (i = 1; count >= i; i++) {
+								sub(/[ \|].*/, "", dependencies_split[i]);
+								dependencies = \
+								          (dependencies","dependencies_split[i])
+							}
 
-	    				# remove the leading comma
-	    				sub(/^,/, "", dependencies);
-	    			} else {
-	    				if ($1 == "PACKAGE DESCRIPTION") {
-	    					getline description;
-	    					description = trim(description);
-	    					sub(/[^:]*: +/, "", description);
-	    				} else {
+							# remove the leading comma
+							sub(/^,/, "", dependencies);
+						} else {
+							if ($1 == "PACKAGE DESCRIPTION") {
+								getline description;
+								description = trim(description);
+								sub(/[^:]*: +/, "", description);
+							} else {
 
-	    					# when the empty line separator is
-	    					# reached, print the current entry
-	    					if ("" == $0 && "" != file_name) {
-	    						print_entry()
-	    					}
-	    				}
+								# when the empty line separator is reached,
+								# print the current entry
+								if ("" == $0 && "" != file_name) {
+									print_entry()
+								}
+							}
+						}
 	    			}
 	    		}
 	    	}

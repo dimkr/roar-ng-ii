@@ -60,6 +60,12 @@ HPM_DISTRO_LIST_PATH="etc/roar-ng/distro.list"
 # the mksquashfs flags
 MKSQUASHFS_OPTIONS="-comp xz -Xbcj x86 -b 512K -no-exports"
 
+# the number of bytes in 1 kilobyte
+BYTES_IN_KB=1024
+
+# the number of bytes in 1 megabyte
+BYTES_IN_MB=1048576
+
 ##################
 # initialization #
 ##################
@@ -645,6 +651,14 @@ _get_package_repository() {
 	echo "$1" | cut -f 9 -d \|
 }
 
+# get_package_size()
+# purpose: returns a package's size
+# input  : a package entry
+# output : the package size field
+get_package_size() {
+	echo "$1" | cut -f 11 -d \|
+}
+
 # download_package()
 # purpose: downloads a given package
 # input  : a package entry and the destination path
@@ -658,7 +672,7 @@ download_package() {
 
 	# initialize the list of download links
 	download_links=""
-	download_links_count=0
+	mirrors_count=0
 
 	# for each mirror of the package's repository, create a full URL
 	for mirror in $MIRRORS
@@ -671,11 +685,20 @@ download_package() {
 		do
 			[ "$repository" != "$package_repository" ] && continue
 			download_links="$download_links $mirror_url/$package_path"
-			download_links_count=$((1 + download_links_count))
+			mirrors_count=$((1 + mirrors_count))
 		done
 	done
 
-	echo "Downloading ${package_path##*/} ($download_links_count mirrors)"
+	# get the package size
+	size="$(get_package_size "$1")"
+	if [ $BYTES_IN_MB -le $size ]
+	then
+		size="$((size / $BYTES_IN_MB)) MB"
+	else
+		size="$((size / $BYTES_IN_KB)) KB"
+	fi
+
+	echo "Downloading ${package_path##*/} ($size, from $mirrors_count mirrors)"
 
 	# download the package
 	download_file "$download_links" "$2"
