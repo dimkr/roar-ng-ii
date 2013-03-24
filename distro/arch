@@ -54,7 +54,7 @@ arch_convert_package_list() {
 	    -v repo="$2" '
 
 	    function print_entry() {
-	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|\n",
 	    	       names,
 	    	       version,
 	    	       revision,

@@ -38,7 +38,7 @@ shahor_convert_package_list() {
 	    -F \| '
 	    {
 	    	# leave all fields untouched, except the repository
-	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    	printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
 	    	       $1,
 	    	       $2,
 	    	       $3,
@@ -50,7 +50,8 @@ shahor_convert_package_list() {
 	    	       repo,
 	    	       $10,
 	    	       $11,
-	    	       $12)
+	    	       $12,
+	    	       $13)
 	    }' "$1"
 }
 

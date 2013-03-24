@@ -55,14 +55,15 @@ mageia_convert_package_list() {
 	    					size = $3
 	    				} else {
 	    					if ("info" == $2) {
-	    						# the file name is this field, with the extension
+	    						# the file name is this field, with the
+	    						# extension
 	    						file_name = ($3".rpm");
 
 	    						# split the string by "-"
 	    						count = split($3, elements, "-");
 
-	    						# the revision and the architecture are stuffed in
-	    						# the last element
+	    						# the revision and the architecture are stuffed
+	    						# in the last element
 	    						revision_and_architecture = elements[count];
 
 	    						# the version always comes before the revision
@@ -78,7 +79,6 @@ mageia_convert_package_list() {
 	    						revision = elements[1];
 	    						architecture = elements[count];
 
-
 	    						# create the list of names: alternate names are
 	    						# placed after the package name
 	    						names = name;
@@ -89,8 +89,12 @@ mageia_convert_package_list() {
 	    							}
 	    						}
 
+	    						# the package category is also included in this
+	    						# field
+	    						category = $6
+
 	    						# print the entry
-	    						printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+	    						printf("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
 	    							   names,
 	    							   version,
 	    							   revision,
@@ -101,7 +105,8 @@ mageia_convert_package_list() {
 	    							   distro_version,
 	    							   repo,
 	    							   dependencies,
-	    							   size);
+	    							   size,
+	    							   category);
 
 	    						dependencies = ""
 	    					}
