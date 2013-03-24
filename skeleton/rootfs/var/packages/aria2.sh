@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PKG_NAME="aria2"
-PKG_VER="1.16.4"
+PKG_VER="1.16.5"
 PKG_REV="1"
 PKG_DESC="Multi-protoocol download tool"
 PKG_CAT="Internet"
