@@ -16,6 +16,7 @@ then
 	VAR_PREFIX="/var/roar-ng"
 	CONF_DIR="/etc/roar-ng"
 	CONFIGURATION_PATH="/$CONFIGURATION_INSTALL_PATH"
+	TMP_PREFIX="/tmp"
 else
 	# otherwise, if it doesn't exist, assume roar-ng runs from the sources
 	# directory
@@ -23,6 +24,7 @@ else
 	VAR_PREFIX="$INSTALL_PREFIX/sandbox"
 	CONF_DIR="$INSTALL_PREFIX/conf"
 	CONFIGURATION_PATH="$CONF_DIR/roar-ng.conf"
+	TMP_PREFIX="$INSTALL_PREFIX/tmp"
 fi
 
 # the current directory
@@ -66,12 +68,18 @@ BYTES_IN_KB=1024
 # the number of bytes in 1 megabyte
 BYTES_IN_MB=1048576
 
+# the file system root
+FILE_SYSTEM_ROOT="/"
+
 ##################
 # initialization #
 ##################
 
 # create the variable data directory
 [ ! -d "$VAR_PREFIX" ] && mkdir "$VAR_PREFIX"
+
+# create the temporary files
+[ ! -d "$TMP_PREFIX" ] && mkdir "$TMP_PREFIX"
 
 # include the roar-ng configuration file
 . "$CONFIGURATION_PATH"
@@ -128,15 +136,15 @@ download_file() {
 	else
 		# otherwise, use aria2
 		aria2c -d / \
-			   -o "$destination" \
-			   --file-allocation none \
-			   --max-connection-per-server 4 \
-			   --max-concurrent-downloads 4 \
-			   --min-split-size 1M \
-			   --split 4 \
-			   --check-certificate=false \
-			   --allow-overwrite=true \
-			   $1
+		       -o "$destination" \
+		       --file-allocation none \
+		       --max-connection-per-server 4 \
+		       --max-concurrent-downloads 4 \
+		       --min-split-size 1M \
+		       --split 4 \
+		       --check-certificate=false \
+		       --allow-overwrite=true \
+		       $1
 		if [ 0 -ne $? ]
 		then
 			rm -f "$destination"
@@ -462,6 +470,24 @@ update_package_database() {
 # package extraction #
 ######################
 
+# _apply_package_template()
+# purpose: applies a package template
+# input  : the extracted package name and the path containing its contents
+# output : -
+_apply_package_template() {
+	# if there is no template, do nothing
+	[ ! -e "$INSTALL_PREFIX/package-templates/$1" ] && return 0
+
+	# copy the package template into the extracted package directory
+	cp -ar "$INSTALL_PREFIX/package-templates/$1"/* "$2"
+	[ 0 -ne $? ] && return 1
+
+	# if a hacks script exists, run it
+	[ ! -f "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME" ] && return 0
+	execute_and_delete_script "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME"
+	return $?
+}
+
 # extract_package_group()
 # purpose: extracts a group of packages
 # input  : the package group name and the destination path
@@ -488,15 +514,7 @@ extract_package_group() {
 	done
 
 	# apply the package template, if there is any
-	[ ! -e "$INSTALL_PREFIX/package-templates/$1" ] && return 0
-
-	# copy the package template into the extracted package directory
-	cp -ar "$INSTALL_PREFIX/package-templates/$1"/* "$2"
-	[ 0 -ne $? ] && return 1
-
-	# if a hacks script exists, run it
-	[ ! -f "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME" ] && return 0
-	execute_and_delete_script "$2/$PACKAGE_TEMPLATE_HACKS_FILE_NAME"
+	_apply_package_template "$1" "$2"
 	return $?
 }
 
@@ -758,4 +776,60 @@ register_package() {
 	[ 0 -ne $? ] && return 1
 
 	return 0
+}
+
+# install_package()
+# purpose: installs a package, so it can be removed with hpm-remove later
+# input  : a unique name for the installed package and its path
+# output : -
+install_package() {
+	# create a temporary directory
+	temp_dir="$(mktemp -d)"
+
+	return_value=0
+
+	# extract the package
+	echo "Extracting $(basename "$2")"
+	${distro_name}_extract_package "$2" "$temp_dir" > /dev/null 2>&1
+	if [ 0 -eq $? ]
+	then
+		# apply the package template
+		_apply_package_template "$1" "$temp_dir"
+		if [ 0 -eq $? ]
+		then
+			# copy the package contents to the file system root
+			echo "Installing the package files"
+			cp -rf "$temp_dir"/* $FILE_SYSTEM_ROOT
+			if [ 0 -eq $? ]
+			then
+				# execute the post-installation script
+				if [ -f "/$POST_INSTALL_SCRIPT_FILE_NAME" ]
+				then
+					echo "Executing the post-installation script"
+					execute_and_delete_script "/$POST_INSTALL_SCRIPT_FILE_NAME"
+				fi
+				if [ 0 -eq $? ]
+				then
+					# register the package contents
+					echo "Registering the package"
+					register_package "$temp_dir" "$1" $FILE_SYSTEM_ROOT
+					return_value=$?
+				else
+					return_value=1
+				fi
+			else
+				return_value=1
+			fi
+		else
+			return_value=1
+		fi
+	else
+		return_value=1
+	fi
+
+	# clean up
+	rm -rf "$temp_dir"
+	[ 0 -ne $? ] && return 1
+
+	return $return_value
 }

@@ -1,65 +1,78 @@
 #!/bin/dash
 
-# /usr/sbin/hpm-install: a package installer
-# dependencies: dash, XZ Utils and roar-ng II
+# /usr/bin/hpm-install: a package fetching and installation script
+# dependencies: DASH and roar-ng II
 
 # the command-line usage message
-USAGE="hpm-install PACKAGE NAME
+USAGE="hpm-install NAME [distro version architecture]
 
-Install a software package."
-
-# check the command-line arguments
-if [ 2 -ne $# ] || [ ! -f "$1" ] || [ -z "$2" ]
-then
-	echo "$USAGE"
-	exit 1
-fi
+Fetch and install a single package."
 
 # include roar-ng's common functions file
 . /usr/share/roar-ng/common
 
+# check the command-line arguments
+case $# in
+	# if the distribution was not specified, pick the first distribution in the
+	# distribution list
+	1)
+		distro="$(head -n 1 /$HPM_DISTRO_LIST_PATH)"
+		;;
+
+	# otherwise, use the specified distribution
+	4)
+		distro="$2 $3 $4"
+		;;
+
+	*)
+		echo "$USAGE"
+		exit 1
+esac
+
 # make sure the package is not installed already
-if [ -f "/$PACKAGE_DATA_DIR/$2" ]
+if [ -f "/$PACKAGE_DATA_DIR/$1" ]
 then
 	print_error "the package is already installed"
 	exit 1
 fi
 
-# create a temporary directory for the package extraction
-temp_dir="$(mktemp -d)"
-
-# exctract the package to the temporary directory
-echo -n "Extracting the package ..."
-extract_tarball "$1" $temp_dir
+# set the current distribution
+set_current_distro $distro
 if [ 0 -ne $? ]
 then
-	rm -rf $temp_dir
-	print_error "failed to extract the package"
+	print_error "an invalid distribution was specified"
 	exit 1
 fi
+
+# find the package entry
+echo -n "Searching the package database ..."
+package_entry="$(find_package $1)"
 echo " done"
 
-# install the package files
-echo -n "Installing files ..."
-cp -rf $temp_dir/* /
-if [ 0 -ne $? ]
+# if the package was not found, end here
+if [ -z "$package_entry" ]
 then
-	rm -rf $temp_dir
-	print_error "failed to install the package files"
+	print_error "could not find the \"$1\" package"
 	exit 1
 fi
-echo " done"
 
-# run the post-install script
-if [ -f /$POST_INSTALL_SCRIPT_FILE_NAME ]
-then
-	execute_and_delete_script /$POST_INSTALL_SCRIPT_FILE_NAME
-	[ 0 -ne $? ] && exit 1
-fi
+# get the package file name
+file_name="$(get_package_path "$package_entry")"
+file_name="${file_name##*/}"
 
-# register the installed package, so it can be removed using hpm-remove
-echo -n "Registering the package ..."
-register_package $temp_dir $2
-echo " done"
+# create a temporary download path for the package
+download_path="/$TMP_PREFIX/$file_name"
+[ -e "$download_path" ] && download_path="$(mktemp -u)"
 
-rm -rf $temp_dir
+# download the package
+download_package "$package_entry" "$download_path"
+
+# install the package
+install_package "$1" "$download_path"
+exit_code=$?
+
+# delete the package
+rm -f "$package_path"
+[ 0 -ne $? ] && exit 1
+
+exit 0
