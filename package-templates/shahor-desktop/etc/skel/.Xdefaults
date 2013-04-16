@@ -1,0 +1,13 @@
+# ~/.Xdefaults: X client configuration
+
+# fonts
+Xft.antialias: true
+Xft.rgba: rgb
+Xft.hinting: true
+Xft.hintstyle: hintslight
+
+# rxvt-unicode
+URxvt.font: xft:DejaVu Sans Mono:size=12
+URxvt.background: #000000
+URxvt.foreground: #CCCCCC
+URxvt.saveLines: 4096

@@ -1,0 +1,16 @@
+#!/bin/dash
+
+# /etc/init.d/gdk-pixbuf: an init script for updating GDK-PixBuf's cache
+#                         of available image loaders
+
+[ "start" != "$1" ] && exit 0
+
+# update the cache of available image loaders - without this, the
+# library will fail to load any images
+echo -n "Updating the GDK-PixBuf loaders cache ..."
+gdk-pixbuf-query-loaders --update-cache
+success=$?
+echo " done"
+[ 0 -ne $success ] && exit 1
+
+exit 0

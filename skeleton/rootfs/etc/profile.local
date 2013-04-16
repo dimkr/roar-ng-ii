@@ -1,0 +1,14 @@
+# /etc/profile.local: customization of the interactive shell environment
+
+# the default text viewer
+export PAGER="/usr/bin/less"
+
+# the default text editor
+export EDITOR="vi"
+
+# the default web browser
+export BROWSER="elinks"
+
+# the system locale
+export LANG="en_US.UTF-8"
+export LC_ALL="$LANG"

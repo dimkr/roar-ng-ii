@@ -1,0 +1,4 @@
+# ~/.kb: keyboard settings
+
+# enabled keyboard layouts
+ENABLED_LAYOUTS="us"

@@ -1,0 +1,122 @@
+#!/bin/dash
+
+# /usr/bin/jwm_menu: a JWM root menu generator
+
+# the directories containing application .desktop files
+APPLICATION_DIRS="/usr/share/applications
+                  /usr/local/share/applications
+                  /opt/share/applications"
+
+# the output file path
+OUTPUT_PATH="$HOME/.config/jwm/menu"
+
+# the fallback for application entries without an icon
+FALLBACK_ICON="application.png"
+
+# the extension for icons
+ICON_EXTENSION=".png"
+
+# the JWM configuration file header
+HEADER='<JWM>
+	<RootMenu onroot="3" labeled="false" height="24">
+		<Menu icon="system-shutdown.png" label="Exit">
+			<Program label="Power off" icon="exit.png">jwm-poweroff</Program>
+			<Program label="Reboot" icon="reload.png">jwm-reboot</Program>
+		</Menu>
+		<Menu icon="gnome-settings.png" label="Settings">
+			<Menu icon="preferences-system-windows.png" label="Window Manager">
+				<Program label="Update Menu" icon="redo.png">jwm-menu-gen</Program>
+				<Restart label="Restart" icon="reload.png"/>
+				<Exit label="Exit" confirm="true" icon="exit.png"/>
+			</Menu>
+			<Program label="Theme Switcher" icon="preferences-desktop.png">gtk-theme-switch2</Program>
+		</Menu>
+		<Separator/>
+		<Menu icon="folder.png" label="Places">
+			<Program label="File System" icon="folder.png">rox-filer /</Program>
+			<Program label="Home Directory" icon="folder_home.png">rox-filer $HOME</Program>
+			<Program label="Downloads" icon="folder-download.png">rox-filer $HOME/Downloads</Program>
+			<Program label="Documents" icon="folder-documents.png">rox-filer $HOME/Documents</Program>
+			<Program label="Music" icon="folder-music.png">rox-filer $HOME/Music</Program>
+			<Program label="Pictures" icon="folder-pictures.png">rox-filer $HOME/Pictures</Program>
+			<Program label="Videos" icon="folder-videos.png">rox-filer $HOME/Videos</Program>
+		</Menu>
+		<Menu icon="folder.png" label="Applications">
+'
+
+# the JWM configuration file footer
+FOOTER='		</Menu>
+	</RootMenu>
+</JWM>'
+
+desktop_to_tag() {
+	awk -F \= \
+	      -v icon="$FALLBACK_ICON" \
+	      -v icon_extension="$ICON_EXTENSION" \
+	      -v in_terminal=0 \
+	    '{
+	    	# always skip the first line, which is the section header
+	    	if (1 == NR)
+	    		next;
+
+	    	# if the .desktop file has more sections, ignore them
+	    	if ((0 == index($0, "]=")) && (0 != index($0, "["))) {
+	    		print $0
+	    		exit
+	    	}
+
+	     	if ("Name" == $1) {
+	     		label = $2
+	     	} else {
+	     		if ("Exec" == $1) {
+	     			command_line = $2
+	     			sub(/\ \%[a-zA-Z]/, "", command_line)
+	     		} else {
+	     			if ("Icon" == $1) {
+	     				icon = $2
+	     				if (0 == index(icon, "."))
+	     					icon = icon icon_extension
+	     			} else {
+	    				if (("Terminal" == $1) && ("true" == tolower($2)))
+	    					in_terminal=1
+	    			}
+	     		}
+	     	}
+	    }
+
+	    END {
+	    	# if the application should be executed in a terminal emulator, wrap
+	    	# the command-line with the rxvt-unicode "-e" feature
+	    	if (1 == in_terminal) {
+	    		command_line = sprintf("urxvt -title \"%s\" -e \"%s\"",
+	    		                       label,
+	    		                       command_line)
+	    	}
+
+	     	printf("\t\t\t<Program icon=\"%s\" label=\"%s\">%s</Program>\n",
+	     	       icon,
+	     	       label,
+	     	       command_line)
+	    }' < "$1"
+}
+
+generate_menu() {
+	echo -n "$HEADER"
+
+	for directory in $APPLICATION_DIRS
+	do
+		[ ! -e "$directory" ] && continue
+
+		for application in $directory/*.desktop
+		do
+			desktop_to_tag "$application"
+		done
+	done | sort | uniq
+
+	echo -n "$FOOTER"
+}
+
+generate_menu > "$OUTPUT_PATH"
+
+# if JWM is running, reload the menu
+[ -n "$(pidof jwm)" ] && jwm -restart

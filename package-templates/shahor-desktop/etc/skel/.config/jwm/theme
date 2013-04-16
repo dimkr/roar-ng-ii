@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<JWM>
+	<WindowStyle>
+		<Width>4</Width>
+		<Height>18</Height>
+		<Font>Sans 8</Font>
+		<Active>
+			<Text>#000000</Text>
+			<Title>#F7F7F7:#DCDCDC</Title>
+			<Outline>#333333</Outline>
+			<Opacity>1.0</Opacity>
+		</Active>
+		<Inactive>
+			<Text>#000000</Text>
+			<Title>#DCDCDC</Title>
+			<Outline>#333333</Outline>
+			<Opacity>1.0</Opacity>
+		</Inactive>
+	</WindowStyle>
+	<TrayStyle>
+		<Font>Sans 8</Font>
+		<Background>#777777</Background>
+		<Foreground>#FFFFFF</Foreground>
+		<Opacity>1.0</Opacity>
+	</TrayStyle>
+	<TaskListStyle>
+		<Font>Sans 8</Font>
+		<ActiveForeground>#FFFFFF</ActiveForeground>
+		<ActiveBackground>#333333</ActiveBackground>
+		<Foreground>#000000</Foreground>
+		<Background>#CCCCCC</Background>
+	</TaskListStyle>
+	<PagerStyle>
+		<Outline>#333333</Outline>
+		<Text>#FFFFFF</Text>
+		<Foreground>#FFFFFF</Foreground>
+		<Background>#333333</Background>
+		<ActiveForeground>#000000</ActiveForeground>
+		<ActiveBackground>#CCCCCC</ActiveBackground>
+	</PagerStyle>
+	<MenuStyle>
+		<Font>Sans 8</Font>
+		<Foreground>#000000</Foreground>
+		<Background>#CCCCCC</Background>
+		<ActiveForeground>#FFFFFF</ActiveForeground>
+		<ActiveBackground>#333333</ActiveBackground>
+		<Opacity>1.0</Opacity>
+	</MenuStyle>
+	<PopupStyle>
+		<Font>Sans 8</Font>
+		<Outline>#333333</Outline>
+		<Foreground>#000000</Foreground>
+		<Background>#DCDCDC</Background>
+	</PopupStyle>
+</JWM>

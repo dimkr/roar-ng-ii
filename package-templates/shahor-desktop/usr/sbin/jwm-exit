@@ -1,0 +1,16 @@
+#!/bin/dash
+
+# /usr/sbin/jwm-exit: a script which stops JWM and waits for the X server to
+#                     terminate
+
+# the polling interval
+POLLING_INTERVAL=0.5
+
+# signal JWM to exit
+jwm -exit
+
+# wait until the X server shuts down
+while [ -n "$(pidof X)" ]
+do
+	sleep $POLLING_INTERVAL
+done

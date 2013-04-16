@@ -1,0 +1,9 @@
+#!/bin/dash
+
+# /usr/bin/doc: a documentation frontend
+
+# include the distribution details file
+. /etc/roar-ng/roar-ng.conf
+
+# run a browser
+exec urxvt -title Documentation -e elinks $DISTRO_HOMEPAGE

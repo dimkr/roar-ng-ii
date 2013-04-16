@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<JWM>
+	<!-- start a ROX-Filer session -->
+	<StartupCommand>rox-filer -S</StartupCommand>
+
+	<!-- start Parcellite -->
+	<StartupCommand>parcellite</StartupCommand>
+
+	<!-- start Obmixer -->
+	<StartupCommand>obmixer</StartupCommand>
+
+	<!-- prefetch gRun, to make it start faster -->
+	<StartupCommand>readahead /usr/bin/grun</StartupCommand>
+</JWM>

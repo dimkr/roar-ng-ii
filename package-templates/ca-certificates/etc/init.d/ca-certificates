@@ -1,0 +1,16 @@
+#!/bin/dash
+
+# /etc/init.d/ca-certificates: an init script for processing the CA 
+#                              certificates bundle
+
+[ "start" != "$1" ] && exit 0
+
+# update the CA certificates
+if [ ! -f /etc/ssl/certs/ca-certificates.crt ]
+then
+	echo -n "Updating CA certificates ..."
+	update-ca-certificates > /dev/null 2>&1
+	echo " done"
+fi
+
+exit 0

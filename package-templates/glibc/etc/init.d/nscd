@@ -1,0 +1,34 @@
+#!/bin/dash
+
+# /etc/init.d/nscd: an init script for nscd, the NSS cache daemon
+
+case "$1" in
+	start)
+		echo -n "Starting nscd ..."
+		[ ! -d /run/nscd ] && mkdir /run/nscd
+		nscd
+		success=$?
+		echo " done"
+		[ 0 -ne $success ] && exit 1
+
+		exit 0
+		;;
+
+	stop)
+		echo -n "Stopping nscd ..."
+		nscd -K
+		success=$?
+		echo " done"
+		exit $success
+		;;
+
+	restart)
+		"$0" stop
+		"$0" start
+		;;
+
+	*)
+		echo "nscd {start|stop|restart}"
+		exit 1
+		;;
+esac

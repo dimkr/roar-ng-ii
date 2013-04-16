@@ -1,0 +1,9 @@
+#!/bin/dash
+
+# /usr/sbin/jwm-reboot: a script for rebooting the system, from within JWM
+
+# stop JWM
+jwm-exit
+
+# reboot
+reboot

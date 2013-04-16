@@ -1,0 +1,12 @@
+#!/bin/dash
+
+# /etc/init.d/locale-gen: an init script for generating the locale 
+#                         archive
+
+[ "start" != "$1" ] && exit 0
+
+echo -n "Generating the locale archive ..."
+locale-gen
+echo " done"
+
+exit 0

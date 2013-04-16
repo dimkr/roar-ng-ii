@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<JWM>
+	<!-- include the startup applications configuration file -->
+	<Include>$HOME/.config/jwm/startup</Include>
+
+	<!-- include the theme configuration file -->
+	<Include>$HOME/.config/jwm/theme</Include>
+
+	<!-- include the tray configuration file -->
+	<Include>$HOME/.config/jwm/tray</Include>
+
+	<!-- include the icon search paths configuration file -->
+	<Include>$HOME/.config/jwm/icons</Include>
+
+	<!-- include the menu configuration file -->
+	<Include>$HOME/.config/jwm/menu</Include>
+
+	<!-- include the key bindings configuration file -->
+	<Include>$HOME/.config/jwm/keys</Include>
+
+	<!-- include the settings configuration file -->
+	<Include>$HOME/.config/jwm/settings</Include>
+</JWM>

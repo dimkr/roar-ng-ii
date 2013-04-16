@@ -287,18 +287,20 @@ _build_module() {
 		done
 	) | while read path
 	do
-		echo "  $path"
+		echo "$path"
 
 		# copy the contents of each directory to the destination
 		cp -L -a --remove-destination "$path"/* "$2"
 		[ 0 -ne $? ] && return 1
 
 		# if a post-installation script exists, merge it with the previous ones
-		[ ! -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME" ] && continue
-		cat "$2/$POST_INSTALL_SCRIPT_FILE_NAME" >> "$post_install"
-		echo >> "$post_install"
-		rm -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME"
-		[ 0 -ne $? ] && return 1
+		if [ -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME" ]
+		then
+			cat "$2/$POST_INSTALL_SCRIPT_FILE_NAME" >> "$post_install"
+			echo >> "$post_install"
+			rm -f "$2/$POST_INSTALL_SCRIPT_FILE_NAME"
+			[ 0 -ne $? ] && return 1
+		fi
 
 		# register the package with hpm, so it can be removed using hpm-remove
 		register_package "$path" "${path##*/}" "$2"
@@ -452,6 +454,19 @@ _build_rootfs() {
 	find "$1" -name .gitignore -type f -delete
 	[ 0 -ne $? ] && return 1
 
+	# for all members of each package group, create symlinks to the contents
+	# file so hpm-get knows each member is installed
+	get_package_list | while read entry
+	do
+		name="$(get_package_group_name "$entry")"
+		for member in $(get_package_group_members "$entry")
+		do
+			[ "$member" = "$name" ] && continue
+			ln -s "$name" "$1/$PACKAGE_DATA_DIR/$member"
+			[ 0 -ne $? ] && return 1
+		done
+	done
+
 	# create a Squashfs image
 	make_sfs "$1" "$2"
 	if [ 0 -ne $? ]
@@ -565,13 +580,16 @@ _clean_up_chroot() {
 # output : -
 _build_package() {
 	# create a temporary directory for the building operation
-	build_dir="$(mktemp -d -p "$1/$BUILD_PREFIX" "$2XXXXXX" | sed s~"$1"~~)"
+	build_dir="$(mktemp -d -p "$1/$BUILD_PREFIX" "$2XXXXXX" | sed s~"$1/"~~)"
 
 	# if the sources were downloaded already, copy them to the build directory
 	if [ -d "$VAR_PREFIX/source/$2" ]
 	then
-		cp -f "$VAR_PREFIX/source/$2"/* "$1/$build_dir"
-		[ 0 -ne $? ] && return 1
+		if [ -z "$(find "$VAR_PREFIX/source/$2" -maxdepth 0 -empty)" ]
+		then
+			cp -f "$VAR_PREFIX/source/$2"/* "$1/$build_dir"
+			[ 0 -ne $? ] && return 1
+		fi
 	else
 		mkdir -p "$VAR_PREFIX/source/$2"
 		[ 0 -ne $? ] && return 1
@@ -579,17 +597,38 @@ _build_package() {
 
 	# call buildpkg to download the package sources
 	chroot "$1" \
-	  bin/sh -c "cd $build_dir; /usr/sbin/buildpkg download /var/packages/$2.sh"
+	/bin/sh -c "cd /$build_dir; /usr/sbin/buildpkg \
+	                                 download \
+	                                 \$(find /var/packages -name $2.sh -type f)"
 	[ 0 -ne $? ] && return 1
 
 	# copy the sources to the sources directory, so they don't have to be
 	# downloaded again next time
-	cp -f "$1/$build_dir"/* "$VAR_PREFIX/source/$2"
-	[ 0 -ne $? ] && return 1
+	if [ -z "$(find "$1/$build_dir" -maxdepth 0 -empty)" ]
+	then
+		cp -f "$1/$build_dir"/* "$VAR_PREFIX/source/$2"
+		[ 0 -ne $? ] && return 1
+	fi
 
 	# build the package
 	chroot "$1" \
-	    /bin/sh -c "cd $build_dir; /usr/sbin/buildpkg build /var/packages/$2.sh"
+	    /bin/sh -c "cd $build_dir; /usr/sbin/buildpkg \
+	                                 build \
+	                                 \$(find /var/packages -name $2.sh -type f)"
+	[ 0 -ne $? ] && return 1
+
+	# if no package was created, report failure
+	[ -z "$(find "$1/$build_dir" -maxdepth 1 \
+	                             -name "*.$PACKAGE_FILE_NAME_EXTENSION")" ] && \
+		return 1
+
+	# copy the package to the binary packages directory
+	cp -f "$1/$build_dir"/*.$PACKAGE_FILE_NAME_EXTENSION "$VAR_PREFIX/package"
+	[ 0 -ne $? ] && return 1
+
+	# install the package within the chroot environment, using hpm
+	chroot "$1" \
+	       /bin/sh -c "hpm -i /$build_dir/*.$PACKAGE_FILE_NAME_EXTENSION $2"
 	[ 0 -ne $? ] && return 1
 
 	# if the package was already built, remove the old build
@@ -599,21 +638,8 @@ _build_package() {
 		[ 0 -ne $? ] && return 1
 	fi
 
-	# if the compilation succeeded, move the directory to the build results
-	# directory
+	# move the directory to the build results directory
 	mv "$1/$build_dir" "$1/$BUILD_RESULT_PREFIX/$2"
-	[ 0 -ne $? ] && return 1
-
-	# copy the package to the binary packages directory
-	cp -f "$1/$BUILD_RESULT_PREFIX/$2"/*.$PACKAGE_FILE_NAME_EXTENSION \
-	      "$VAR_PREFIX/package"
-	[ 0 -ne $? ] && return 1
-
-	# install the package within the chroot environment, using hpm
-	chroot \
-	 "$1" \
-	 /bin/sh \
-	 -c "hpm-install /$BUILD_RESULT_PREFIX/$2/*.$PACKAGE_FILE_NAME_EXTENSION $2"
 	[ 0 -ne $? ] && return 1
 
 	return 0
@@ -657,8 +683,9 @@ case "$1" in
 		[ 2 -ne $# ] && _show_usage
 
 		# make sure there is a build script for the specified package
-		[ ! -f "$INSTALL_PREFIX/skeleton/rootfs/var/packages/$2.sh" ] && \
-																 _show_usage
+		[ -z "$(find $INSTALL_PREFIX/skeleton/rootfs/var/packages \
+		             -name "$2.sh" \
+		             -type f)" ] && _show_usage
 
 		# prepare a chroot environment
 		_set_up_chroot "$VAR_PREFIX/rootfs"

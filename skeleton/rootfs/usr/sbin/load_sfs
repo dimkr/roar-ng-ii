@@ -31,3 +31,5 @@ then
 	print_error "failed to append the SFS extension to the layered file system"
 	exit 1
 fi
+
+exit 0

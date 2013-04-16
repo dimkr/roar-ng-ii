@@ -1,0 +1,19 @@
+#!/bin/dash
+
+# /usr/sbin/locale-gen: a locale file generation script
+
+# if "-f" was passed and the output file exists, delete it
+if [ "$1" = "-f" ]
+then
+	[ -e /usr/lib/locale/locale-archive ] && \
+	                                rm -f /usr/lib/locale/locale-archive
+else
+	# otherwise, just quit
+	[ -e /usr/lib/locale/locale-archive ] && exit 0
+fi
+
+grep -v ^# /etc/locales.conf | \
+while read lang charmap name
+do
+	localedef -i $lang -f $charmap $name
+done

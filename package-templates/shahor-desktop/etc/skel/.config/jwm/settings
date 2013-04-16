@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<JWM>
+	<!-- misc. settings -->
+	<DoubleClickSpeed>400</DoubleClickSpeed>
+	<DoubleClickDelta>2</DoubleClickDelta>
+	<FocusModel>click</FocusModel>
+	<SnapMode distance="15">border</SnapMode>
+	<MoveMode>outline</MoveMode>
+	<ResizeMode>outline</ResizeMode>
+
+	<!-- virtual desktops -->
+	<Desktops width="2" height="2">
+		<Background type="gradient">#777777:#444444</Background>
+		<Desktop name="A"></Desktop>
+		<Desktop name="B"></Desktop>
+		<Desktop name="C"></Desktop>
+		<Desktop name="D"></Desktop>
+	</Desktops>
+</JWM>

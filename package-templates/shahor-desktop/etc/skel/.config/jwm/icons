@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<JWM>
+	<!-- /usr/share/pixmaps -->
+	<IconPath>/usr/share/pixmaps</IconPath>
+
+	<!-- unsorted icons, /usr/share/icons/hicolor -->
+	<IconPath>/usr/share/icons/hicolor/scalable/apps</IconPath>
+	<IconPath>/usr/share/icons/hicolor/scalable/filesystems</IconPath>
+	<IconPath>/usr/share/icons/hicolor/48x48/apps</IconPath>
+	<IconPath>/usr/share/icons/hicolor/48x48/filesystems</IconPath>
+
+	<!-- GNOME -->
+	<IconPath>/usr/share/icons/gnome/scalable/apps</IconPath>
+	<IconPath>/usr/share/icons/gnome/scalable/places</IconPath>
+	<IconPath>/usr/share/icons/gnome/scalable/actions</IconPath>
+	<IconPath>/usr/share/icons/gnome/48x48/apps</IconPath>
+	<IconPath>/usr/share/icons/gnome/48x48/places</IconPath>
+	<IconPath>/usr/share/icons/gnome/48x48/actions</IconPath>
+	<IconPath>/usr/share/icons/gnome/48x48/categories</IconPath>
+</JWM>

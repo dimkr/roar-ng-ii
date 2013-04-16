@@ -5,14 +5,14 @@
 case "$1" in
 	start)
 		echo -n "Starting zram ..."
-	
+
 		# include the configuration file
 		. /etc/init.conf.d/zram
 
 		# load the zram kernel module
 		modprobe zram zram_num_devices=$DEVICE_COUNT
 		success=$?
-	
+
 		# set the size of each device and activate swap
 		if [ 0 -eq $success ]
 		then
@@ -42,7 +42,7 @@ case "$1" in
 
 	stop)
 		echo -n "Stopping zram ..."
-	
+
 		# include the configuration file
 		. /etc/init.conf.d/zram
 

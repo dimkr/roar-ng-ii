@@ -20,8 +20,8 @@ build_media_isolinux() {
 Welcome to $DISTRO_NAME!
 
 Available boot codes:
-- root (e.g root=sr0) - specifies the partition to boot from.
-- sleep (e.g sleep=5) - wait for a given number of seconds.
+- root (e.g root=sr0) - specifies the partition to boot from
+- sleep (e.g sleep=5) - wait for a given number of seconds
 - persistent          - run in persistent, non-live mode
 - copy                - run from RAM
 

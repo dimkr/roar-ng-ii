@@ -1,0 +1,29 @@
+#!/bin/dash
+
+# /usr/bin/kb_switch: a keyboard layout switching script
+
+# include the keyboard settings file
+. $HOME/.kbrc
+
+# get the current layout
+current_layout="$(setxkbmap -query | grep layout | awk '{print $2}')"
+
+# if the layout is one of the enabled ones, switch to the next one
+is_found=0
+for layout in $ENABLED_LAYOUTS
+do
+	if [ "$current_layout" = "$layout" ]
+	then
+		is_found=1
+		continue
+	else
+		if [ 1 -eq $is_found ]
+		then
+			setxkbmap "$layout"
+			exit 0
+		fi
+	fi
+done
+
+# otherwise, switch to the first one
+setxkbmap "${ENABLED_LAYOUTS%% *}"

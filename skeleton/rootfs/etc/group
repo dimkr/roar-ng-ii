@@ -14,5 +14,6 @@ video:x:12:
 scanner:x:13:
 users:x:14:
 mail:x:15:
+fuse:x:16:
 messagebus:x:503:messagebus
 nobody:x:504:nobody

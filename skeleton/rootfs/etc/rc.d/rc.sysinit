@@ -94,27 +94,11 @@ klogd
 syslogd -D -S
 echo " done"
 
-# start extra daemons
+# start extra daemons and perform other initialization steps
 for i in /etc/init.d/*
 do
 	[ -x $i ] && $i start
 done
-
-# generate the locale archive
-if [ ! -f /usr/lib/locale/locale-archive ]
-then
-	echo -n "Generating locales ..."
-	locale-gen > /dev/null 2>&1
-	echo " done"
-fi
-
-# update the CA certificates
-if [ ! -f /etc/ssl/certs/ca-certificates.crt ]
-then
-	echo -n "Updating CA certificates ..."
-	update-ca-certificates > /dev/null 2>&1
-	echo " done"
-fi
 
 # run the user's custom init script, if it exists
 [ -x /etc/rc.local ] && . /etc/rc.local

@@ -184,7 +184,12 @@ decompress_file() {
 			tool="xz"
 			;;
 		application/octet-stream)
-			tool="lzma"
+			if [ -n "$(which lzma)" ]
+			then
+				tool="lzma"
+			else
+				tool="xz"
+			fi
 			;;
 		*)
 			tool=""
@@ -677,6 +682,14 @@ get_package_size() {
 	echo "$1" | cut -f 11 -d \|
 }
 
+# get_package_dependencies()
+# purpose: returns a package's dependencies
+# input  : a package entry
+# output : the package dependencies field
+get_package_dependencies() {
+	echo "$1" | cut -f 10 -d \| | sed s/,/\ /g
+}
+
 # download_package()
 # purpose: downloads a given package
 # input  : a package entry and the destination path
@@ -760,6 +773,8 @@ make_sfs() {
 #          an installation prefix (optional)
 # output : -
 register_package() {
+	echo "Registering the \"$2\" package"
+
 	# if there is a post-removal script, keep it, so hpm-remove can run it once
 	# the package is removed
 	if [ -f "$3/$POST_REMOVAL_SCRIPT_FILE_NAME" ]
@@ -793,35 +808,46 @@ install_package() {
 	${distro_name}_extract_package "$2" "$temp_dir" > /dev/null 2>&1
 	if [ 0 -eq $? ]
 	then
-		# apply the package template
-		_apply_package_template "$1" "$temp_dir"
-		if [ 0 -eq $? ]
+		# remove directories and files which must not be present in the package
+		for path in $PACKAGE_CONTENTS_BLACKLIST
+		do
+			[ ! -e "$2/$path" ] && continue
+			rm -rf "$2/$path"
+			return_value=1
+			break
+		done
+		if [ 0 -eq $return_value ]
 		then
-			# copy the package contents to the file system root
-			echo "Installing the package files"
-			cp -rf "$temp_dir"/* $FILE_SYSTEM_ROOT
+			# apply the package template
+			_apply_package_template "$1" "$temp_dir"
 			if [ 0 -eq $? ]
 			then
-				# execute the post-installation script
-				if [ -f "/$POST_INSTALL_SCRIPT_FILE_NAME" ]
-				then
-					echo "Executing the post-installation script"
-					execute_and_delete_script "/$POST_INSTALL_SCRIPT_FILE_NAME"
-				fi
+				# copy the package contents to the file system root
+				echo "Installing the package files"
+				cp -rf "$temp_dir"/* $FILE_SYSTEM_ROOT
 				if [ 0 -eq $? ]
 				then
-					# register the package contents
-					echo "Registering the package"
-					register_package "$temp_dir" "$1" $FILE_SYSTEM_ROOT
-					return_value=$?
+					# execute the post-installation script
+					if [ -f "/$POST_INSTALL_SCRIPT_FILE_NAME" ]
+					then
+						echo "Executing the post-installation script"
+						execute_and_delete_script \
+						                       "/$POST_INSTALL_SCRIPT_FILE_NAME"
+					fi
+					if [ 0 -eq $? ]
+					then
+						# register the package contents
+						register_package "$temp_dir" "$1" $FILE_SYSTEM_ROOT
+						return_value=$?
+					else
+						return_value=1
+					fi
 				else
 					return_value=1
 				fi
 			else
 				return_value=1
 			fi
-		else
-			return_value=1
 		fi
 	else
 		return_value=1

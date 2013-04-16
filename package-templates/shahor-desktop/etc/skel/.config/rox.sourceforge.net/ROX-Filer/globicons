@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<special-files>
+  <rule match="/usr/bin/lxtask">
+    <icon>/usr/share/icons/gnome/48x48/apps/utilities-system-monitor.png</icon>
+  </rule>
+  <rule match="/usr/bin/deadbeef">
+    <icon>/usr/share/icons/hicolor/scalable/apps/deadbeef.svg</icon>
+  </rule>
+  <rule match="/usr/bin/geany">
+    <icon>/usr/share/icons/hicolor/scalable/apps/geany.svg</icon>
+  </rule>
+  <rule match="/usr/bin/xchat">
+    <icon>/usr/share/pixmaps/xchat.png</icon>
+  </rule>
+  <rule match="/usr/bin/doc">
+    <icon>/usr/share/icons/gnome/48x48/categories/system-help.png</icon>
+  </rule>
+</special-files>

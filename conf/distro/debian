@@ -7,7 +7,7 @@ REPOSITORIES="http://mirror.csclub.uwaterloo.ca/debian/dists/$distro_version-upd
               http://mirror.csclub.uwaterloo.ca/debian/dists/$distro_version/non-free/binary-$distro_arch/Packages.bz2|debian-non_free"
 
 # package download mirrors - more at http://www.debian.org/mirror/list
-MIRRORS="http://mirror.csclub.uwaterloo.ca/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
+MIRRORS="http://ftp.de.debian.org/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
+         http://ftp.fr.debian.org/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
          http://http.us.debian.org/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
-         http://debian.lcs.mit.edu/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree
-         http://ftp.iinet.net.au/debian/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree"
+         http://mirror.csclub.uwaterloo.ca/debian|debian-updates_main,debian-updates_contrib,debian-updates_nonfree,debian-main,debian-contrib,debian-nonfree"

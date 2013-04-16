@@ -33,6 +33,18 @@ esac
 # get the full build script path
 path=$(realpath "$2")
 
+# initialize the list of source files
+PKG_SRC=""
+
+# initialize optional build script functions
+download() {
+	return 0
+}
+
+build() {
+	return 0
+}
+
 # include the build script
 . "$path"
 

@@ -1,0 +1,145 @@
+#!/bin/dash
+
+# /usr/bin/hpm: a simple package installation and removal script
+# dependencies: DASH and roar-ng II
+
+# the command-line usage message
+USAGE="hpm -i PATH NAME [distro version architecture]
+Or: hpm -r NAME
+
+Install or remove a package."
+
+# include roar-ng's common functions file
+. /usr/share/roar-ng/common
+
+# check the command-line arguments; if the distribution was not specified, pick
+# the first distribution in the distribution list
+case "$1" in
+	-i)
+		case $# in
+			3)
+				distro="$(head -n 1 /$HPM_DISTRO_LIST_PATH)"
+				;;
+			6)
+				distro="$4 $5 $6"
+				;;
+			*)
+				echo "$USAGE"
+				exit 1
+				;;
+		esac
+
+		package_path="$2"
+		package_name="$3"
+		;;
+
+	-r)
+		case $# in
+			2)
+				distro="$(head -n 1 /$HPM_DISTRO_LIST_PATH)"
+				;;
+			*)
+				echo "$USAGE"
+				exit 1
+				;;
+		esac
+
+		package_name="$2"
+		;;
+
+	*)
+		echo "$USAGE"
+		exit 1
+		;;
+esac
+
+# set the current distribution
+set_current_distro $distro
+if [ 0 -ne $? ]
+then
+	print_error "an invalid distribution was specified"
+	exit 1
+fi
+
+case "$1" in
+	-i)
+		# make sure the package is not installed already
+		if [ -e "/$PACKAGE_DATA_DIR/$package_name" ]
+		then
+			echo "The package \"$package_name\" is already installed."
+			exit 2
+		fi
+
+		# install the package
+		install_package "$package_name" "$package_path"
+		if [ 0 -ne $? ]
+		then
+			print_error "Failed to install $(basename "$package_path")"
+			exit 1
+		fi
+		;;
+
+	-r)
+		# make sure the package is installed
+		if [ ! -e "/$PACKAGE_DATA_DIR/$package_name" ]
+		then
+			echo "The package \"$package_name\" is not installed."
+			exit 2
+		fi
+
+		# remove the package files
+		success=1
+		echo -n "Removing files ..."
+		tac "/$PACKAGE_DATA_DIR/$package_name" | while read i
+		do
+			if [ -f "$i" ]
+			then
+				rm -f "$i"
+				if [ 0 -ne $? ]
+				then
+					success=0
+					break
+				fi
+				continue
+			fi
+
+			if [ -d "$i" ]
+			then
+				rmdir "$i" 2>/dev/null
+				continue
+			fi
+		done
+
+		if [ 1 -ne $success ]
+		then
+			print_error "failed to remove the package files"
+			exit 1
+		fi
+		echo " done"
+
+		# run the post-removal script, if there is such
+		script_path=\
+		       "/$PACKAGE_DATA_DIR/$package_name-$POST_REMOVAL_SCRIPT_FILE_NAME"
+		if [ -f "$script_path" ]
+		then
+			chmod +x "$script_path"
+			base_dir="$(pwd)"
+			cd /
+			"$script_path"
+			cd "$base_dir"
+			rm -f "$script_path"
+		fi
+
+		# unregister the package
+		echo -n "Unregistering the package ..."
+		rm -f "/$PACKAGE_DATA_DIR/$package_name"
+		if [ 0 -ne $? ]
+		then
+			print_error "failed to unregister the package"
+			exit 1
+		fi
+		echo " done"
+		;;
+esac
+
+exit 0

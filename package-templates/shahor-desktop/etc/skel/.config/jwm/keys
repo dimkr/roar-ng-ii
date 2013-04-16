@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<JWM>
+	<Key key="Up">up</Key>
+	<Key key="Down">down</Key>
+	<Key key="Right">right</Key>
+	<Key key="Left">left</Key>
+	<Key key="h">left</Key>
+	<Key key="j">down</Key>
+	<Key key="k">up</Key>
+	<Key key="l">right</Key>
+	<Key key="Return">select</Key>
+	<Key key="Escape">escape</Key>
+
+	<Key mask="A" key="Tab">nextstacked</Key>
+	<Key mask="A" key="F4">close</Key>
+	<Key mask="A" key="#">desktop#</Key>
+	<Key mask="A" key="F1">root:3</Key>
+	<Key mask="A" key="F2">window</Key>
+	<Key mask="A" key="F10">maximize</Key>
+	<Key mask="A" key="Right">rdesktop</Key>
+	<Key mask="A" key="Left">ldesktop</Key>
+	<Key mask="A" key="Up">udesktop</Key>
+	<Key mask="A" key="Down">ddesktop</Key>
+
+	<!-- Super + d hides all windows -->
+	<Key mask="4" key="d">showdesktop</Key>
+
+	<!-- Super + up maximizes a window -->
+	<Key mask="4" key="Up">maximize</Key>
+
+	<!-- Super + down hides a window -->
+	<Key mask="4" key="Down">minimize</Key>
+
+	<!-- Super + k switches the keyboard layout -->
+	<Key mask="4" key="k">exec:kb_switch</Key>
+
+	<!-- PrintScreen runs rgbPaint -->
+	<Key key="Print">exec:rgbpaint -s</Key>
+
+	<!-- Super + h opens the home directory -->
+	<Key mask="4" key="h">exec:rox-filer $HOME</Key>
+
+	<!-- Super + r starts a launcher -->
+	<Key mask="4" key="r">exec:grun</Key>
+
+	<!-- CTRL + ALT + Escape runs LXTask -->
+	<Key mask="CS" key="Escape">exec:lxtask</Key>
+
+	<!-- Super + t and CTRL + ALT + ENTER start a terminal -->
+	<Key mask="4" key="t">exec:urxvt</Key>
+	<Key mask="CA" key="Return">exec:urxvt</Key>
+
+	<!-- Super + l locks the screen -->
+	<Key mask="4" key="l">exec:slock</Key>
+
+	<!-- Super + s suspends the machine -->
+	<Key mask="4" key="s">exec:frost -m</Key>
+	<Key key="XF86Sleep">exec:frost -m</Key>
+
+	<!-- Super + p makes DeaDBeeF pause playback -->
+	<Key mask="4" key="p">exec:deadbeef --toggle-pause</Key>
+
+	<!-- Super + n makes DeaDBeeF skip to the next track -->
+	<Key mask="4" key="n">exec:deadbeef --next</Key>
+
+	<!-- multimedia keys -->
+	<Key key="XF86AudioMute">exec:amixer set Master mute</Key>
+	<Key key="XF86AudioRaiseVolume">exec:amixer set Master 5%+ unmute</Key>
+	<Key key="XF86AudioLowerVolume">exec:amixer set Master 5%- unmute</Key>
+</JWM>

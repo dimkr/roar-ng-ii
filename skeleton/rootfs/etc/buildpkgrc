@@ -122,11 +122,23 @@ SOURCE_DIR="$BASE_INSTALL_PREFIX/src"
 # kernel image
 BOOT_DIR="boot"
 
+# the directory for device nodes
+DEV_DIR="dev"
+
+# the directory for udev rules
+UDEV_RULES_DIR="$LIB_DIR/udev/rules.d"
+
 # the directory for mail
 MAIL_DIR="$VAR_DIR/spool/mail"
 
 # the directory for cron jobs
 CRON_DIR="$VAR_DIR/spool/cron"
+
+# the directory for application .desktop files
+APPLICATIONS_DIR="$SHARE_DIR/applications"
+
+# the directory for application icons
+PIXMAPS_DIR="$SHARE_DIR/pixmaps"
 
 #####################
 # legal information #
