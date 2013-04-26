@@ -1,5 +1,5 @@
 PKG_NAME="msmtp"
-PKG_VER="1.4.30"
+PKG_VER="1.4.31"
 PKG_REV="1"
 PKG_DESC="SMTP client"
 PKG_CAT="Network"

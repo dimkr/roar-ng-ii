@@ -1,5 +1,5 @@
 PKG_NAME="fetchmail"
-PKG_VER="6.3.25"
+PKG_VER="6.3.26"
 PKG_REV="1"
 PKG_DESC="An e-mail retrieval and forwarding tool"
 PKG_CAT="Network"
