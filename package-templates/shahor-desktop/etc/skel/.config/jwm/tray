@@ -12,6 +12,6 @@
 		<Pager labeled="true"/>
 		<TaskList maxwidth="256"/>
 		<Dock/>
-		<Clock>urxvt -title Calcurse -e calcurse</Clock>
+		<Clock>gsimplecal</Clock>
 	</Tray>
 </JWM>

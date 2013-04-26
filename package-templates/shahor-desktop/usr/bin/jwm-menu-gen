@@ -54,16 +54,22 @@ desktop_to_tag() {
 	      -v icon="$FALLBACK_ICON" \
 	      -v icon_extension="$ICON_EXTENSION" \
 	      -v in_terminal=0 \
+	      -v sections_parsed=0 \
 	    '{
-	    	# always skip the first line, which is the section header
-	    	if (1 == NR)
+
+	    	# skip comments or empty lines
+	    	if (("" == $0) || match($0, "^#.*"))
 	    		next;
 
 	    	# if the .desktop file has more sections, ignore them
 	    	if ((0 == index($0, "]=")) && (0 != index($0, "["))) {
-	    		print $0
-	    		exit
+	    		sections_parsed += 1
+	    		if (2 == sections_parsed)
+	    			exit
 	    	}
+
+	    	# strip comments
+	    	sub(/#.*/, "", $2)
 
 	     	if ("Name" == $1) {
 	     		label = $2

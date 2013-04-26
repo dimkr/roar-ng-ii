@@ -54,7 +54,7 @@
   <Option name="vertical_order_small">0</Option>
   <Option name="display_sort_by">0</Option>
   <Option name="action_copy">1</Option>
-  <Option name="dnd_uri_handler">urxvtc -e wget $1</Option>
+  <Option name="dnd_uri_handler">urxvt -e wget $1</Option>
   <Option name="dnd_spring_delay">400</Option>
   <Option name="menu_iconsize">1</Option>
   <Option name="display_bdev_colour">#000000</Option>
