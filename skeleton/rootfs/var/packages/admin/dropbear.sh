@@ -1,5 +1,5 @@
 PKG_NAME="dropbear"
-PKG_VER="2013.57"
+PKG_VER="2013.58"
 PKG_REV="1"
 PKG_DESC="SSH2 server and client"
 PKG_CAT="Administration"

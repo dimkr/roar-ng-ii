@@ -1,6 +1,6 @@
 PKG_NAME="linux-headers"
 PKG_VER="3.2"
-PKG_REV="43"
+PKG_REV="44"
 PKG_DESC="API headers of the Linux kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="Development"
 PKG_DEPS="perl,linux-source"
