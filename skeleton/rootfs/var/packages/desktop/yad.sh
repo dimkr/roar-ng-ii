@@ -1,5 +1,5 @@
 PKG_NAME="yad"
-PKG_VER="0.19.1"
+PKG_VER="0.20.3"
 PKG_REV="1"
 PKG_DESC="A utility for graphical dialogs through shell scripts"
 PKG_CAT="Desktop"

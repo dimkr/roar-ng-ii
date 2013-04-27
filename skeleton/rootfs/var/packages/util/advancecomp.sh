@@ -1,10 +1,10 @@
 PKG_NAME="advancecomp"
-PKG_VER="1.15"
+PKG_VER="1.17"
 PKG_REV="1"
 PKG_DESC="Recompression utilities"
 PKG_CAT="Utilities"
-PKG_DEPS="zlib"
-PKG_LICENSE="gpl-2.0.txt"
+PKG_DEPS="zlib,bzip2"
+PKG_LICENSE="gpl-3.0.txt"
 
 # the package source files
 PKG_SRC="http://prdownloads.sourceforge.net/advancemame/$PKG_NAME-$PKG_VER.tar.gz"
@@ -16,12 +16,15 @@ build() {
 
 	cd $PKG_NAME-$PKG_VER
 
-	# generate a new configure script
-	autoconf
+	# fix two syntax errors that prevents the package from building with bzip2
+	# support
+	sed -e s~'(level != shrink_fast'~'(level.level != shrink_fast'~ \
+	    -e s~'switch (level)'~'switch (level.level)'~ \
+	    -i zipsh.cc
 	[ 0 -ne $? ] && return 1
 
 	# configure the package
-	./configure $AUTOTOOLS_BASE_OPTS
+	./configure $AUTOTOOLS_BASE_OPTS --enable-bzip2
 	[ 0 -ne $? ] && return 1
 
 	# build the package
@@ -34,6 +37,10 @@ build() {
 package() {
 	# install the package
 	make DESTDIR=$INSTALL_DIR install
+	[ 0 -ne $? ] && return 1
+
+	# install the README
+	install -D -m 644 README $INSTALL_DIR/$DOC_DIR/$PKG_NAME/README
 	[ 0 -ne $? ] && return 1
 
 	# install the list of authors
