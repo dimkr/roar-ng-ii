@@ -1,5 +1,16 @@
 # /etc/profile.local: customization of the interactive shell environment
 
+#########################
+# shell command aliases #
+#########################
+
+alias ls="ls --color"
+alias ll="ls -l -a"
+
+########################
+# default applications #
+########################
+
 # the default text viewer
 export PAGER="/usr/bin/less"
 
@@ -9,6 +20,10 @@ export EDITOR="vi"
 # the default web browser
 export BROWSER="elinks"
 
-# the system locale
+####################
+# language support #
+####################
+
+# the interface language
 export LANG="en_US.UTF-8"
 export LC_ALL="$LANG"
