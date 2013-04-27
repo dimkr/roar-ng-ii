@@ -3,7 +3,7 @@ PKG_VER="0.97.2"
 PKG_REV="1"
 PKG_DESC="A diagram creation program"
 PKG_CAT="Office"
-PKG_DEPS="gtk"
+PKG_DEPS="libxml2,cairo,gtk"
 PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files

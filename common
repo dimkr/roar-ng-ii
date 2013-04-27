@@ -221,23 +221,39 @@ decompress_file() {
 # input  : the archive path and a destination directory (optional)
 # output : -
 extract_tarball() {
-	# check whether the tar archive is compressed - if yes, decompress it
-	decompress_file "$1"
+	# copy the tarball to a temporary file
+	decompressed_tarball="$(mktemp -u)"
+
+	# copy the tarball
+	cp "$1" "$decompressed_tarball"
 	[ 0 -ne $? ] && return 1
 
-	# if no destination path was given, extract to the current directory
-	if [ -z "$2" ]
+	return_value=0
+
+	# check whether the tar archive is compressed - if yes, decompress it
+	decompress_file "$decompressed_tarball"
+	if [ 1 -eq $? ]
 	then
-		destination="."
+		return_value=1
 	else
-		destination="$2"
+		# if no destination path was given, extract to the current directory
+		if [ -z "$2" ]
+		then
+			destination="."
+		else
+			destination="$2"
+		fi
+
+		# extract the archive
+		tar -xf "$decompressed_tarball" -C "$destination"
+		[ 0 -ne $? ] && return_value=1
 	fi
 
-	# extract the archive
-	tar -xf "$1" -C "$destination"
+	# delete the decompressed tarball
+	rm -f "$decompressed_tarball"
 	[ 0 -ne $? ] && return 1
 
-	return 0
+	return $return_value
 }
 
 # execute_and_delete_script()
@@ -298,7 +314,7 @@ make_tarball() {
 
 	# create a compressed tarball from the directory
 	cd "$parent"
-	tar -c $contents | xz -e --best > "$(realpath "$2")"
+	tar -c $contents | xz -c -z -e --best > "$(realpath "$2")"
 	exit_code=$?
 	cd "$BASE_DIR"
 	[ 0 -ne $exit_code ] && return 1

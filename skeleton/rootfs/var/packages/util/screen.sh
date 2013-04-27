@@ -8,7 +8,7 @@ PKG_LICENSE="gpl-2.0.txt"
 
 # the package source files
 PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_VER.tar.gz
-         http://shahor.dimakrasner.com/1/source/screen/screen-4.0.3-longer-TERM.patch"
+         http://shahor.dimakrasner.com/3/source/screen/screen-4.0.3-longer-TERM.patch"
 
 build() {
 	# extract the sources tarball
