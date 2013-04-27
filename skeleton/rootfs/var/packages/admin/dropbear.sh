@@ -10,7 +10,7 @@ PKG_LICENSE="custom"
 PKG_SRC="http://matt.ucc.asn.au/dropbear/releases/$PKG_NAME-$PKG_VER.tar.bz2"
 
 # the programs to build
-PROGRAMS="dbclient dropbearkey"
+PROGRAMS="dropbear dbclient dropbearkey scp"
 
 build() {
 	# extract the sources
@@ -21,13 +21,23 @@ build() {
 
 	# configure the package
 	./configure $AUTOTOOLS_BASE_OPTS \
+	            --enable-zlib \
 	            --disable-pam \
+	            --enable-openpty \
 	            --enable-syslog \
-	            --disable-lastlog \
-	            --disable-utmp \
-	            --disable-utmpx \
-	            --disable-wtmp \
-	            --disable-wtmpx
+	            --enable-shadow \
+	            --enable-bundled-libtom \
+	            --enable-lastlog \
+	            --enable-utmp \
+	            --enable-utmpx \
+	            --enable-wtmp \
+	            --enable-wtmpx \
+	            --enable-loginfunc \
+	            --disable-pututline \
+	            --disable-pututxline \
+	            --with-zlib \
+	            --without-pam \
+	            --with-lastlog=/$LOG_DIR/lastlog
 	[ 0 -ne $? ] && return 1
 
 	# set the xauth path
@@ -40,12 +50,12 @@ build() {
 
 	# change Dropbear's banner, so it doesn't contain the SSH server name and
 	# version
-	sed -i s~'^#define LOCAL_IDENT .*'~'#define LOCAL_IDENT "SSH-2.0"'~ \
+	sed -i s~'^#define LOCAL_IDENT .*'~'#define LOCAL_IDENT "SSH-2.0-None"'~ \
 	       sysoptions.h
 	[ 0 -ne $? ] && return 1
 
 	# build the package
-	make -j $BUILD_THREADS PROGRAMS="dropbear $PROGRAMS" MULTI=1
+	make -j $BUILD_THREADS PROGRAMS="$PROGRAMS" MULTI=1
 	[ 0 -ne $? ] && return 1
 
 	return 0
@@ -63,12 +73,17 @@ package() {
 	# create symlinks to the multi-call binary
 	for i in $PROGRAMS ssh
 	do
+		[ "dropbear" = "$i" ] && continue
 		ln -s dropbear $INSTALL_DIR/$BIN_DIR/$i
 		[ 0 -ne $? ] && return 1
 	done
 
-	# install the man page
-	install -D -m 644 dbclient.1 $INSTALL_DIR/$MAN_DIR/man1/dhclient.1
+	# install the man pages
+	install -D -m 644 dropbear.8 $INSTALL_DIR/$MAN_DIR/man8/dropbear.8
+	[ 0 -ne $? ] && return 1
+	install -D -m 644 dbclient.1 $INSTALL_DIR/$MAN_DIR/man1/dbclient.1
+	[ 0 -ne $? ] && return 1
+	install -D -m 644 dropbearkey.8 $INSTALL_DIR/$MAN_DIR/man8/dropbearkey.8
 	[ 0 -ne $? ] && return 1
 
 	# install the license

@@ -67,6 +67,9 @@ CONF_DIR="etc"
 # the variable data directory
 VAR_DIR="var"
 
+# the logs directory
+LOG_DIR="$VAR_DIR/log"
+
 # the run-time information directory
 RUN_DIR="run"
 
