@@ -1,12 +1,5 @@
 # /etc/profile.local: customization of the interactive shell environment
 
-#########################
-# shell command aliases #
-#########################
-
-alias ls="ls --color"
-alias ll="ls -l -a"
-
 ########################
 # default applications #
 ########################
