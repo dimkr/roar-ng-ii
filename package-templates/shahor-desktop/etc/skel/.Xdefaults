@@ -6,6 +6,9 @@ Xft.rgba: rgb
 Xft.hinting: true
 Xft.hintstyle: hintslight
 
+# cursor
+Xcursor.theme: DMZ-White
+
 # rxvt-unicode
 URxvt.font: xft:DejaVu Sans Mono:size=12
 URxvt.background: #000000
