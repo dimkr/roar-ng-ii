@@ -1,0 +1,12 @@
+#!/bin/dash
+
+# /usr/bin/dropbear_git: a Dropbear wrapper for use as a Git SSH client
+
+# generate a key pair
+[ ! -d $HOME/.dropbear ] && mkdir $HOME/.dropbear
+[ ! -f $HOME/.dropbear/rsa_private ] && \
+                               dropbearkey -t rsa -f $HOME/.dropbear/rsa_private
+[ ! -f $HOME/.dropbear/rsa_public ] && \
+      dropbearkey -f $HOME/.dropbear/rsa_private -y > $HOME/.dropbear/rsa_public
+
+exec dbclient -i $HOME/.dropbear/rsa_private "$@"
