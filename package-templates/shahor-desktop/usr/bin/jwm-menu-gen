@@ -56,8 +56,7 @@ desktop_to_tag() {
 	      -v in_terminal=0 \
 	      -v sections_parsed=0 \
 	    '{
-
-	    	# skip comments or empty lines
+	    	# skip comments and empty lines
 	    	if (("" == $0) || match($0, "^#.*"))
 	    		next;
 

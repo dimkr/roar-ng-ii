@@ -70,7 +70,7 @@ optimize() {
 
 			image/png)
 					echo "$file (PNG image)"
-					optipng -o7 "$file"
+					optipng -force -o7 "$file"
 					advpng -z4 "$file"
 					;;
 
