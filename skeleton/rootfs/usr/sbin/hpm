@@ -118,8 +118,7 @@ case "$1" in
 		echo " done"
 
 		# run the post-removal script, if there is such
-		script_path=\
-		       "/$PACKAGE_DATA_DIR/$package_name-$POST_REMOVAL_SCRIPT_FILE_NAME"
+		script_path="/$PACKAGE_DATA_DIR/$package_name-$POST_REMOVAL_SCRIPT_FILE_NAME"
 		if [ -f "$script_path" ]
 		then
 			chmod +x "$script_path"
