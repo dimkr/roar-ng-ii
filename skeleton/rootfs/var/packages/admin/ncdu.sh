@@ -1,5 +1,5 @@
 PKG_NAME="ncdu"
-PKG_VER="1.9"
+PKG_VER="1.10"
 PKG_REV="1"
 PKG_DESC="Disk usage analyzer"
 PKG_CAT="Administration"

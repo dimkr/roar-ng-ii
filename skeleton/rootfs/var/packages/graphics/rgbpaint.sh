@@ -23,13 +23,13 @@ build() {
 	[ 0 -ne $? ] && return 1
 
 	# configure the package
-	ash configure cflags \
-	              --bindir=$INSTALL_DIR/$BIN_DIR \
-	              intl \
-	              --locale=$INSTALL_DIR/$LOCALE_DIR \
-	              man \
-	              --mandir=$INSTALL_DIR/$MAN_DIR/man1 \
-	              --prefix=$INSTALL_DIR/$BASE_INSTALL_PREFIX
+	./configure cflags \
+	            --bindir=$INSTALL_DIR/$BIN_DIR \
+	            intl \
+	            --locale=$INSTALL_DIR/$LOCALE_DIR \
+	            man \
+	            --mandir=$INSTALL_DIR/$MAN_DIR/man1 \
+	            --prefix=$INSTALL_DIR/$BASE_INSTALL_PREFIX
 	[ 0 -ne $? ] && return 1
 
 	# build the package

@@ -1,5 +1,5 @@
 PKG_NAME="galculator"
-PKG_VER="2.1"
+PKG_VER="2.1.2"
 PKG_REV="1"
 PKG_DESC="A scientific calculator"
 PKG_CAT="Utilities"

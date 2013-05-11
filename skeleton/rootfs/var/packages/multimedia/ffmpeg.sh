@@ -1,5 +1,5 @@
 PKG_NAME="ffmpeg"
-PKG_VER="1.2"
+PKG_VER="1.2.1"
 PKG_REV="1"
 PKG_DESC="Complete audio and video conversion, recording and streaming solution forked from FFmpeg"
 PKG_CAT="Multimedia"
