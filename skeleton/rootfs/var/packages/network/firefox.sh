@@ -1,5 +1,5 @@
 PKG_NAME="firefox"
-PKG_VER="20.0"
+PKG_VER="21.0"
 PKG_REV="1"
 PKG_DESC="A web browser"
 PKG_CAT="Network"
@@ -48,7 +48,7 @@ package() {
 	# create a link to the icon
 	mkdir -p $INSTALL_DIR/$PIXMAPS_DIR
 	[ 0 -ne $? ] && return 1
-	ln -s /$LIB_DIR/$PKG_NAME/chrome/icons/default/default48.png \
+	ln -s /$LIB_DIR/$PKG_NAME/browser/chrome/icons/default/default48.png \
 	      $INSTALL_DIR/$PIXMAPS_DIR/firefox.png
 	[ 0 -ne $? ] && return 1
 
