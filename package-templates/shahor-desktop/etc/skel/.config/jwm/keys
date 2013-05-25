@@ -17,6 +17,7 @@
 	<Key mask="A" key="F1">root:3</Key>
 	<Key mask="A" key="F2">window</Key>
 	<Key mask="A" key="F10">maximize</Key>
+	<Key mask="A" key="F11">fullscreen</Key>
 	<Key mask="A" key="Right">rdesktop</Key>
 	<Key mask="A" key="Left">ldesktop</Key>
 	<Key mask="A" key="Up">udesktop</Key>

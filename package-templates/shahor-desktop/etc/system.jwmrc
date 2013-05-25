@@ -20,4 +20,7 @@
 
 	<!-- include the settings configuration file -->
 	<Include>$HOME/.config/jwm/settings</Include>
+
+	<!-- include the customization configuration file -->
+	<Include>$HOME/.config/jwm/custom</Include>
 </JWM>
