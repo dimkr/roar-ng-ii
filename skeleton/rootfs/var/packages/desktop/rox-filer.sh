@@ -70,7 +70,7 @@ package() {
 	# create a symlink under $BIN_DIR
 	echo -n "#!/bin/dash
 args=\"\$@\"
-[ -z \"$args\" ] && args=\"~\"
+[ -z \"\$args\" ] && args=\"~\"
 /$LIB_DIR/$PKG_NAME/AppRun \"\$@\" &" > $INSTALL_DIR/$BIN_DIR/$PKG_NAME
 	[ 0 -ne $? ] && return 1
 	chmod 755 $INSTALL_DIR/$BIN_DIR/$PKG_NAME
