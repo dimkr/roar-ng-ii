@@ -1,9 +1,9 @@
 PKG_NAME="xine-lib"
-PKG_VER="1.2.2"
+PKG_VER="1.2.3"
 PKG_REV="1"
 PKG_DESC="A multimedia playback engine"
 PKG_CAT="Multimedia"
-PKG_DEPS="libogg,flac,libmad,xorg_base,ffmpeg"
+PKG_DEPS="libogg,flac,libmad,libjpeg,xorg_base,ffmpeg"
 PKG_LICENSE="gpl-2.0.txt,lgpl-2.0.txt"
 
 # the package source files
@@ -64,6 +64,7 @@ build() {
 	            --disable-a52dec \
 	            --disable-asf \
 	            --disable-gdkpixbuf \
+	            --enable-libjpeg \
 	            --disable-dts \
 	            --enable-mad \
 	            --disable-modplug \

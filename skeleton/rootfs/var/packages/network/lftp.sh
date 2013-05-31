@@ -1,5 +1,5 @@
 PKG_NAME="lftp"
-PKG_VER="4.4.7"
+PKG_VER="4.4.8"
 PKG_REV="1"
 PKG_DESC="FTP client"
 PKG_CAT="Network"

@@ -1,6 +1,6 @@
 PKG_NAME="linux-source"
 PKG_VER="3.2"
-PKG_REV="45"
+PKG_REV="46"
 PKG_DESC="Sources of the Linux kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="Development"
 PKG_DEPS="gawk"
