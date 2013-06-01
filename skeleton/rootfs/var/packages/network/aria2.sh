@@ -20,6 +20,8 @@ build() {
 	./configure $AUTOTOOLS_BASE_OPTS \
 	            --disable-bittorrent \
 	            --enable-metalink \
+	            --disable-libaria2 \
+	            --without-libuv \
 	            --with-gnutls \
 	            --without-libnettle \
 	            --without-libgmp \
@@ -30,6 +32,8 @@ build() {
 	            --with-libexpat \
 	            --without-libcares \
 	            --with-libz \
+	            --without-tcmalloc \
+	            --without-jemalloc \
 	            --with-bashcompletiondir=/$CONF_DIR/bash_completion.d
 	[ 0 -ne $? ] && return 1
 

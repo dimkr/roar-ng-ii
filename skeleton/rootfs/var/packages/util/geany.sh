@@ -1,5 +1,5 @@
 PKG_NAME="geany"
-PKG_VER="1.23"
+PKG_VER="1.23.1"
 PKG_REV="1"
 PKG_DESC="A text editor suitable for programming"
 PKG_CAT="Utilities"
