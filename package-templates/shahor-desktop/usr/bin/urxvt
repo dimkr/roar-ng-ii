@@ -1,11 +1,11 @@
 #!/bin/dash
 
-# /usr/bin/urxvt: a replacement for the standalone rxvt-unicode 
-#                 executable, which takes advantage of urxvtd and urxvtc
+# /usr/bin/urxvt: a replacement for the standalone rxvt-unicode executable,
+#                 which takes advantage of urxvtd and urxvtc
 
 # if the daemon is not running, run it - this will save resources when
 # another instance of rxvt-unicode is started
-[ -z "$(pidof urxvtd)" ] && urxvtd -q -o -f
+[ ! -e "$RXVT_SOCKET" ] && urxvtd -q -o -f
 
 # run the client
 exec urxvtc "$@"

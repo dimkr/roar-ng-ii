@@ -3,6 +3,9 @@
 	<!-- include the startup applications configuration file -->
 	<Include>$HOME/.config/jwm/startup</Include>
 
+	<!-- include the shutdown applications configuration file -->
+	<Include>$HOME/.config/jwm/shutdown</Include>
+
 	<!-- include the theme configuration file -->
 	<Include>$HOME/.config/jwm/theme</Include>
 

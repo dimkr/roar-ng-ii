@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<JWM>
+	<!-- delete the rxvt-unicode socket -->
+	<ShutdownCommand>rm -f $RXVT_SOCKET</ShutdownCommand>
+</JWM>
