@@ -1109,16 +1109,5 @@ package() {
 	chmod 4755 $INSTALL_DIR/$BIN_DIR/busybox
 	[ 0 -ne $? ] && return 1
 
-	# add /etc/busybox.conf
-	mkdir $INSTALL_DIR/etc
-	[ 0 -ne $? ] && return 1
-	cat << END > $INSTALL_DIR/etc/busybox.conf
-[SUID]
-su = ssx
-sulogin = ssx
-END
-	chmod 600 $INSTALL_DIR/etc/busybox.conf
-	[ 0 -ne $? ] && return 1
-
 	return 0
 }
