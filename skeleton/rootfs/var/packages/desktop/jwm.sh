@@ -36,6 +36,7 @@ build() {
 	# configure the package
 	./configure $AUTOTOOLS_BASE_OPTS \
 	            --enable-fribidi \
+	            --disable-shape \
 	            --disable-debug
 	[ 0 -ne $? ] && return 1
 
