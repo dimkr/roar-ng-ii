@@ -4,7 +4,7 @@ PKG_REV="2"
 PKG_DESC="A monospace, bitmap font"
 PKG_CAT="Artwork"
 PKG_DEPS=""
-PKG_LICENSE="custom"
+PKG_LICENSE="custom,gpl-2.0.txt"
 PKG_ARCH="noarch"
 
 # the package source files

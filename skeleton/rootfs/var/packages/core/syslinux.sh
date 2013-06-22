@@ -1,5 +1,5 @@
 PKG_NAME="syslinux"
-PKG_VER="5.01"
+PKG_VER="5.10"
 PKG_REV="1"
 PKG_DESC="Lightweight boot loaders"
 PKG_CAT="Core"

@@ -1,6 +1,6 @@
 PKG_NAME="linux-source"
 PKG_VER="3.2"
-PKG_REV="46"
+PKG_REV="47"
 PKG_DESC="Sources of the Linux kernel, with Linux-libre modifications and Aufs"
 PKG_CAT="Development"
 PKG_DEPS="gawk"
@@ -18,9 +18,9 @@ PKG_ARCH="noarch"
 #     with their constants
 PKG_SRC="http://www.kernel.org/pub/linux/kernel/v3.0/linux-$PKG_VER.tar.xz
          http://www.kernel.org/pub/linux/kernel/v3.0/patch-$PKG_VER.$PKG_REV.xz
-         http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER.$PKG_REV-gnu/deblob-$PKG_VER
-         http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER.$PKG_REV-gnu/deblob-check
-         http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER.$PKG_REV-gnu/linux-libre-$PKG_VER.$PKG_REV-gnu.log"
+         http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER.$PKG_REV-gnu1/deblob-$PKG_VER
+         http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER.$PKG_REV-gnu1/deblob-check
+         http://linux-libre.fsfla.org/pub/linux-libre/releases/$PKG_VER.$PKG_REV-gnu1/linux-libre-$PKG_VER.$PKG_REV-gnu1.log"
 
 # the Aufs tarball name
 AUFS_TARBALL_NAME="aufs3-$PKG_VER-git$(date +%d%m%Y)"
@@ -99,11 +99,11 @@ build() {
 	[ 0 -ne $? ] && return 1
 
 	# deblob the kernel; save the deblobbing script's output
-	(../deblob-$PKG_VER) 2>&1 | tee ../deblob.log
+	../deblob-$PKG_VER | tee ../deblob.log
 	[ 0 -ne $? ] && return 1
 
 	# make sure the deblobbing succeeded by comparing the logs
-	cmp ../deblob.log ../linux-libre-$PKG_VER.$PKG_REV-gnu.log
+	cmp ../deblob.log ../linux-libre-$PKG_VER.$PKG_REV-gnu1.log
 	[ 0 -ne $? ] && return 1
 
 	# reset the minor version number, so the package is backwards-compatible

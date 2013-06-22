@@ -41,5 +41,17 @@ package() {
 	make PREFIX=$INSTALL_DIR/usr install
 	[ 0 -ne $? ] && return 1
 
+	# install the README
+	install -D -m 644 README $INSTALL_DIR/$DOC_DIR/$PKG_NAME/AUTHORS
+	[ 0 -ne $? ] && return 1
+
+	# install the license
+	install -D -m 644 COPYING $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/COPYING
+	[ 0 -ne $? ] && return 1
+
+	# install the list of authors
+	install -D -m 644 AUTHORS $INSTALL_DIR/$LEGAL_DIR/$PKG_NAME/AUTHORS
+	[ 0 -ne $? ] && return 1
+
 	return 0
 }
