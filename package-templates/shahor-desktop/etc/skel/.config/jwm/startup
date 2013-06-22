@@ -3,6 +3,9 @@
 	<!-- start a ROX-Filer session -->
 	<StartupCommand>rox-filer -S</StartupCommand>
 
+	<!-- start the partition hotplugging monitor -->
+	<StartupCommand>part-hotplug-handler</StartupCommand>
+
 	<!-- start Parcellite -->
 	<StartupCommand>parcellite</StartupCommand>
 
@@ -11,4 +14,7 @@
 
 	<!-- prefetch gRun, to make it start faster -->
 	<StartupCommand>readahead /usr/bin/grun</StartupCommand>
+
+	<!-- delete the rxvt-unicode socket; otherwise, urxvtd won't start -->
+	<ShutdownCommand>rm -f $RXVT_SOCKET</ShutdownCommand>
 </JWM>
