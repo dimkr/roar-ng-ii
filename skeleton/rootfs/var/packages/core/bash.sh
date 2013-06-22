@@ -1,16 +1,16 @@
 PKG_NAME="bash"
 PKG_VER="4.2.045"
-PKG_REV="1"
+PKG_REV="2"
 PKG_DESC="A sh-compatible shell"
 PKG_CAT="Core"
 PKG_DEPS="ncurses"
 PKG_LICENSE="gpl-3.0.txt"
 
-# the package source files
-PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_MAJOR_VER.tar.gz"
-
 # the package major version
 PKG_MAJOR_VER="$(echo $PKG_VER | cut -f 1-2 -d .)"
+
+# the package source files
+PKG_SRC="http://ftp.gnu.org/gnu/$PKG_NAME/$PKG_NAME-$PKG_MAJOR_VER.tar.gz"
 
 # the patch version
 PKG_PATCH_VER="$(echo $PKG_VER | cut -f 3 -d .)"
@@ -65,18 +65,47 @@ build() {
 
 	# configure the package
 	./configure $AUTOTOOLS_BASE_OPTS \
+	            --disable-minimal-config \
+	            --enable-alias \
+	            --enable-arith-for-command \
+	            --enable-array-variables \
+	            --enable-bang-history \
+	            --enable-brace-expansion \
+	            --enable-casemod-attributes \
+	            --enable-casemod-expansions \
+	            --disable-command-timing \
+	            --enable-cond-command \
+	            --enable-cond-regexp \
+	            --disable-coprocesses \
 	            --disable-debugger \
+	            --enable-directory-stack \
+	            --disable-disabled-builtins \
+	            --enable-dparen-arithmetic \
+	            --enable-extended-glob \
+	            --disable-extended-glob-default \
 	            --disable-help-builtin \
+	            --enable-history \
+	            --enable-job-control \
 	            --enable-multibyte \
+	            --enable-net-redirections \
+	            --enable-process-substitution \
+	            --enable-progcomp \
+	            --enable-prompt-string-decoding \
+	            --disable-readline \
 	            --disable-restricted \
+	            --enable-select \
+	            --enable-separate-helpfiles \
 	            --enable-single-help-strings \
+	            --disable-strict-posix-default \
+	            --disable-xpg-echo-default \
 	            --disable-mem-scramble \
 	            --disable-profiling \
 	            --disable-static-link \
 	            --without-afs \
 	            --without-bash-malloc \
 	            --with-curses \
-	            --without-installed-readline
+	            --without-purecov \
+	            --without-purify
 	[ 0 -ne $? ] && return 1
 
 	# build the package
