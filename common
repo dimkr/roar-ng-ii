@@ -775,7 +775,7 @@ make_sfs() {
 	fi
 
 	# run mksquashfs
-	echo "Creating ${package_path##*/}"
+	echo "Creating $2"
 	mksquashfs "$1" "$2" $MKSQUASHFS_OPTIONS
 }
 
