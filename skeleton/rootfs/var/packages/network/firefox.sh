@@ -1,5 +1,5 @@
 PKG_NAME="firefox"
-PKG_VER="21.0"
+PKG_VER="22.0"
 PKG_REV="1"
 PKG_DESC="A web browser"
 PKG_CAT="Network"
