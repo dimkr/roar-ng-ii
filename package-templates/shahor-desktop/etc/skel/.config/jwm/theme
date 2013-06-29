@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <JWM>
 	<WindowStyle>
-		<Width>4</Width>
-		<Height>18</Height>
+		<Width>3</Width>
+		<Height>24</Height>
 		<Font>Sans 8</Font>
 		<Active>
-			<Text>#000000</Text>
-			<Title>#F7F7F7:#DCDCDC</Title>
-			<Outline>#333333</Outline>
+			<Text>#FFFFFF</Text>
+			<Title>#000000:#333333</Title>
+			<Outline>#000000</Outline>
 			<Opacity>1.0</Opacity>
 		</Active>
 		<Inactive>
 			<Text>#000000</Text>
-			<Title>#DCDCDC</Title>
-			<Outline>#333333</Outline>
+			<Title>#CCCCCC</Title>
+			<Outline>#000000</Outline>
 			<Opacity>1.0</Opacity>
 		</Inactive>
 	</WindowStyle>
@@ -23,27 +23,33 @@
 		<Foreground>#FFFFFF</Foreground>
 		<Opacity>1.0</Opacity>
 	</TrayStyle>
+	<TrayButtonStyle>
+		<Font>Sans 8</Font>
+		<ActiveForeground>#FFFFFF</ActiveForeground>
+		<ActiveBackground>#000000:#333333</ActiveBackground>
+		<Foreground>#000000</Foreground>
+		<Background>#CCCCCC</Background>
+	</TrayButtonStyle>
 	<TaskListStyle>
 		<Font>Sans 8</Font>
 		<ActiveForeground>#FFFFFF</ActiveForeground>
-		<ActiveBackground>#333333</ActiveBackground>
+		<ActiveBackground>#000000:#333333</ActiveBackground>
 		<Foreground>#000000</Foreground>
 		<Background>#CCCCCC</Background>
 	</TaskListStyle>
 	<PagerStyle>
 		<Outline>#333333</Outline>
-		<Text>#FFFFFF</Text>
 		<Foreground>#FFFFFF</Foreground>
 		<Background>#333333</Background>
-		<ActiveForeground>#000000</ActiveForeground>
-		<ActiveBackground>#CCCCCC</ActiveBackground>
+		<ActiveForeground>#FFFFFF</ActiveForeground>
+		<ActiveBackground>#000000</ActiveBackground>
 	</PagerStyle>
 	<MenuStyle>
 		<Font>Sans 8</Font>
 		<Foreground>#000000</Foreground>
 		<Background>#CCCCCC</Background>
 		<ActiveForeground>#FFFFFF</ActiveForeground>
-		<ActiveBackground>#333333</ActiveBackground>
+		<ActiveBackground>#000000:#333333</ActiveBackground>
 		<Opacity>1.0</Opacity>
 	</MenuStyle>
 	<PopupStyle>

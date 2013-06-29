@@ -65,47 +65,17 @@ build() {
 
 	# configure the package
 	./configure $AUTOTOOLS_BASE_OPTS \
-	            --disable-minimal-config \
-	            --enable-alias \
-	            --enable-arith-for-command \
-	            --enable-array-variables \
-	            --enable-bang-history \
-	            --enable-brace-expansion \
-	            --enable-casemod-attributes \
-	            --enable-casemod-expansions \
-	            --disable-command-timing \
-	            --enable-cond-command \
-	            --enable-cond-regexp \
-	            --disable-coprocesses \
 	            --disable-debugger \
-	            --enable-directory-stack \
-	            --disable-disabled-builtins \
-	            --enable-dparen-arithmetic \
-	            --enable-extended-glob \
-	            --disable-extended-glob-default \
 	            --disable-help-builtin \
-	            --enable-history \
-	            --enable-job-control \
 	            --enable-multibyte \
 	            --enable-net-redirections \
-	            --enable-process-substitution \
-	            --enable-progcomp \
-	            --enable-prompt-string-decoding \
 	            --disable-readline \
-	            --disable-restricted \
-	            --enable-select \
 	            --enable-separate-helpfiles \
 	            --enable-single-help-strings \
-	            --disable-strict-posix-default \
-	            --disable-xpg-echo-default \
-	            --disable-mem-scramble \
 	            --disable-profiling \
 	            --disable-static-link \
-	            --without-afs \
 	            --without-bash-malloc \
-	            --with-curses \
-	            --without-purecov \
-	            --without-purify
+	            --with-curses
 	[ 0 -ne $? ] && return 1
 
 	# build the package
