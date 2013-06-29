@@ -19,6 +19,7 @@ ICON_EXTENSION=".png"
 # the JWM configuration file header
 HEADER='<JWM>
 	<RootMenu onroot="3" labeled="false" height="24">
+		<Program label="Launcher" icon="system-run.png">grun</Program>
 		<Menu icon="system-shutdown.png" label="Exit">
 			<Program label="Power off" icon="exit.png">jwm-poweroff</Program>
 			<Program label="Reboot" icon="reload.png">jwm-reboot</Program>
