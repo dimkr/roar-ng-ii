@@ -6,3 +6,4 @@
 
 alias ls="ls --color"
 alias ll="ls -l -a"
+alias shuffle="sort -R"
